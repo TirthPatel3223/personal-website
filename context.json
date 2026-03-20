@@ -1,0 +1,56 @@
+{
+  "personal_info": {
+    "name": "Tirth",
+    "title": "Software Engineer & Developer",
+    "contact": {
+      "email": "tirth@example.com",
+      "linkedin": "https://linkedin.com/in/tirth",
+      "github": "https://github.com/tirth"
+    },
+    "summary": "I am a passionate software engineer focused on building intelligent web applications, AI integrations, and scalable architectures. I love solving complex problems and turning ideas into impactful digital experiences.",
+    "skills": [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Python",
+      "AI SDKs",
+      "Prompt Engineering"
+    ]
+  },
+  "work_experience": [
+    {
+      "company": "Tech Solutions Inc.",
+      "role": "Software Engineer",
+      "duration": "2023 - Present",
+      "description": "Developed high-performance web applications using React and Node.js. Integrated AI features that boosted user engagement by 40%."
+    }
+  ],
+  "projects": [
+    {
+      "id": "ai-portfolio",
+      "title": "AI-Powered Portfolio",
+      "short_description": "A smart portfolio website featuring an embedded LLM chatbot.",
+      "motivation": "I wanted a portfolio that didn't just passively list my top projects, but could actively talk to recruiters and answer their specific questions about my background using advanced AI.",
+      "achievements": [
+        "Implemented a custom RAG (Retrieval-Augmented Generation) pipeline using pure JSON datastores, bypassing complex Vector DB limitations.",
+        "Created an automatic multi-LLM fallback architecture, ensuring 99.9% uptime (falling back from OpenAI to Claude and Gemini)."
+      ],
+      "technical_details": "Built with Next.js App Router, Tailwind CSS, Vercel AI SDK, and OpenAI GPT-4o-mini API.",
+      "link": "/projects/ai-portfolio"
+    },
+    {
+      "id": "e-commerce-dashboard",
+      "title": "E-Commerce Analytics Dashboard",
+      "short_description": "A real-time data visualization dashboard for store owners.",
+      "motivation": "To help small business owners quickly grasp their daily metrics without sifting through complex spreadsheets.",
+      "achievements": [
+        "Rendered large datasets natively using WebGL for high framerates.",
+        "Integrated secure authentication and role-based access control."
+      ],
+      "technical_details": "React, TypeScript, Redux, Chart.js, and Firebase.",
+      "link": "/projects/e-commerce-dashboard"
+    }
+  ]
+}

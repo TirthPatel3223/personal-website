@@ -1,22 +1,22 @@
-# ✨ AI-Powered Personal Portfolio
+# AI-Powered Personal Portfolio
 
 Welcome to the repository for my personal portfolio! This website is a dynamic, high-performance web application built with modern web technologies, featuring an interactive AI chatbot that knows everything about my professional experience.
 
-## 🚀 Features
+## Features
 
 *   **Intelligent AI Chatbot:** An embedded RAG-style assistant powered by the **Vercel AI SDK** that answers questions about my background, skills, and projects in real-time.
 *   **Multi-LLM Fallback Architecture:** The API seamlessly attempts to use **OpenAI (GPT-4o)** for blazing-fast responses, automatically falling back to **Anthropic (Claude 3 Haiku)** or **Google (Gemini 1.5 Flash)** to guarantee high availability.
 *   **Centralized Knowledge Base:** All project data and professional experience is driven by a clean, static `context.json` file, eliminating the need for a complex external database while keeping SEO performance flawless.
 *   **Premium UI & Animations:** Designed with **Tailwind CSS** and animated with **Framer Motion** for a smooth, premium user experience perfectly optimized for mobile, tablet, and desktop viewing.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 *   **Framework:** [Next.js 15 (App Router)](https://nextjs.org/)
 *   **Language:** [TypeScript](https://www.typescriptlang.org/)
 *   **Styling & UI:** [Tailwind CSS v4](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/)
 *   **AI Integration:** Vercel AI SDK (`@ai-sdk/react`, `@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`)
 
-## 💻 Running Locally
+## Running Locally
 
 To run this project on your local machine, follow these steps:
 
@@ -46,7 +46,7 @@ To run this project on your local machine, follow these steps:
     ```
     Open [http://localhost:3000](http://localhost:3000) in your browser to see the portfolio!
 
-## 🚢 Deployment
+## Deployment
 
 This project is optimized for hassle-free deployment on [Vercel](https://vercel.com).
 1. Import your GitHub repository into Vercel.

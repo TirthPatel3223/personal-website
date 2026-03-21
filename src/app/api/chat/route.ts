@@ -3,18 +3,14 @@ import { streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { google } from '@ai-sdk/google';
-import fs from 'fs';
-import path from 'path';
+import contextDataRaw from '../../../../context.json';
+const contextData = JSON.stringify(contextDataRaw);
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
-
-    // 1. Load context.json database
-    const contextPath = path.join(process.cwd(), 'context.json');
-    const contextData = fs.readFileSync(contextPath, 'utf8');
 
     // 2. Setup System Prompt Guardrails
     const systemPrompt = `You are the AI assistant for Tirth's portfolio website. 

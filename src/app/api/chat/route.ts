@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { streamText } from 'ai';
+import { streamText, convertToModelMessages, UIMessage } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { google } from '@ai-sdk/google';
@@ -10,9 +9,10 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    // ai@6: the client sends UIMessage[], convert to CoreMessage[] for streamText
+    const { messages }: { messages: UIMessage[] } = await req.json();
+    const coreMessages = await convertToModelMessages(messages);
 
-    // 2. Setup System Prompt Guardrails
     const systemPrompt = `You are the AI assistant for Tirth's portfolio website. 
 Use the following JSON context to truthfully answer the user's questions about Tirth's experience, skills, and projects.
 Context: ${contextData}
@@ -22,36 +22,35 @@ Rules:
 2. Do not fabricate or invent information not present in the context.
 3. Keep responses concise, friendly, and formatted in markdown.`;
 
-    // 3. Configure Multi-LLM
-    const primaryModel = openai('gpt-4o-mini');
-    const fallback1Model = anthropic('claude-3-haiku-20240307');
-    const fallback2Model = google('gemini-1.5-flash');
+    const primaryModel = anthropic('claude-haiku-4-5');
+    const fallback1Model = google('gemini-2.0-flash');
+    const fallback2Model = openai('gpt-4o-mini');
 
-    // 4. Generate the stream with manual robust fallback
+    // ai@6: use toUIMessageStreamResponse() instead of toDataStreamResponse()
     try {
       const result = await streamText({
         model: primaryModel,
         system: systemPrompt,
-        messages,
+        messages: coreMessages,
       });
-      return result.toDataStreamResponse();
+      return result.toUIMessageStreamResponse();
     } catch (e1) {
-      console.warn("Primary model failed, trying fallback 1");
+      console.warn('Primary model failed, trying fallback 1', e1);
       try {
         const result2 = await streamText({
           model: fallback1Model,
           system: systemPrompt,
-          messages,
+          messages: coreMessages,
         });
-        return result2.toDataStreamResponse();
+        return result2.toUIMessageStreamResponse();
       } catch (e2) {
-        console.warn("Fallback 1 failed, trying fallback 2");
+        console.warn('Fallback 1 failed, trying fallback 2', e2);
         const result3 = await streamText({
           model: fallback2Model,
           system: systemPrompt,
-          messages,
+          messages: coreMessages,
         });
-        return result3.toDataStreamResponse();
+        return result3.toUIMessageStreamResponse();
       }
     }
   } catch (error) {

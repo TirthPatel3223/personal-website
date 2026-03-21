@@ -1,24 +1,52 @@
-// @ts-nocheck
-'use client';
-
+import ReactMarkdown from 'react-markdown';
 import { useState, useEffect, useRef } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { Send, Loader2, Sparkles, User, Bot, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Chat() {
+// ... existing code, skipping lines to the render area ...
+// (I will write the actual diff matching the file lines)
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    onError: (error) => {
+  const [input, setInput] = useState('');
+
+  // @ai-sdk/react v3 API: useChat returns sendMessage, messages, status
+  const { messages, sendMessage, status } = useChat({
+    onError: (error: Error) => {
       console.error(error);
       alert('Chat Error: ' + error.message);
-    }
+    },
   });
+
+  const isLoading = status === 'streaming' || status === 'submitted';
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleSubmit = (e?: React.FormEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
+    setInput('');
+    // Pass full UIMessage shape with parts[] array
+    sendMessage({
+      role: 'user',
+      parts: [{ type: 'text', text: trimmed }],
+    });
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Helper: extract displayable text from a UIMessage (v3 uses parts[])
+  const getMessageText = (m: { parts?: { type: string; text?: string }[]; content?: string }) => {
+    if (m.parts) {
+      return m.parts
+        .filter((p) => p.type === 'text')
+        .map((p) => p.text ?? '')
+        .join('');
+    }
+    return m.content ?? '';
+  };
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
@@ -80,7 +108,11 @@ export default function Chat() {
                         : 'bg-neutral-800 text-neutral-200 rounded-tl-sm'
                     }`}
                   >
-                    {m.content}
+                    <div className="prose prose-sm prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-neutral-800">
+                      <ReactMarkdown>
+                        {getMessageText(m)}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                   {m.role === 'user' && (
                     <div className="w-7 h-7 rounded-full bg-neutral-700 flex items-center justify-center text-neutral-300 shrink-0 mt-1">
@@ -108,13 +140,19 @@ export default function Chat() {
               <form onSubmit={handleSubmit} className="relative">
                 <input
                   value={input}
-                  onChange={handleInputChange}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
                   placeholder="Ask a question..."
                   className="w-full bg-neutral-800/50 text-neutral-100 placeholder:text-neutral-500 rounded-full py-3 pl-4 pr-12 outline-none focus:ring-2 focus:ring-teal-500/50 border border-neutral-700/50 text-sm transition-all"
                 />
                 <button
                   type="submit"
-                  disabled={isLoading || !input?.trim()}
+                  disabled={isLoading || !input.trim()}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-teal-500 hover:bg-teal-400 text-neutral-950 disabled:opacity-50 disabled:hover:bg-teal-500 transition-colors"
                 >
                   {isLoading ? (

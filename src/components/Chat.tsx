@@ -8,7 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Chat() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    onError: (error) => {
+      console.error(error);
+      alert('Chat Error: ' + error.message);
+    }
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

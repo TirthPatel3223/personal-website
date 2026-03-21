@@ -34,7 +34,7 @@ Rules:
         system: systemPrompt,
         messages,
       });
-      return result.toTextStreamResponse ? result.toTextStreamResponse() : result.toDataStreamResponse();
+      return result.toDataStreamResponse();
     } catch (e1) {
       console.warn("Primary model failed, trying fallback 1");
       try {
@@ -43,7 +43,7 @@ Rules:
           system: systemPrompt,
           messages,
         });
-        return result2.toTextStreamResponse ? result2.toTextStreamResponse() : result2.toDataStreamResponse();
+        return result2.toDataStreamResponse();
       } catch (e2) {
         console.warn("Fallback 1 failed, trying fallback 2");
         const result3 = await streamText({
@@ -51,7 +51,7 @@ Rules:
           system: systemPrompt,
           messages,
         });
-        return result3.toTextStreamResponse ? result3.toTextStreamResponse() : result3.toDataStreamResponse();
+        return result3.toDataStreamResponse();
       }
     }
   } catch (error) {

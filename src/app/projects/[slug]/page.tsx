@@ -37,8 +37,8 @@ export default async function ProjectPage({
       {/* ── HERO BANNER ─────────────────────────────────────────────── */}
       <div className="relative overflow-hidden border-b border-neutral-800">
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-950/60 via-neutral-950 to-neutral-950 pointer-events-none" />
-        <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-teal-500/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className={`absolute inset-0 bg-gradient-to-br ${isDataTech ? 'from-[#0a192f] via-neutral-950 to-neutral-950' : 'from-teal-950/60 via-neutral-950 to-neutral-950'} pointer-events-none`} />
+        <div className={`absolute top-0 left-1/3 w-[500px] h-[500px] ${isDataTech ? 'bg-[#1f77b4]/10' : 'bg-teal-500/8'} rounded-full blur-[120px] pointer-events-none`} />
 
         <div className="relative max-w-5xl mx-auto px-4 pt-10 pb-16">
           {/* Back link */}
@@ -70,7 +70,7 @@ export default async function ProjectPage({
             {project.tech_stack.map((tech) => (
               <span
                 key={tech}
-                className="text-sm bg-teal-500/10 text-teal-300 border border-teal-500/25 rounded-full px-4 py-1.5 font-medium"
+                className={`text-sm rounded-full px-4 py-1.5 font-medium border ${isDataTech ? 'bg-[#1f77b4]/10 text-[#4e9bb9] border-[#1f77b4]/25' : 'bg-teal-500/10 text-teal-300 border-teal-500/25'}`}
               >
                 {tech}
               </span>

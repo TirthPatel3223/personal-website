@@ -8,6 +8,7 @@ export interface ApproachStep {
 export interface ResultMetric {
   metric: string;
   value: string;
+  description?: string;
 }
 
 export interface ProjectDetail {
@@ -34,17 +35,18 @@ export interface Project {
 export const projects: Project[] = [
   {
     id: 'weather-dining-pipeline',
-    title: 'Weather & Dining Intelligence Pipeline',
+    title: 'Yelp & Weather Intelligence Pipeline',
     short_description:
-      'End-to-end data pipeline correlating weather patterns with restaurant sentiment and dining trends at scale.',
+      'End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 10M+ records to reveal statistically significant weather–dining correlations (r = −0.71).',
     motivation:
-      'To uncover hidden relationships between weather conditions and dining behavior using big data engineering and NLP, enabling actionable insights for restaurant operators.',
+      'Curious whether weather drives restaurant ratings and business patterns, I built a production-grade data pipeline ingesting the full Yelp Academic Dataset and OpenWeatherMap API, performing distributed ETL at scale, NLP sentiment scoring, and surfacing insights through an executive Tableau dashboard.',
     achievements: [
-      'Processed 10M+ records with distributed PySpark jobs on a multi-node cluster',
-      'Applied VADER NLP sentiment analysis to 500K+ restaurant reviews with 85%+ accuracy',
-      'Designed Snowflake data warehouse with optimized query performance (sub-5s on large tables)',
-      'Orchestrated automated ETL workflows using Apache Airflow with alerting on failure',
-      'Delivered executive-level Tableau dashboards revealing weather-revenue correlations',
+      'Processed 10M+ records with distributed PySpark jobs across a multi-node cluster',
+      'Applied VADER NLP sentiment analysis to 500K+ reviews achieving 85%+ accuracy',
+      'Designed a Snowflake star-schema data warehouse with sub-5-second query latency',
+      'Orchestrated automated daily ETL workflows via Apache Airflow with SLA alerting',
+      'Discovered strong inverse weather–dining correlation (r = −0.71) via Tableau dashboards',
+      'Published interactive executive Tableau dashboard on Tableau Public'
     ],
     tech_stack: ['PySpark', 'Snowflake', 'Airflow', 'Tableau', 'VADER NLP', 'Python'],
     technical_details: 'PySpark, Snowflake, Apache Airflow, Tableau, VADER NLP, Python',
@@ -52,7 +54,7 @@ export const projects: Project[] = [
     link: '/projects/weather-dining-pipeline',
     detail: {
       problem_statement:
-        'Restaurant operators and food-delivery platforms lack quantitative understanding of how weather affects customer demand, review sentiment, and revenue. Existing analytics are siloed — weather data lives in climate APIs while dining data lives in Yelp/review platforms. No unified pipeline connected these two worlds at scale, leaving operators unable to forecast demand shifts or explain revenue anomalies tied to weather events.',
+        'Does weather actually affect how people dine out and rate restaurants? To answer this at scale, I built a full data engineering pipeline ingesting the Yelp Academic Dataset (JSON/CSV) and live weather data from OpenWeatherMap, transforming and joining them in PySpark, warehousing in Snowflake, and orchestrating the pipeline with Airflow — culminating in a Tableau dashboard that reveals actionable weather–revenue correlations for restaurant operators.',
       approach: [
         {
           step: 'Data Ingestion',
@@ -87,9 +89,9 @@ export const projects: Project[] = [
       ],
       architecture: `
   ┌─────────────────────┐    ┌──────────────────────┐
-  │   Yelp Dataset      │    │  OpenWeatherMap API   │
-  │  (JSON / CSV bulk)  │    │  (REST, paginated)    │
-  └────────┬────────────┘    └──────────┬────────────┘
+  │   Yelp Dataset      │    │  OpenWeatherMap API  │
+  │  (JSON / CSV bulk)  │    │  (REST, paginated)   │
+  └────────┬────────────┘    └──────────┬───────────┘
            │                            │
            └──────────┬─────────────────┘
                       │  Raw data
@@ -126,9 +128,9 @@ export const projects: Project[] = [
         { metric: 'Snowflake Query Latency', value: '<5s' },
         { metric: 'Pipeline Runtime', value: '<4 hrs' },
         { metric: 'Weather-Dining Correlation', value: 'r = −0.71' },
-        { metric: 'Tableau Dashboards', value: '12 views' },
+        { metric: 'Tableau Dashboards', value: '12 views', description: 'Interactive executive dashboard with 12 visualizations — open directly in Tableau Public' },
       ],
-      github_url: 'https://github.com/tirth/weather-dining-pipeline',
+      github_url: 'https://github.com/TirthPatel3223/Yelp-Weather-Pipeline',
     },
   },
   {

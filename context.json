@@ -51,6 +51,32 @@
       ],
       "technical_details": "React, TypeScript, Redux, Chart.js, and Firebase.",
       "link": "/projects/e-commerce-dashboard"
+    },
+    {
+      "id": "weather-dining-pipeline",
+      "title": "Yelp & Weather Intelligence Pipeline",
+      "short_description": "End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 10M+ records.",
+      "motivation": "Built to discover whether weather statistically drives restaurant ratings and dining behavior at scale, using the full Yelp Academic Dataset and live weather API data.",
+      "tech_stack": ["PySpark", "Snowflake", "Apache Airflow", "Tableau", "VADER NLP", "Python", "OpenWeatherMap API"],
+      "achievements": [
+        "Processed 10M+ records with distributed PySpark ETL on a multi-node cluster",
+        "Applied VADER NLP sentiment analysis to 500K+ reviews with 85%+ accuracy",
+        "Designed Snowflake star-schema data warehouse with sub-5-second query latency",
+        "Orchestrated daily incremental ETL via Apache Airflow with SLA alerting",
+        "Discovered strong inverse weather–dining correlation (r = -0.71)",
+        "Published interactive Tableau executive dashboard on Tableau Public"
+      ],
+      "key_metrics": {
+        "correlation_coefficient": "r = -0.71 (weather vs. dining activity)",
+        "records_processed": "10M+",
+        "pipeline_runtime": "< 4 hours",
+        "query_latency": "< 5 seconds",
+        "sentiment_accuracy": "85%+"
+      },
+      "github_url": "https://github.com/TirthPatel3223/Yelp-Weather-Pipeline",
+      "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/MSBA_405/Dashboard",
+      "link": "/projects/weather-dining-pipeline",
+      "status": "complete"
     }
   ]
 }

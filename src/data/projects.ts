@@ -41,12 +41,11 @@ export const projects: Project[] = [
     motivation:
       'Curious whether weather drives restaurant ratings and business patterns, I built a production-grade data pipeline ingesting the full Yelp Academic Dataset and OpenWeatherMap API, performing distributed ETL at scale, NLP sentiment scoring, and surfacing insights through an executive Tableau dashboard.',
     achievements: [
-      'Processed 10M+ records with distributed PySpark jobs across a multi-node cluster',
-      'Applied VADER NLP sentiment analysis to 500K+ reviews achieving 85%+ accuracy',
-      'Designed a Snowflake star-schema data warehouse with sub-5-second query latency',
-      'Orchestrated automated daily ETL workflows via Apache Airflow with SLA alerting',
-      'Discovered strong inverse weather–dining correlation (r = −0.71) via Tableau dashboards',
-      'Published interactive executive Tableau dashboard on Tableau Public'
+      'Discovered the "Cold Weather Sentiment Paradox": Freezing weather drops volume to 101/day but yields the highest average sentiment index (0.71)',
+      'Identified Extreme Heat as the major deterrent to dining out, dropping review volume to ~30/day with the lowest sentiment (0.65)',
+      'Found that Rainy/Snowy weather causes a 50.7% drop in volume (143/day vs 290/day) but retains a resilient sentiment index identical to pleasant days (0.69)',
+      'Generated Regional Penalty Heatmaps highlighting specific cities where weather unfairly skews ratings, isolating weather biases',
+      'Designed a Snowflake star-schema data warehouse with sub-5-second query latency processing 10M+ records',
     ],
     tech_stack: ['PySpark', 'Snowflake', 'Airflow', 'Tableau', 'VADER NLP', 'Python'],
     technical_details: 'PySpark, Snowflake, Apache Airflow, Tableau, VADER NLP, Python',
@@ -88,47 +87,48 @@ export const projects: Project[] = [
         },
       ],
       architecture: `
-  ┌─────────────────────┐    ┌──────────────────────┐
-  │   Yelp Dataset      │    │  OpenWeatherMap API  │
-  │  (JSON / CSV bulk)  │    │  (REST, paginated)   │
-  └────────┬────────────┘    └──────────┬───────────┘
-           │                            │
-           └──────────┬─────────────────┘
-                      │  Raw data
-                      ▼
-           ┌──────────────────────┐
-           │     PySpark ETL      │  ← 3-node cluster
-           │  Clean · Join        │    10M+ records
-           │  Deduplicate         │    ~4 hrs full run
-           └──────────┬───────────┘
-                      │  Enriched records
-                      ▼
-           ┌──────────────────────┐
-           │     VADER NLP        │  ← Sentiment scoring
-           │  500K+ reviews       │    per (business, date)
-           └──────────┬───────────┘
-                      │  Scored reviews
-                      ▼
-           ┌──────────────────────┐
-           │      Snowflake       │  ← Star schema DWH
-           │  fact: daily_reviews │    auto-clustered
-           │  dims: weather, biz  │    on date partition
-           └──────────┬───────────┘
-                      │
-            ┌─────────┴──────────┐
-            ▼                    ▼
-   ┌──────────────────┐  ┌──────────────────┐
-   │     Airflow      │  │     Tableau      │
-   │  Daily DAG       │  │  12 Dashboards   │
-   │  + SLA Alerting  │  │  (exec-level)    │
-   └──────────────────┘  └──────────────────┘`,
+  +---------------------+    +----------------------+
+  |    Yelp Dataset     |    |  OpenWeatherMap API  |
+  |  (JSON / CSV bulk)  |    |  (REST, paginated)   |
+  +---------+-----------+    +----------+-----------+
+            |                           |
+            +------------+--------------+
+                         |  Raw data
+                         v
+              +----------------------+
+              |     PySpark ETL      |  <-- 3-node cluster
+              |  Clean & Join        |      10M+ records
+              |  Deduplicate         |      ~4 hrs full run
+              +----------+-----------+
+                         |  Enriched records
+                         v
+              +----------------------+
+              |      VADER NLP       |  <-- Sentiment scoring
+              |  500K+ reviews       |      per (business, date)
+              +----------+-----------+
+                         |  Scored reviews
+                         v
+              +----------------------+
+              |      Snowflake       |  <-- Star schema DWH
+              |  fact: daily_reviews |      auto-clustered
+              |  dims: weather, biz  |      on date partition
+              +----------+-----------+
+                         |
+               +---------+----------+
+               |                    |
+               v                    v
+      +------------------+  +------------------+
+      |     Airflow      |  |     Tableau      |
+      |  Daily DAG       |  |  Regional heat-  |
+      |  + SLA Alerting  |  |  maps & metrics  |
+      +------------------+  +------------------+`,
       results: [
+        { metric: 'Freezing Sentiment', value: '0.71' },
+        { metric: 'Avg Review Stars', value: '3.85' },
+        { metric: 'Overall Sentiment', value: '0.58' },
         { metric: 'Records Processed', value: '10M+' },
-        { metric: 'Sentiment Accuracy', value: '85%+' },
-        { metric: 'Snowflake Query Latency', value: '<5s' },
-        { metric: 'Pipeline Runtime', value: '<4 hrs' },
-        { metric: 'Weather-Dining Correlation', value: 'r = −0.71' },
-        { metric: 'Tableau Dashboards', value: '12 views', description: 'Interactive executive dashboard with 12 visualizations — open directly in Tableau Public' },
+        { metric: 'Snowflake Latency', value: '<5s' },
+        { metric: 'Dashboards', value: 'Live', description: 'Interactive executive dashboard available on Tableau Public' },
       ],
       github_url: 'https://github.com/TirthPatel3223/Yelp-Weather-Pipeline',
     },

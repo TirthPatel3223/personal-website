@@ -59,19 +59,19 @@
       "motivation": "Built to discover whether weather statistically drives restaurant ratings and dining behavior at scale, using the full Yelp Academic Dataset and live weather API data.",
       "tech_stack": ["PySpark", "Snowflake", "Apache Airflow", "Tableau", "VADER NLP", "Python", "OpenWeatherMap API"],
       "achievements": [
-        "Processed 10M+ records with distributed PySpark ETL on a multi-node cluster",
-        "Applied VADER NLP sentiment analysis to 500K+ reviews with 85%+ accuracy",
-        "Designed Snowflake star-schema data warehouse with sub-5-second query latency",
-        "Orchestrated daily incremental ETL via Apache Airflow with SLA alerting",
-        "Discovered strong inverse weather–dining correlation (r = -0.71)",
+        "Discovered the 'Cold Weather Sentiment Paradox': Freezing weather drops volume (101/day) but yields the highest average sentiment index (0.71)",
+        "Identified Extreme Heat as the major deterrent to dining out, dropping review volume to ~30/day with the lowest sentiment (0.65)",
+        "Found that Rainy/Snowy weather causes a 50.7% drop in volume (143/day) but retains a resilient sentiment index identical to pleasant days (0.69)",
+        "Generated Regional Penalty Heatmaps isolating weather biases",
+        "Designed Snowflake star-schema data warehouse processing 10M+ records with sub-5-second query latency",
         "Published interactive Tableau executive dashboard on Tableau Public"
       ],
       "key_metrics": {
-        "correlation_coefficient": "r = -0.71 (weather vs. dining activity)",
+        "freezing_sentiment": "0.71",
+        "average_review_stars": "3.85",
+        "overall_sentiment": "0.58",
         "records_processed": "10M+",
-        "pipeline_runtime": "< 4 hours",
-        "query_latency": "< 5 seconds",
-        "sentiment_accuracy": "85%+"
+        "query_latency": "< 5 seconds"
       },
       "github_url": "https://github.com/TirthPatel3223/Yelp-Weather-Pipeline",
       "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/MSBA_405/Dashboard",

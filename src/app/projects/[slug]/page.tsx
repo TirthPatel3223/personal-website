@@ -1,6 +1,7 @@
 import { getProjectBySlug, projects } from '@/data/projects';
 import { ArrowLeft, Github, CheckCircle2, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import TableauPreviewCard from '@/components/TableauPreviewCard';
 export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.id }));
@@ -113,7 +114,7 @@ export default async function ProjectPage({
                     key={i}
                     className="flex gap-5 bg-neutral-900/30 border border-neutral-800 rounded-2xl p-6 hover:border-teal-500/30 transition-colors"
                   >
-                    <div className={`shrink-0 w-8 h-8 rounded-full ${isDataTech ? 'bg-teal-500/10 text-teal-400 border border-teal-500/30' : 'bg-teal-500/10 border border-teal-500/30 text-teal-400'} flex items-center justify-center font-bold text-sm mt-0.5`}>
+                    <div className={`shrink-0 w-8 h-8 rounded-full ${isDataTech ? 'bg-[#1f77b4]/10 text-[#4e9bb9] border border-[#1f77b4]/30' : 'bg-teal-500/10 border border-teal-500/30 text-teal-400'} flex items-center justify-center font-bold text-sm mt-0.5`}>
                       {i + 1}
                     </div>
                     <div>
@@ -131,7 +132,7 @@ export default async function ProjectPage({
             {/* Architecture Diagram */}
             <section>
               <SectionLabel isDataTech={isDataTech}>Architecture</SectionLabel>
-              <div className={`${isDataTech ? 'bg-neutral-900 border-teal-500/20' : 'bg-neutral-900/60 border-neutral-800'} border rounded-2xl overflow-hidden`}>
+              <div className={`${isDataTech ? 'bg-[#0a192f] border-[#1f77b4]/30' : 'bg-neutral-900/60 border-neutral-800'} border rounded-2xl overflow-hidden`}>
                 <div className="flex items-center gap-2 px-5 py-3 border-b border-neutral-800 bg-neutral-900/80">
                   <div className="flex gap-1.5">
                     <span className="w-3 h-3 rounded-full bg-red-500/60" />
@@ -140,7 +141,7 @@ export default async function ProjectPage({
                   </div>
                   <span className="text-xs text-neutral-500 ml-2 font-mono">architecture-diagram</span>
                 </div>
-                <pre className={`${isDataTech ? 'text-teal-300' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}>
+                <pre className={`${isDataTech ? 'text-[#92c5de]' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}>
                   {detail.architecture}
                 </pre>
               </div>
@@ -153,9 +154,9 @@ export default async function ProjectPage({
                 {detail.results.map((r, i) => (
                   <div
                     key={i}
-                    className={`${isDataTech ? 'bg-neutral-900 border-teal-500/20' : 'bg-neutral-900/40 border-neutral-800 hover:border-teal-500/30'} border rounded-2xl p-5 transition-colors text-center`}
+                    className={`${isDataTech ? 'bg-[#0a192f] border-[#1f77b4]/30 hover:border-[#4e9bb9]/50' : 'bg-neutral-900/40 border-neutral-800 hover:border-teal-500/30'} border rounded-2xl p-5 transition-colors text-center`}
                   >
-                    <p className="text-2xl md:text-3xl font-black text-teal-400 mb-1">{r.value}</p>
+                    <p className={`text-2xl md:text-3xl font-black ${isDataTech ? 'text-[#4e9bb9]' : 'text-teal-400'} mb-1`}>{r.value}</p>
                     <p className="text-xs text-neutral-500 uppercase tracking-wider font-semibold">{r.metric}</p>
                   </div>
                 ))}
@@ -244,7 +245,7 @@ export default async function ProjectPage({
 function SectionLabel({ children, isDataTech }: { children: React.ReactNode, isDataTech?: boolean }) {
   return (
     <div className="flex items-center gap-3 mb-6">
-      <h2 className={`text-2xl font-bold tracking-tight ${isDataTech ? 'text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400' : 'text-white'}`}>{children}</h2>
+      <h2 className={`text-2xl font-bold tracking-tight ${isDataTech ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#1f77b4] to-[#4e9bb9]' : 'text-white'}`}>{children}</h2>
       <div className="flex-1 h-px bg-neutral-800" />
     </div>
   );

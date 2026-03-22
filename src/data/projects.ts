@@ -37,7 +37,7 @@ export const projects: Project[] = [
     id: 'weather-dining-pipeline',
     title: 'Yelp & Weather Intelligence Pipeline',
     short_description:
-      'End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 10M+ records to reveal statistically significant weather–dining correlations (r = −0.71).',
+      'End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 10M+ records.',
     motivation:
       'Curious whether weather drives restaurant ratings and business patterns, I built a production-grade data pipeline ingesting the full Yelp Academic Dataset and OpenWeatherMap API, performing distributed ETL at scale, NLP sentiment scoring, and surfacing insights through an executive Tableau dashboard.',
     achievements: [

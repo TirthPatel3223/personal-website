@@ -101,7 +101,7 @@ export default function Home() {
 
           <motion.div variants={heroItem} className="flex items-center justify-center gap-3 pt-4 flex-wrap">
             <a
-              href="https://github.com/tirth"
+              href="https://github.com/TirthPatel3223"
               target="_blank"
               rel="noreferrer"
               className="p-3 text-neutral-400 hover:text-teal-400 hover:bg-neutral-800 rounded-full transition-all duration-200"
@@ -110,7 +110,7 @@ export default function Home() {
               <Github className="w-5 h-5" />
             </a>
             <a
-              href="https://linkedin.com/in/tirth"
+              href="https://www.linkedin.com/in/tirthpatel3223"
               target="_blank"
               rel="noreferrer"
               className="p-3 text-neutral-400 hover:text-teal-400 hover:bg-neutral-800 rounded-full transition-all duration-200"
@@ -119,14 +119,14 @@ export default function Home() {
               <Linkedin className="w-5 h-5" />
             </a>
             <a
-              href="mailto:tirth@example.com"
+              href="mailto:tirthpatel3223@gmail.com"
               className="p-3 text-neutral-400 hover:text-teal-400 hover:bg-neutral-800 rounded-full transition-all duration-200"
               aria-label="Email"
             >
               <Mail className="w-5 h-5" />
             </a>
             <a
-              href="/resume.pdf"
+              href="/tirth_resume_enhanced.docx"
               target="_blank"
               className="inline-flex items-center gap-2 text-neutral-300 hover:text-teal-400 border border-neutral-700 hover:border-teal-500/50 rounded-full px-5 py-2.5 transition-all duration-200 text-sm font-medium hover:bg-teal-500/5"
             >
@@ -356,14 +356,14 @@ export default function Home() {
           className="flex flex-wrap items-center justify-center gap-4"
         >
           <a
-            href="mailto:tirth@example.com"
+            href="mailto:tirthpatel3223@gmail.com"
             className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-neutral-950 font-semibold rounded-full px-8 py-3.5 transition-all duration-200 hover:shadow-lg hover:shadow-teal-500/25 hover:-translate-y-0.5"
           >
             <Mail className="w-5 h-5" />
             Send Email
           </a>
           <a
-            href="https://linkedin.com/in/tirth"
+            href="https://www.linkedin.com/in/tirthpatel3223"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 border border-neutral-700 hover:border-teal-500/50 text-neutral-300 hover:text-teal-400 font-medium rounded-full px-6 py-3.5 transition-all duration-200 hover:bg-teal-500/5 hover:-translate-y-0.5"
@@ -372,7 +372,7 @@ export default function Home() {
             LinkedIn
           </a>
           <a
-            href="https://github.com/tirth"
+            href="https://github.com/TirthPatel3223"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 border border-neutral-700 hover:border-teal-500/50 text-neutral-300 hover:text-teal-400 font-medium rounded-full px-6 py-3.5 transition-all duration-200 hover:bg-teal-500/5 hover:-translate-y-0.5"
@@ -381,7 +381,7 @@ export default function Home() {
             GitHub
           </a>
           <a
-            href="/resume.pdf"
+            href="/tirth_resume_enhanced.docx"
             target="_blank"
             className="inline-flex items-center gap-2 border border-neutral-700 hover:border-teal-500/50 text-neutral-300 hover:text-teal-400 font-medium rounded-full px-6 py-3.5 transition-all duration-200 hover:bg-teal-500/5 hover:-translate-y-0.5"
           >

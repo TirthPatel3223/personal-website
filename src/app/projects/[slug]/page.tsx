@@ -3,6 +3,7 @@ import { ArrowLeft, Github, CheckCircle2, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import TableauPreviewCard from '@/components/TableauPreviewCard';
+import ScrollCubeWrapper from '@/components/ScrollCubeWrapper';
 export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.id }));
 }
@@ -30,9 +31,13 @@ export default async function ProjectPage({
 
   const { detail } = project;
   const isDataTech = slug === 'weather-dining-pipeline';
+  const isCubeSolver = project.id === 'deep-cube-solver';
 
-  return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-50 selection:bg-teal-500/30">
+  const mainContent = (
+    <main
+      className="min-h-screen bg-neutral-950 text-neutral-50 selection:bg-teal-500/30"
+      style={isCubeSolver ? { backgroundColor: 'transparent', position: 'relative', zIndex: 10 } : undefined}
+    >
 
       {/* ── HERO BANNER ─────────────────────────────────────────────── */}
       <div className="relative overflow-hidden border-b border-neutral-800">
@@ -100,7 +105,7 @@ export default async function ProjectPage({
             {/* Problem Statement */}
             <section>
               <SectionLabel isDataTech={isDataTech}>Problem Statement</SectionLabel>
-              <div className="bg-neutral-900/40 border border-neutral-800 rounded-2xl p-8">
+              <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-8 backdrop-blur-sm">
                 <p className="text-neutral-300 leading-relaxed text-lg">{detail.problem_statement}</p>
               </div>
             </section>
@@ -112,7 +117,7 @@ export default async function ProjectPage({
                 {detail.approach.map((item, i) => (
                   <div
                     key={i}
-                    className="flex gap-5 bg-neutral-900/30 border border-neutral-800 rounded-2xl p-6 hover:border-teal-500/30 transition-colors"
+                    className="flex gap-5 bg-neutral-900/80 border border-neutral-800 rounded-2xl p-6 hover:border-teal-500/30 transition-colors backdrop-blur-sm"
                   >
                     <div className={`shrink-0 w-8 h-8 rounded-full ${isDataTech ? 'bg-[#1f77b4]/10 text-[#4e9bb9] border border-[#1f77b4]/30' : 'bg-teal-500/10 border border-teal-500/30 text-teal-400'} flex items-center justify-center font-bold text-sm mt-0.5`}>
                       {i + 1}
@@ -132,8 +137,8 @@ export default async function ProjectPage({
             {/* Architecture Diagram */}
             <section>
               <SectionLabel isDataTech={isDataTech}>Architecture</SectionLabel>
-              <div className={`${isDataTech ? 'bg-[#0a192f] border-[#1f77b4]/30' : 'bg-neutral-900/60 border-neutral-800'} border rounded-2xl overflow-hidden`}>
-                <div className="flex items-center gap-2 px-5 py-3 border-b border-neutral-800 bg-neutral-900/80">
+              <div className={`${isDataTech ? 'bg-[#0a192f] border-[#1f77b4]/30' : 'bg-neutral-900/80 border-neutral-800'} border rounded-2xl overflow-hidden backdrop-blur-sm`}>
+                <div className="flex items-center gap-2 px-5 py-3 border-b border-neutral-800 bg-neutral-900/90">
                   <div className="flex gap-1.5">
                     <span className="w-3 h-3 rounded-full bg-red-500/60" />
                     <span className="w-3 h-3 rounded-full bg-amber-500/60" />
@@ -154,7 +159,7 @@ export default async function ProjectPage({
                 {detail.results.map((r, i) => (
                   <div
                     key={i}
-                    className={`${isDataTech ? 'bg-[#0a192f] border-[#1f77b4]/30 hover:border-[#4e9bb9]/50' : 'bg-neutral-900/40 border-neutral-800 hover:border-teal-500/30'} border rounded-2xl p-5 transition-colors text-center`}
+                    className={`${isDataTech ? 'bg-[#0a192f] border-[#1f77b4]/30 hover:border-[#4e9bb9]/50' : 'bg-neutral-900/80 border-neutral-800 hover:border-teal-500/30'} border rounded-2xl p-5 transition-colors text-center backdrop-blur-sm`}
                   >
                     <p className={`text-2xl md:text-3xl font-black ${isDataTech ? 'text-[#4e9bb9]' : 'text-teal-400'} mb-1`}>{r.value}</p>
                     <p className="text-xs text-neutral-500 uppercase tracking-wider font-semibold">{r.metric}</p>
@@ -163,7 +168,7 @@ export default async function ProjectPage({
               </div>
 
               {/* Key achievements from data */}
-              <div className="bg-neutral-900/30 border border-neutral-800 rounded-2xl p-6 space-y-3">
+              <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-6 space-y-3 backdrop-blur-sm">
                 {project.achievements.map((ach, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />
@@ -180,11 +185,11 @@ export default async function ProjectPage({
           /* Fallback for projects without rich detail */
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="col-span-1 md:col-span-2 space-y-8">
-              <section className="bg-neutral-900/30 p-8 rounded-3xl border border-neutral-800">
+              <section className="bg-neutral-900/80 p-8 rounded-3xl border border-neutral-800 backdrop-blur-sm">
                 <h2 className="text-2xl font-bold text-white mb-4">Motivation</h2>
                 <p className="text-neutral-300 leading-relaxed text-lg">{project.motivation}</p>
               </section>
-              <section className="bg-neutral-900/30 p-8 rounded-3xl border border-neutral-800">
+              <section className="bg-neutral-900/80 p-8 rounded-3xl border border-neutral-800 backdrop-blur-sm">
                 <h2 className="text-2xl font-bold text-white mb-4">Key Achievements</h2>
                 <ul className="space-y-4 text-neutral-300">
                   {project.achievements.map((ach, i) => (
@@ -240,6 +245,12 @@ export default async function ProjectPage({
       </div>
     </main>
   );
+
+  if (isCubeSolver) {
+    return <ScrollCubeWrapper>{mainContent}</ScrollCubeWrapper>;
+  }
+
+  return mainContent;
 }
 
 function SectionLabel({ children, isDataTech }: { children: React.ReactNode, isDataTech?: boolean }) {

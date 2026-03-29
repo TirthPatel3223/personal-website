@@ -3,7 +3,12 @@
     "allow": [
       "mcp__claude_ai_Notion__notion-fetch",
       "mcp__claude_ai_Notion__notion-search",
-      "mcp__claude_ai_Notion__notion-create-pages"
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "Bash(npm ls three @react-three/fiber @react-three/drei @react-three/postprocessing @types/three --depth=0)",
+      "Bash(npx tsc --noEmit --project tsconfig.json)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm run build)",
+      "WebSearch"
     ]
   }
 }

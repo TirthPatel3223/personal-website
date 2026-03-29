@@ -13,6 +13,7 @@
     "@ai-sdk/google": "^3.0.43",
     "@ai-sdk/openai": "^3.0.41",
     "@ai-sdk/react": "^3.0.118",
+    "@tableau/embedding-api-react": "^3.14.0",
     "ai": "^6.0.116",
     "framer-motion": "^12.35.1",
     "lucide-react": "^0.577.0",

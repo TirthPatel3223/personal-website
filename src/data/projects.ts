@@ -230,40 +230,6 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'jobscout',
-    title: 'JobScout — Job Scraper & Aggregator',
-    short_description:
-      'Automated multi-source job aggregator with a Streamlit dashboard for filtering, tracking, and exporting opportunities.',
-    motivation:
-      'To eliminate the tedium of manually checking multiple job boards by centralizing listings into a searchable, deduplicated local database.',
-    achievements: [
-      'Multi-source scraper ingesting listings from LinkedIn, Indeed, and career pages',
-      'SQLite-backed deduplication using fuzzy title/company matching',
-      'Streamlit dashboard with dynamic filters, saved searches, and CSV export',
-    ],
-    tech_stack: ['Python', 'Streamlit', 'SQLite', 'BeautifulSoup', 'Selenium'],
-    technical_details: 'Python, Streamlit, SQLite, BeautifulSoup, Selenium',
-    status: 'coming-soon',
-    link: '/projects/jobscout',
-  },
-  {
-    id: 'movie-recommendation',
-    title: 'Movie Recommendation Engine',
-    short_description:
-      'Collaborative filtering recommendation system with neural embeddings, a FastAPI backend, and a React frontend.',
-    motivation:
-      'To build a production-grade recommendation system beyond simple cosine similarity, using deep learning to capture latent user-item preferences.',
-    achievements: [
-      'Matrix factorization model with learned neural embeddings (PyTorch)',
-      'FastAPI backend delivering personalized recommendations with sub-100ms latency',
-      'React frontend with personalized watchlists, ratings, and explainability tooltips',
-    ],
-    tech_stack: ['PyTorch', 'FastAPI', 'React', 'Python', 'PostgreSQL'],
-    technical_details: 'PyTorch, FastAPI, React, Python, PostgreSQL',
-    status: 'coming-soon',
-    link: '/projects/movie-recommendation',
-  },
-  {
     id: 'covid-impact-analysis',
     title: 'COVID-19 Impact Analysis',
     short_description:

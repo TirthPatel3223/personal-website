@@ -301,8 +301,8 @@ export default function Home() {
 
               <div className="flex items-start justify-between flex-wrap gap-3 mb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-neutral-100">Data Analyst</h3>
-                  <p className="text-teal-400 font-medium mt-0.5">Seat of Joy</p>
+                  <h3 className="text-xl font-bold text-neutral-100">Business &amp; Strategy Analyst</h3>
+                  <p className="text-teal-400 font-medium mt-0.5">Seat of Joy <span className="text-neutral-500 font-normal text-xs ml-1">(Incubated at IIT Madras)</span></p>
                 </div>
                 <div className="text-right shrink-0">
                   <span className="text-sm text-neutral-400 bg-neutral-800 rounded-full px-3 py-1">
@@ -310,17 +310,17 @@ export default function Home() {
                   </span>
                   <p className="flex items-center gap-1 text-xs text-neutral-600 mt-2 justify-end">
                     <MapPin className="w-3 h-3" />
-                    India
+                    India · During Undergrad
                   </p>
                 </div>
               </div>
 
               <ul className="space-y-2.5 text-neutral-400 text-sm">
                 {[
-                  'Built end-to-end analytics pipelines processing 1M+ events daily using Python and SQL',
-                  'Designed Tableau dashboards for executive stakeholders, improving data-driven decision velocity by 30%',
-                  'Implemented customer segmentation models (k-means, RFM) that drove a 15% lift in retention campaigns',
-                  'Defined KPIs and A/B testing frameworks with product and engineering teams',
+                  'Developed a probabilistic market-sizing model using Indian Census 2011 data (100+ tables, 200K+ rows each), combining linear regression with birth-order probability analysis — estimated 55M target customers with 5% YoY growth, a 45% improvement over prior estimates used in all investor pitch decks.',
+                  'Built a supply-chain optimization model using operations research (Gurobi / Excel) that maximised profit across manufacturing costs, shipping costs, and state-level demand constraints derived from the market-sizing model.',
+                  'Conducted comprehensive competitor analysis — SWOT across three product categories and direct pricing analysis by sourcing manufacturing costs from suppliers — informing product positioning and go-to-market strategy.',
+                  'Led a team of 3 to develop the business & marketing pitch deck for Shark Tank India Auditions; presented data-backed market-size, competitive landscape, pricing strategy, and launch plan to investors, representing the startup at the auditions.',
                 ].map((item, i) => (
                   <li key={i} className="flex gap-2 items-start">
                     <span className="text-teal-500 mt-0.5 shrink-0">▸</span>

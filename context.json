@@ -21,10 +21,20 @@
   },
   "work_experience": [
     {
-      "company": "Tech Solutions Inc.",
-      "role": "Software Engineer",
-      "duration": "2023 - Present",
-      "description": "Developed high-performance web applications using React and Node.js. Integrated AI features that boosted user engagement by 40%."
+      "company": "Seat of Joy",
+      "incubation": "Incubated at IIT Madras",
+      "role": "Business & Strategy Analyst",
+      "duration": "2022 - 2024",
+      "context": "Worked during undergraduate degree",
+      "about": "Seat of Joy is an Indian startup that developed a safety seat for children designed specifically for two-wheelers, providing full-body protection during accidents — a gap no existing product addressed.",
+      "achievements": [
+        "Developed a probabilistic market-sizing model using Indian Census 2011 data (100+ tables, 200K+ rows each), combining linear regression with birth-order and age-gap probability analysis to estimate 55M target customers with 5% YoY growth — a 45% improvement over the previous estimate, used in all investor pitch decks.",
+        "Built a supply-chain optimization model using operations research principles (solved via Gurobi / Excel) that maximised profit by balancing manufacturing costs, shipping costs, selling price, and state-level demand caps derived from the market-sizing model.",
+        "Conducted full competitor analysis — SWOT across three product categories and direct pricing analysis by sourcing manufacturing costs from suppliers — which informed product positioning and market launch strategy.",
+        "Led a team of 3 to develop the business and marketing pitch deck for Shark Tank India Auditions; presented data-backed market-size analysis, competitive landscape, pricing strategy, and go-to-market plan to investors, representing the startup at the auditions.",
+        "Performed strategic marketing work including competitor analytics, pricing strategy, market launch strategies, and market analysis."
+      ],
+      "skills_used": ["Python", "Excel", "Gurobi", "Linear Regression", "Probability & Statistics", "Operations Research", "Competitive Analysis", "Strategic Marketing", "Pitch Deck Development"]
     }
   ],
   "projects": [

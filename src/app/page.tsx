@@ -4,6 +4,7 @@ import { motion, type Variants } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Chat from '@/components/Chat';
 import ProjectCard from '@/components/ProjectCard';
+import AnimatedBackground from '@/components/AnimatedBackground';
 import { projects } from '@/data/projects';
 import { Github, Linkedin, Mail, FileText, MapPin } from 'lucide-react';
 
@@ -34,7 +35,6 @@ const sectionHeading: Variants = {
   },
 };
 
-/* ─── Hero text stagger variants ───────────────────────────────────── */
 const heroContainer: Variants = {
   hidden: {},
   visible: {
@@ -53,355 +53,482 @@ const heroItem: Variants = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-50 selection:bg-teal-500/30 font-sans">
-      <Navbar />
+    <div className="min-h-screen font-sans" style={{ color: 'var(--foreground)' }}>
+      {/* Animated blob background */}
+      <AnimatedBackground />
 
-      {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section
-        id="hero"
-        className="relative flex flex-col items-center justify-center min-h-screen px-4 pt-16 overflow-hidden"
-      >
-        {/* Background glows */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.4 }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-teal-500/8 rounded-full blur-[140px] pointer-events-none"
-        />
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.8, delay: 0.3 }}
-          className="absolute top-1/4 right-1/3 w-[300px] h-[300px] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none"
-        />
+      {/* All content sits above the background */}
+      <div className="relative z-10">
+        <Navbar />
 
-        {/* Hero text group — staggered */}
-        <motion.div
-          variants={heroContainer}
-          initial="hidden"
-          animate="visible"
-          className="z-10 text-center space-y-6 max-w-4xl"
+        {/* ── HERO ─────────────────────────────────────────────────────── */}
+        <section
+          id="hero"
+          className="relative flex flex-col items-center justify-center min-h-screen px-4 pt-20 overflow-hidden"
         >
-          <motion.p variants={heroItem} className="text-teal-400 text-sm font-semibold uppercase tracking-[0.2em]">
-            Portfolio
-          </motion.p>
-
-          <motion.h1
-            variants={heroItem}
-            className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-300 via-emerald-400 to-teal-600"
+          <motion.div
+            variants={heroContainer}
+            initial="hidden"
+            animate="visible"
+            className="z-10 text-center space-y-6 max-w-4xl"
           >
-            Tirth Patel
-          </motion.h1>
-
-          <motion.p variants={heroItem} className="text-base sm:text-xl md:text-2xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
-            Data Scientist &amp; ML Engineer
-            <br />
-            <span className="text-neutral-500 text-sm sm:text-lg">MSBA @ UCLA Anderson</span>
-          </motion.p>
-
-          <motion.div variants={heroItem} className="flex items-center justify-center gap-3 pt-4 flex-wrap">
-            <a
-              href="https://github.com/TirthPatel3223"
-              target="_blank"
-              rel="noreferrer"
-              className="p-3 text-neutral-400 hover:text-teal-400 hover:bg-neutral-800 rounded-full transition-all duration-200"
-              aria-label="GitHub"
+            <motion.p
+              variants={heroItem}
+              className="text-sm font-semibold uppercase tracking-[0.2em]"
+              style={{ color: 'var(--accent)' }}
             >
-              <Github className="w-5 h-5" />
-            </a>
-            <a
-              href="https://www.linkedin.com/in/tirthpatel3223"
-              target="_blank"
-              rel="noreferrer"
-              className="p-3 text-neutral-400 hover:text-teal-400 hover:bg-neutral-800 rounded-full transition-all duration-200"
-              aria-label="LinkedIn"
+              Portfolio
+            </motion.p>
+
+            <motion.h1
+              variants={heroItem}
+              className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight bg-clip-text text-transparent"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, var(--accent-hover), var(--accent), #1d4ed8)',
+              }}
             >
-              <Linkedin className="w-5 h-5" />
-            </a>
+              Tirth Patel
+            </motion.h1>
+
+            <motion.p
+              variants={heroItem}
+              className="text-base sm:text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed"
+              style={{ color: 'var(--muted)' }}
+            >
+              Data Scientist &amp; ML Engineer
+              <br />
+              <span className="text-sm sm:text-lg opacity-75">MSBA @ UCLA Anderson</span>
+            </motion.p>
+
+            <motion.div
+              variants={heroItem}
+              className="flex items-center justify-center gap-3 pt-4 flex-wrap"
+            >
+              <a
+                href="https://github.com/TirthPatel3223"
+                target="_blank"
+                rel="noreferrer"
+                className="p-3 rounded-full transition-all duration-200 hover:scale-110"
+                style={{ color: 'var(--muted)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; }}
+                aria-label="GitHub"
+              >
+                <Github className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/tirthpatel3223"
+                target="_blank"
+                rel="noreferrer"
+                className="p-3 rounded-full transition-all duration-200 hover:scale-110"
+                style={{ color: 'var(--muted)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; }}
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a
+                href="mailto:tirthpatel3223@gmail.com"
+                className="p-3 rounded-full transition-all duration-200 hover:scale-110"
+                style={{ color: 'var(--muted)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--muted)'; }}
+                aria-label="Email"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
+              <a
+                href="/tirth_resume_enhanced.docx"
+                target="_blank"
+                className="inline-flex items-center gap-2 font-medium rounded-full px-5 py-2.5 transition-all duration-200 text-sm"
+                style={{
+                  color: 'var(--foreground)',
+                  border: '1px solid var(--border)',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'var(--accent)';
+                  el.style.borderColor = 'var(--accent)';
+                  el.style.background = 'var(--accent-dim)';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'var(--foreground)';
+                  el.style.borderColor = 'var(--border)';
+                  el.style.background = 'transparent';
+                }}
+              >
+                <FileText className="w-4 h-4" />
+                Resume
+              </a>
+            </motion.div>
+          </motion.div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce"
+            style={{ color: 'var(--border)' }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </motion.div>
+        </section>
+
+        {/* ── ABOUT ────────────────────────────────────────────────────── */}
+        <section
+          id="about"
+          className="max-w-4xl mx-auto px-4 py-32"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          <motion.div
+            variants={sectionHeading}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="section-title text-3xl md:text-4xl font-bold tracking-tight">
+              About Me
+            </h2>
+          </motion.div>
+
+          <div className="space-y-6 text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
+            {[
+              <>
+                I grew up fascinated by how systems work — which led me to pursue a B.Tech in Engineering at{' '}
+                <span className="font-medium" style={{ color: 'var(--accent)' }}>IIT Madras</span>, one of India&apos;s
+                premier technical institutions. There, I developed a deep foundation in mathematics, algorithms, and
+                statistical thinking, which sparked my passion for turning raw data into meaningful insight.
+              </>,
+              <>
+                After graduation, I joined{' '}
+                <span className="font-medium" style={{ color: 'var(--accent)' }}>Seat of Joy</span> as a Data Analyst,
+                where I built end-to-end analytics pipelines and customer-facing dashboards. The startup environment
+                pushed me to wear many hats — data engineering, ML modeling, and stakeholder communication — and taught
+                me how to ship fast without sacrificing rigor.
+              </>,
+              <>
+                I&apos;m now pursuing my{' '}
+                <span className="font-medium" style={{ color: 'var(--accent)' }}>
+                  Master of Science in Business Analytics (MSBA) at UCLA Anderson
+                </span>
+                , deepening my expertise in machine learning, optimization, and data strategy. I&apos;m driven by
+                problems where data meets real-world impact — from NLP pipelines to deep reinforcement learning to
+                production-grade recommendation systems.
+              </>,
+            ].map((content, i) => (
+              <motion.p
+                key={i}
+                custom={i * 0.08}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+                {content}
+              </motion.p>
+            ))}
+          </div>
+        </section>
+
+        {/* ── EXPERIENCE ───────────────────────────────────────────────── */}
+        <section
+          id="experience"
+          className="max-w-4xl mx-auto px-4 py-24"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          <motion.div
+            variants={sectionHeading}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="section-title text-3xl md:text-4xl font-bold tracking-tight">
+              Experience
+            </h2>
+          </motion.div>
+
+          <motion.div
+            custom={0}
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="flex gap-6"
+          >
+            {/* Timeline spine */}
+            <div className="flex flex-col items-center">
+              <div
+                className="w-4 h-4 rounded-full shrink-0 mt-1.5"
+                style={{
+                  background: 'var(--accent)',
+                  border: '4px solid var(--background)',
+                  boxShadow: '0 0 0 2px var(--accent-dim)',
+                }}
+              />
+              <div className="w-px flex-1 mt-2" style={{ background: 'var(--border)' }} />
+            </div>
+
+            {/* Card */}
+            <div className="pb-12 flex-1">
+              <motion.div
+                whileHover={{ y: -4, transition: { type: 'spring', stiffness: 320, damping: 22 } }}
+                className="group relative glass rounded-2xl p-6 overflow-hidden"
+                style={{ borderRadius: 'var(--radius-md)' }}
+              >
+                {/* Accent bar on hover */}
+                <div
+                  className="absolute inset-x-0 top-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-2xl"
+                  style={{ background: 'linear-gradient(90deg, var(--accent), var(--accent-hover))' }}
+                />
+
+                <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold" style={{ color: 'var(--title)' }}>
+                      Business &amp; Strategy Analyst
+                    </h3>
+                    <p className="font-medium mt-0.5" style={{ color: 'var(--accent)' }}>
+                      Seat of Joy{' '}
+                      <span className="font-normal text-xs opacity-60">(Incubated at IIT Madras)</span>
+                    </p>
+                    <p className="text-xs mt-1.5 max-w-sm leading-relaxed opacity-70" style={{ color: 'var(--foreground)' }}>
+                      Child safety startup developing a full-body protective seat for two-wheelers — addressing the 2 children lost daily in India to two-wheeler accidents.
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span
+                      className="text-sm rounded-full px-3 py-1"
+                      style={{ background: 'var(--accent-dim)', color: 'var(--foreground)' }}
+                    >
+                      2022 – 2024
+                    </span>
+                    <p
+                      className="flex items-center gap-1 text-xs mt-2 justify-end"
+                      style={{ color: 'var(--muted)' }}
+                    >
+                      <MapPin className="w-3 h-3" />
+                      India · During Undergrad
+                    </p>
+                  </div>
+                </div>
+
+                <ul className="space-y-5 text-sm" style={{ color: 'var(--muted)' }}>
+                  {[
+                    {
+                      heading: 'Probabilistic Market-Sizing Model (Census Data)',
+                      body: 'Sifted through 100+ Indian Census 2011 tables (200K+ rows each) to extract birth-order frequency matrices and inter-birth age-gap distributions. Built a joint-probability model that combined conditional age-gap probabilities with birth-order likelihoods to estimate, for any target year, how many Indian families have a child aged 3–6. Layered linear regression on historical cohorts to project YoY growth. Delivered an estimate of 55M addressable customers with 5% annual growth — 45% more accurate than the startup\'s prior figures — and became the anchoring market-size number in every investor deck.',
+                    },
+                    {
+                      heading: 'Supply-Chain Optimization Model (Operations Research)',
+                      body: 'Formulated a profit-maximising distribution model in Gurobi / Excel Solver. The objective maximised margin across state-level shipping routes, accounting for manufacturing costs, per-unit shipping rates, and selling price. Added an elastic-net-style penalty to discourage over-concentration in any single state, and used the market-sizing model\'s state-level demand estimates as allocation caps. The model produces ready-to-execute distribution recommendations that can scale directly into production operations.',
+                    },
+                    {
+                      heading: 'Competitive Intelligence & Pricing Strategy',
+                      body: 'Conducted a full-stack competitive analysis across three child-safety product categories — built detailed SWOT profiles, cold-called manufacturers to source actual production costs, and computed competitor margins from first principles. Used margin benchmarking to derive a defensible pricing band, quantify competitive moat, and inform go-to-market sequencing. All findings fed directly into investor pitch materials and the product launch strategy.',
+                    },
+                    {
+                      heading: 'Shark Tank India Auditions — Investor Pitch & Presentation',
+                      body: 'Led a team of 3 to build the business & marketing pitch deck for Shark Tank India Auditions. Synthesised the market-sizing model, supply-chain analysis, competitive intelligence, and pricing strategy into a data-backed narrative covering total addressable market, competitive landscape, unit economics, and launch plan. Presented live to investor judges, fielding quantitative Q&A — every claim anchored to the models and analyses above — successfully representing Seat of Joy at the auditions.',
+                    },
+                  ].map(({ heading, body }, i) => (
+                    <li key={i} className="flex gap-3 items-start">
+                      <span className="mt-1 shrink-0 text-base leading-none" style={{ color: 'var(--accent)' }}>▸</span>
+                      <div>
+                        <span className="font-semibold block mb-1" style={{ color: 'var(--foreground)' }}>
+                          {heading}
+                        </span>
+                        {body}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ── PROJECTS ─────────────────────────────────────────────────── */}
+        <section
+          id="projects"
+          className="max-w-7xl mx-auto px-4 py-24"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          <motion.div
+            variants={sectionHeading}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center mb-16 space-y-3"
+          >
+            <h2 className="section-title text-3xl md:text-4xl font-bold tracking-tight">
+              Projects
+            </h2>
+            <p className="mt-6 max-w-xl mx-auto" style={{ color: 'var(--muted)' }}>
+              A selection of data science and ML engineering work.
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {projects.map((project, i) => (
+              <ProjectCard key={project.id} project={project} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* ── SKILLS ───────────────────────────────────────────────────── */}
+        <section
+          id="skills"
+          className="max-w-5xl mx-auto px-4 py-24"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          <motion.div
+            variants={sectionHeading}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center mb-16 space-y-3"
+          >
+            <h2 className="section-title text-3xl md:text-4xl font-bold tracking-tight">
+              Skills
+            </h2>
+            <p className="mt-6" style={{ color: 'var(--muted)' }}>
+              The tools and technologies I work with.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Object.entries(skills).map(([group, items], i) => (
+              <motion.div
+                key={group}
+                custom={i * 0.07}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                whileHover={{ y: -6, transition: { type: 'spring', stiffness: 350, damping: 22 } }}
+                className="group glass rounded-2xl p-6 cursor-default"
+                style={{ borderRadius: 'var(--radius-md)' }}
+              >
+                <h3
+                  className="text-xs font-bold uppercase tracking-widest mb-4 transition-colors duration-200"
+                  style={{ color: 'var(--accent)' }}
+                >
+                  {group}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {items.map((skill) => (
+                    <span
+                      key={skill}
+                      className="text-sm rounded-full px-3 py-1 transition-colors duration-200"
+                      style={{
+                        background: 'var(--accent-dim)',
+                        color: 'var(--foreground)',
+                        border: '1px solid var(--accent-dim-hover)',
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── CONTACT ──────────────────────────────────────────────────── */}
+        <section
+          id="contact"
+          className="max-w-3xl mx-auto px-4 py-24 text-center"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          <motion.div
+            variants={sectionHeading}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            <h2 className="section-title text-3xl md:text-4xl font-bold tracking-tight mb-4">
+              Get In Touch
+            </h2>
+            <p className="text-lg mb-12 max-w-xl mx-auto mt-6" style={{ color: 'var(--muted)' }}>
+              Whether you&apos;re recruiting, collaborating, or just want to talk data — my inbox is always open.
+            </p>
+          </motion.div>
+
+          <motion.div
+            custom={0.1}
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="flex flex-wrap items-center justify-center gap-4"
+          >
             <a
               href="mailto:tirthpatel3223@gmail.com"
-              className="p-3 text-neutral-400 hover:text-teal-400 hover:bg-neutral-800 rounded-full transition-all duration-200"
-              aria-label="Email"
+              className="inline-flex items-center gap-2 font-semibold rounded-full px-8 py-3.5 transition-all duration-200 hover:-translate-y-0.5 text-white"
+              style={{ background: 'var(--accent)' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-hover)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--accent)'; }}
             >
               <Mail className="w-5 h-5" />
+              Send Email
             </a>
-            <a
-              href="/tirth_resume_enhanced.docx"
-              target="_blank"
-              className="inline-flex items-center gap-2 text-neutral-300 hover:text-teal-400 border border-neutral-700 hover:border-teal-500/50 rounded-full px-5 py-2.5 transition-all duration-200 text-sm font-medium hover:bg-teal-500/5"
-            >
-              <FileText className="w-4 h-4" />
-              Resume
-            </a>
+            {[
+              { href: 'https://www.linkedin.com/in/tirthpatel3223', icon: <Linkedin className="w-5 h-5" />, label: 'LinkedIn' },
+              { href: 'https://github.com/TirthPatel3223', icon: <Github className="w-5 h-5" />, label: 'GitHub' },
+              { href: '/tirth_resume_enhanced.docx', icon: <FileText className="w-5 h-5" />, label: 'Resume' },
+            ].map(({ href, icon, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 font-medium rounded-full px-6 py-3.5 transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  border: '1px solid var(--border)',
+                  color: 'var(--foreground)',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'var(--accent)';
+                  el.style.borderColor = 'var(--accent)';
+                  el.style.background = 'var(--accent-dim)';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.color = 'var(--foreground)';
+                  el.style.borderColor = 'var(--border)';
+                  el.style.background = 'transparent';
+                }}
+              >
+                {icon}
+                {label}
+              </a>
+            ))}
           </motion.div>
-        </motion.div>
+        </section>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-neutral-600 animate-bounce"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </motion.div>
-      </section>
-
-      {/* ── ABOUT ────────────────────────────────────────────────────── */}
-      <section id="about" className="max-w-4xl mx-auto px-4 py-32 border-t border-neutral-800/50">
-        <motion.h2
-          variants={sectionHeading}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold mb-12 text-center tracking-tight"
-        >
-          About Me
-        </motion.h2>
-
-        <div className="space-y-6 text-neutral-300 text-lg leading-relaxed">
-          {[
-            <>
-              I grew up fascinated by how systems work — which led me to pursue a B.Tech in Engineering at{' '}
-              <span className="text-teal-400 font-medium">IIT Madras</span>, one of India&apos;s premier technical
-              institutions. There, I developed a deep foundation in mathematics, algorithms, and statistical thinking,
-              which sparked my passion for turning raw data into meaningful insight.
-            </>,
-            <>
-              After graduation, I joined <span className="text-teal-400 font-medium">Seat of Joy</span> as a Data
-              Analyst, where I built end-to-end analytics pipelines and customer-facing dashboards. The startup
-              environment pushed me to wear many hats — data engineering, ML modeling, and stakeholder communication —
-              and taught me how to ship fast without sacrificing rigor.
-            </>,
-            <>
-              I&apos;m now pursuing my{' '}
-              <span className="text-teal-400 font-medium">
-                Master of Science in Business Analytics (MSBA) at UCLA Anderson
-              </span>
-              , deepening my expertise in machine learning, optimization, and data strategy. I&apos;m driven by problems
-              where data meets real-world impact — from NLP pipelines to deep reinforcement learning to
-              production-grade recommendation systems.
-            </>,
-          ].map((content, i) => (
-            <motion.p
-              key={i}
-              custom={i * 0.08}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-            >
-              {content}
-            </motion.p>
-          ))}
-        </div>
-      </section>
-
-      {/* ── PROJECTS ─────────────────────────────────────────────────── */}
-      <section id="projects" className="max-w-7xl mx-auto px-4 py-24 border-t border-neutral-800/50">
-        <motion.div
-          variants={sectionHeading}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="text-center mb-16 space-y-3"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Projects</h2>
-          <p className="text-neutral-400 max-w-xl mx-auto">
-            A selection of data science and ML engineering work.
-          </p>
-        </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── SKILLS ───────────────────────────────────────────────────── */}
-      <section id="skills" className="max-w-5xl mx-auto px-4 py-24 border-t border-neutral-800/50">
-        <motion.div
-          variants={sectionHeading}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="text-center mb-16 space-y-3"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Skills</h2>
-          <p className="text-neutral-400">The tools and technologies I work with.</p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Object.entries(skills).map(([group, items], i) => (
-            <motion.div
-              key={group}
-              custom={i * 0.07}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.025, transition: { type: 'spring', stiffness: 350, damping: 22 } }}
-              className="group bg-neutral-900/40 border border-neutral-800 rounded-2xl p-6 hover:border-teal-500/30 transition-colors duration-300 cursor-default"
-            >
-              <h3 className="text-xs font-bold uppercase tracking-widest text-teal-400 mb-4 group-hover:text-teal-300 transition-colors duration-200">
-                {group}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {items.map((skill) => (
-                  <span
-                    key={skill}
-                    className="text-sm bg-neutral-800 text-neutral-300 rounded-full px-3 py-1 group-hover:bg-neutral-700/70 transition-colors duration-200"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── EXPERIENCE ───────────────────────────────────────────────── */}
-      <section id="experience" className="max-w-4xl mx-auto px-4 py-24 border-t border-neutral-800/50">
-        <motion.div
-          variants={sectionHeading}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Experience</h2>
-        </motion.div>
-
-        {/* Timeline */}
-        <motion.div
+        {/* Footer */}
+        <motion.footer
           custom={0}
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="flex gap-6"
+          className="py-8 text-center text-sm"
+          style={{
+            borderTop: '1px solid var(--border)',
+            color: 'var(--muted)',
+          }}
         >
-          {/* Spine */}
-          <div className="flex flex-col items-center">
-            <div className="w-4 h-4 rounded-full bg-teal-500 border-4 border-neutral-950 shrink-0 mt-1.5" />
-            <div className="w-px flex-1 bg-neutral-800 mt-2" />
-          </div>
-
-          {/* Card */}
-          <div className="pb-12 flex-1">
-            <motion.div
-              whileHover={{ y: -4, transition: { type: 'spring', stiffness: 320, damping: 22 } }}
-              className="group relative bg-neutral-900/40 border border-neutral-800 rounded-2xl p-6 hover:border-teal-500/30 transition-colors duration-300 overflow-hidden"
-            >
-              {/* Accent bar */}
-              <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-teal-400 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-2xl" />
-
-              <div className="flex items-start justify-between flex-wrap gap-3 mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-neutral-100">Business &amp; Strategy Analyst</h3>
-                  <p className="text-teal-400 font-medium mt-0.5">Seat of Joy <span className="text-neutral-500 font-normal text-xs ml-1">(Incubated at IIT Madras)</span></p>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-sm text-neutral-400 bg-neutral-800 rounded-full px-3 py-1">
-                    2022 – 2024
-                  </span>
-                  <p className="flex items-center gap-1 text-xs text-neutral-600 mt-2 justify-end">
-                    <MapPin className="w-3 h-3" />
-                    India · During Undergrad
-                  </p>
-                </div>
-              </div>
-
-              <ul className="space-y-2.5 text-neutral-400 text-sm">
-                {[
-                  'Developed a probabilistic market-sizing model using Indian Census 2011 data (100+ tables, 200K+ rows each), combining linear regression with birth-order probability analysis — estimated 55M target customers with 5% YoY growth, a 45% improvement over prior estimates used in all investor pitch decks.',
-                  'Built a supply-chain optimization model using operations research (Gurobi / Excel) that maximised profit across manufacturing costs, shipping costs, and state-level demand constraints derived from the market-sizing model.',
-                  'Conducted comprehensive competitor analysis — SWOT across three product categories and direct pricing analysis by sourcing manufacturing costs from suppliers — informing product positioning and go-to-market strategy.',
-                  'Led a team of 3 to develop the business & marketing pitch deck for Shark Tank India Auditions; presented data-backed market-size, competitive landscape, pricing strategy, and launch plan to investors, representing the startup at the auditions.',
-                ].map((item, i) => (
-                  <li key={i} className="flex gap-2 items-start">
-                    <span className="text-teal-500 mt-0.5 shrink-0">▸</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ── CONTACT ──────────────────────────────────────────────────── */}
-      <section id="contact" className="max-w-3xl mx-auto px-4 py-24 border-t border-neutral-800/50 text-center">
-        <motion.div
-          variants={sectionHeading}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Get In Touch</h2>
-          <p className="text-neutral-400 text-lg mb-12 max-w-xl mx-auto">
-            Whether you&apos;re recruiting, collaborating, or just want to talk data — my inbox is always open.
-          </p>
-        </motion.div>
-
-        <motion.div
-          custom={0.1}
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="flex flex-wrap items-center justify-center gap-4"
-        >
-          <a
-            href="mailto:tirthpatel3223@gmail.com"
-            className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-neutral-950 font-semibold rounded-full px-8 py-3.5 transition-all duration-200 hover:shadow-lg hover:shadow-teal-500/25 hover:-translate-y-0.5"
-          >
-            <Mail className="w-5 h-5" />
-            Send Email
-          </a>
-          <a
-            href="https://www.linkedin.com/in/tirthpatel3223"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 border border-neutral-700 hover:border-teal-500/50 text-neutral-300 hover:text-teal-400 font-medium rounded-full px-6 py-3.5 transition-all duration-200 hover:bg-teal-500/5 hover:-translate-y-0.5"
-          >
-            <Linkedin className="w-5 h-5" />
-            LinkedIn
-          </a>
-          <a
-            href="https://github.com/TirthPatel3223"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 border border-neutral-700 hover:border-teal-500/50 text-neutral-300 hover:text-teal-400 font-medium rounded-full px-6 py-3.5 transition-all duration-200 hover:bg-teal-500/5 hover:-translate-y-0.5"
-          >
-            <Github className="w-5 h-5" />
-            GitHub
-          </a>
-          <a
-            href="/tirth_resume_enhanced.docx"
-            target="_blank"
-            className="inline-flex items-center gap-2 border border-neutral-700 hover:border-teal-500/50 text-neutral-300 hover:text-teal-400 font-medium rounded-full px-6 py-3.5 transition-all duration-200 hover:bg-teal-500/5 hover:-translate-y-0.5"
-          >
-            <FileText className="w-5 h-5" />
-            Resume
-          </a>
-        </motion.div>
-      </section>
-
-      {/* Footer */}
-      <motion.footer
-        custom={0}
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="border-t border-neutral-800/50 py-8 text-center text-neutral-600 text-sm"
-      >
-        <p>© {new Date().getFullYear()} Tirth Patel. Built with Next.js &amp; Tailwind CSS.</p>
-      </motion.footer>
+          <p>© {new Date().getFullYear()} Tirth Patel. Built with Next.js &amp; Tailwind CSS.</p>
+        </motion.footer>
+      </div>
 
       {/* Floating AI Chat */}
       <Chat />

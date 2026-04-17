@@ -51,34 +51,52 @@ export default function ProjectCard({
               transition: { type: 'spring', stiffness: 320, damping: 22 },
             }
       }
-      className="group relative bg-neutral-900/40 border border-neutral-800 rounded-[2rem] p-8 hover:border-teal-500/40 transition-colors duration-500 overflow-hidden flex flex-col h-full"
+      className="group relative glass rounded-[2rem] p-8 overflow-hidden flex flex-col h-full"
+      style={{ borderRadius: 'var(--radius-lg)' }}
     >
       {/* Top accent bar – revealed on hover */}
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[2rem]" />
+      <div
+        className="absolute inset-x-0 top-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[2rem]"
+        style={{ background: 'linear-gradient(90deg, var(--accent), var(--accent-hover))' }}
+      />
 
       {/* Background glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/[0.07] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
-      {/* Subtle inner shadow to separate card from page */}
-      <div className="absolute inset-0 rounded-[2rem] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] pointer-events-none" />
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at top left, var(--accent-dim) 0%, transparent 60%)',
+        }}
+      />
 
       <div className="relative z-10 flex-grow space-y-6">
         <div>
           <div className="flex items-start justify-between gap-3 mb-3">
-            <h3 className="text-xl font-bold text-neutral-100 tracking-tight leading-snug group-hover:text-white transition-colors duration-300">
+            <h3
+              className="text-xl font-bold tracking-tight leading-snug transition-colors duration-300"
+              style={{ color: 'var(--title)' }}
+            >
               {project.title}
             </h3>
             {isComingSoon && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full px-3 py-1 shrink-0">
+              <span
+                className="inline-flex items-center gap-1 text-xs font-semibold rounded-full px-3 py-1 shrink-0"
+                style={{
+                  background: 'rgba(245, 158, 11, 0.1)',
+                  color: '#f59e0b',
+                  border: '1px solid rgba(245, 158, 11, 0.2)',
+                }}
+              >
                 <Clock className="w-3 h-3" />
                 Soon
               </span>
             )}
           </div>
-          <p className="text-neutral-400 text-sm leading-relaxed">{project.short_description}</p>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+            {project.short_description}
+          </p>
         </div>
 
-        {/* Tech badges with stagger */}
+        {/* Tech badges */}
         <div className="flex flex-wrap gap-2">
           {project.tech_stack.map((tech, i) => (
             <motion.span
@@ -88,18 +106,32 @@ export default function ProjectCard({
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="text-xs bg-teal-500/10 text-teal-300 border border-teal-500/20 rounded-full px-3 py-1 group-hover:bg-teal-500/15 group-hover:border-teal-500/30 transition-colors duration-300"
+              className="text-xs rounded-full px-3 py-1 transition-colors duration-300"
+              style={{
+                background: 'var(--accent-dim)',
+                color: 'var(--accent)',
+                border: '1px solid var(--accent-dim-hover)',
+              }}
             >
               {tech}
             </motion.span>
           ))}
         </div>
 
-        <div className="space-y-5 pt-4 border-t border-neutral-800/50">
+        <div
+          className="space-y-5 pt-4"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
           <div className="flex gap-4">
-            <Target className="w-5 h-5 text-teal-400 shrink-0 mt-0.5 group-hover:text-teal-300 transition-colors duration-300" />
-            <p className="text-neutral-300 text-sm leading-relaxed">
-              <span className="text-neutral-500 block text-xs uppercase tracking-wider mb-1 font-semibold">
+            <Target
+              className="w-5 h-5 shrink-0 mt-0.5 transition-colors duration-300"
+              style={{ color: 'var(--accent)' }}
+            />
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--foreground)' }}>
+              <span
+                className="block text-xs uppercase tracking-wider mb-1 font-semibold"
+                style={{ color: 'var(--muted)' }}
+              >
                 Motivation
               </span>
               {project.motivation}
@@ -107,12 +139,18 @@ export default function ProjectCard({
           </div>
 
           <div className="flex gap-4">
-            <Trophy className="w-5 h-5 text-teal-400 shrink-0 mt-0.5 group-hover:text-teal-300 transition-colors duration-300" />
+            <Trophy
+              className="w-5 h-5 shrink-0 mt-0.5 transition-colors duration-300"
+              style={{ color: 'var(--accent)' }}
+            />
             <div>
-              <span className="text-neutral-500 block text-xs uppercase tracking-wider mb-1 font-semibold">
+              <span
+                className="block text-xs uppercase tracking-wider mb-1 font-semibold"
+                style={{ color: 'var(--muted)' }}
+              >
                 Achievements
               </span>
-              <ul className="list-disc list-inside space-y-1.5 text-neutral-300 text-sm">
+              <ul className="list-disc list-inside space-y-1.5 text-sm" style={{ color: 'var(--foreground)' }}>
                 {project.achievements.slice(0, 3).map((ach, i) => (
                   <li key={i}>{ach}</li>
                 ))}
@@ -124,14 +162,34 @@ export default function ProjectCard({
 
       <div className="relative z-10 pt-8 mt-auto">
         {isComingSoon ? (
-          <div className="inline-flex items-center justify-center gap-2 bg-neutral-800/50 text-neutral-500 font-medium px-6 py-3 rounded-full w-full cursor-not-allowed select-none">
+          <div
+            className="inline-flex items-center justify-center gap-2 font-medium px-6 py-3 rounded-full w-full cursor-not-allowed select-none"
+            style={{ background: 'var(--accent-dim)', color: 'var(--muted)' }}
+          >
             <Clock className="w-4 h-4" />
             Coming Soon
           </div>
         ) : (
           <Link
             href={project.link}
-            className="inline-flex items-center justify-center gap-2 bg-teal-500/10 text-teal-400 font-medium hover:bg-teal-500 hover:text-neutral-950 transition-all duration-300 px-6 py-3 rounded-full group/btn w-full border border-teal-500/20 hover:border-teal-500"
+            className="inline-flex items-center justify-center gap-2 font-medium transition-all duration-300 px-6 py-3 rounded-full group/btn w-full"
+            style={{
+              background: 'var(--accent-dim)',
+              color: 'var(--accent)',
+              border: '1px solid var(--accent-dim-hover)',
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.background = 'var(--accent)';
+              el.style.color = 'white';
+              el.style.borderColor = 'var(--accent)';
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.background = 'var(--accent-dim)';
+              el.style.color = 'var(--accent)';
+              el.style.borderColor = 'var(--accent-dim-hover)';
+            }}
           >
             View Project Details
             <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-200" />

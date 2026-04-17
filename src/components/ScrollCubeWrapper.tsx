@@ -41,7 +41,7 @@ export default function ScrollCubeWrapper({ children }: ScrollCubeWrapperProps) 
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(ellipse at center, #0d0d1a 0%, #000000 100%)',
+            background: 'radial-gradient(ellipse at 60% 45%, #0d1520 0%, #050810 60%, #000000 100%)',
             zIndex: -1,
           }}
         />

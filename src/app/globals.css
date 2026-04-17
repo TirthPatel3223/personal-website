@@ -1,62 +1,67 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ─── Tailwind dark variant (class-based) ────────────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─── Design Tokens ─────────────────────────────────────────────────── */
 :root {
-  /* Colour palette */
-  --background:      #ffffff;
-  --foreground:      #171717;
-  --surface:         #f5f5f5;
-  --surface-raised:  #e5e5e5;
-  --border:          #d4d4d4;
-  --border-subtle:   #e5e5e5;
-  --muted:           #737373;
-  --accent:          #14b8a6;   /* teal-500 */
-  --accent-hover:    #2dd4bf;   /* teal-400 */
-  --accent-dim:      rgba(20,184,166,0.12);
-  --accent-dim-hover:rgba(20,184,166,0.20);
+  /* Dark mode (default) */
+  --background:       #0f1419;
+  --foreground:       #e2e8f0;
+  --surface:          #111827;
+  --surface-raised:   #1e293b;
+  --border:           rgba(148, 163, 184, 0.16);
+  --border-subtle:    rgba(148, 163, 184, 0.08);
+  --muted:            #94a3b8;
+  --title:            #f1f5f9;
 
-  /* Typography scale */
-  --font-sans:       var(--font-geist-sans);
-  --font-mono:       var(--font-geist-mono);
+  --accent:           #60a5fa;   /* blue-400 */
+  --accent-hover:     #93c5fd;   /* blue-300 */
+  --accent-dim:       rgba(96, 165, 250, 0.12);
+  --accent-dim-hover: rgba(96, 165, 250, 0.20);
 
-  /* Spacing rhythm */
-  --section-py: 6rem;  /* py-24 */
-  --content-max: 80rem;
+  --glass-bg:         transparent;
+  --glass-border:     rgba(148, 163, 184, 0.2);
 
-  /* Easing */
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --font-sans:        var(--font-poppins), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:        var(--font-geist-mono);
+
+  --section-py:       6rem;
+  --content-max:      80rem;
+  --ease-spring:      cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:      cubic-bezier(0.4, 0, 0.2, 1);
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+}
+
+/* ─── Light Mode ─────────────────────────────────────────────────────── */
+.light {
+  --background:       #f8f9fc;
+  --foreground:       #4a5568;
+  --surface:          #ffffff;
+  --surface-raised:   #ffffff;
+  --border:           rgba(0, 0, 0, 0.06);
+  --border-subtle:    rgba(0, 0, 0, 0.03);
+  --muted:            #718096;
+  --title:            #1a202c;
+
+  --accent:           #2563eb;   /* blue-600 */
+  --accent-hover:     #3b82f6;   /* blue-500 */
+  --accent-dim:       rgba(37, 99, 235, 0.08);
+  --accent-dim-hover: rgba(37, 99, 235, 0.15);
+
+  --glass-bg:         transparent;
+  --glass-border:     rgba(255, 255, 255, 0.5);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-poppins), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-/* ─── Dark Mode (media + class) ─────────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background:      #0a0a0a;
-    --foreground:      #ededed;
-    --surface:         #171717;
-    --surface-raised:  #262626;
-    --border:          #262626;
-    --border-subtle:   #1a1a1a;
-    --muted:           #737373;
-  }
-}
-
-.dark {
-  --background:      #0a0a0a;
-  --foreground:      #ededed;
-  --surface:         #171717;
-  --surface-raised:  #262626;
-  --border:          #262626;
-  --border-subtle:   #1a1a1a;
-  --muted:           #737373;
 }
 
 /* ─── Base Styles ────────────────────────────────────────────────────── */
@@ -75,10 +80,113 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
   text-rendering: optimizeLegibility;
   line-height: 1.6;
+}
+
+/* ─── Animated Background ────────────────────────────────────────────── */
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(37, 99, 235, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 90% 100%, rgba(59, 130, 246, 0.12) 0%, transparent 65%);
+  transition: background-color 0.3s ease;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+.dynamic-blob {
+  background: var(--accent);
+  opacity: 0.8;
+  max-width: 600px;
+  max-height: 600px;
+  filter: blur(140px) brightness(0.6);
+}
+
+.light .dynamic-blob {
+  filter: blur(200px);
+  opacity: 0.15 !important;
+}
+
+.cursor-blob {
+  position: fixed;
+  width: 160px;
+  height: 160px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 1;
+  filter: blur(30px);
+  opacity: 0.8;
+  will-change: transform, top, left;
+  background: radial-gradient(circle at 30% 30%, rgba(96, 165, 250, 0.5), transparent 60%);
+}
+
+.light .cursor-blob {
+  background: radial-gradient(circle at 30% 30%, rgba(37, 99, 235, 0.35), transparent 60%);
+}
+
+/* ─── Glassmorphism ──────────────────────────────────────────────────── */
+.glass {
+  background: rgba(15, 20, 26, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+.light .glass {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+/* ─── Section Title (with gradient underline) ────────────────────────── */
+.section-title {
+  position: relative;
+  display: inline-block;
+  color: var(--title);
+}
+
+.section-title::after {
+  content: '';
+  display: block;
+  width: 86px;
+  height: 3px;
+  margin: 0.75rem auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--accent), rgba(96, 165, 250, 0.3), transparent);
+  opacity: 0.95;
+  transform: scaleX(0.85);
+  transform-origin: center;
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1), opacity 600ms ease;
+}
+
+.section-title:hover::after {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+/* ─── Card Glass ─────────────────────────────────────────────────────── */
+.card-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 /* ─── Keyframes ─────────────────────────────────────────────────────── */
@@ -103,26 +211,21 @@ body {
 }
 
 /* ─── Utility Overrides ──────────────────────────────────────────────── */
-
-/* Selection */
 ::selection {
-  background-color: rgba(20, 184, 166, 0.3);
+  background-color: rgba(96, 165, 250, 0.3);
   color: inherit;
 }
 
-/* Scrollbar (webkit) */
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #404040;
+  background: #334155;
   border-radius: 99px;
 }
-::-webkit-scrollbar-thumb:hover { background: #525252; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-/* Focus visible */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;

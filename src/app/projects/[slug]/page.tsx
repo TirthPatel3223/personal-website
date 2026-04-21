@@ -36,33 +36,26 @@ export default async function ProjectPage({
   const isCubeSolver = project.id === 'deep-cube-solver';
 
   /* Accent colours stay per-project (unchanged from original) */
-  const accentText   = isDataTech ? 'text-[#4e9bb9]'         : 'text-teal-400';
-  const accentBorder = isDataTech ? 'border-[#1f77b4]/30'     : 'border-teal-500/30';
-  const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'         : 'bg-teal-500/10';
+  const accentText   = isDataTech ? 'text-[#4e9bb9]'            : 'cube-accent-text';
+  const accentBorder = isDataTech ? 'border-[#1f77b4]/30'       : 'cube-accent-border';
+  const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'           : 'cube-accent-bg';
   const accentHover  = isDataTech ? 'hover:border-[#4e9bb9]/50' : 'hover:border-teal-500/40';
 
   const mainContent = (
     <main
-      className="min-h-screen selection:bg-teal-500/20"
+      className={`min-h-screen selection:bg-teal-500/20${isCubeSolver ? ' cube-body-bg' : ''}`}
       style={{
         color: 'var(--foreground)',
         position: 'relative',
         zIndex: 10,
-        /* For the cube solver page, give every section a dark scrim so text
-           stays legible against the 3D Rubik's cube in the background */
-        backgroundColor: isCubeSolver ? 'rgba(5, 8, 16, 0.55)' : undefined,
       }}
     >
       <Navbar />
 
       {/* ── HERO BANNER ─────────────────────────────────────────────── */}
       <div
-        className="relative overflow-hidden"
-        style={{
-          borderBottom: '1px solid var(--border)',
-          /* Solid backing for the cube solver so the 3D background doesn't bleed through */
-          backgroundColor: isCubeSolver ? 'rgba(5, 8, 16, 0.82)' : undefined,
-        }}
+        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}`}
+        style={{ borderBottom: '1px solid var(--border)' }}
       >
         {/* Project-specific gradient overlay (keeps original look) */}
         <div
@@ -70,7 +63,7 @@ export default async function ProjectPage({
             isDataTech
               ? 'from-[#0a192f]/90 via-transparent to-transparent'
               : isCubeSolver
-              ? 'from-teal-950/70 via-teal-950/30 to-transparent'
+              ? 'cube-dark-gradient from-teal-950/70 via-teal-950/30 to-transparent'
               : 'from-teal-950/40 via-transparent to-transparent'
           }`}
         />

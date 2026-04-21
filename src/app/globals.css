@@ -210,6 +210,46 @@ body {
   50%       { opacity: 1; }
 }
 
+/* ─── Cube Solver Page — theme-aware scrims & accents ───────────────── */
+.cube-hero-bg {
+  background-color: rgba(5, 8, 16, 0.82);
+}
+.cube-body-bg {
+  background-color: rgba(5, 8, 16, 0.55);
+}
+.light .cube-hero-bg {
+  background-color: rgba(248, 250, 255, 0.92);
+}
+.light .cube-body-bg {
+  background-color: rgba(248, 250, 255, 0.88);
+}
+/* Hide the dark teal gradient overlay in light mode */
+.light .cube-dark-gradient {
+  display: none;
+}
+
+/* Teal accent text — readable in both modes */
+.cube-accent-text {
+  color: rgb(45, 212, 191); /* teal-400 */
+}
+.light .cube-accent-text {
+  color: rgb(13, 148, 136); /* teal-600 — darker for contrast on light bg */
+}
+
+/* Teal tag pill background + border */
+.cube-accent-bg {
+  background-color: rgba(20, 184, 166, 0.10);
+}
+.light .cube-accent-bg {
+  background-color: rgba(20, 184, 166, 0.18);
+}
+.cube-accent-border {
+  border-color: rgba(20, 184, 166, 0.30);
+}
+.light .cube-accent-border {
+  border-color: rgba(20, 184, 166, 0.55);
+}
+
 /* ─── Utility Overrides ──────────────────────────────────────────────── */
 ::selection {
   background-color: rgba(96, 165, 250, 0.3);

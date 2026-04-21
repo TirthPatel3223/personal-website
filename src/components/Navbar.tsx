@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from './ThemeProvider';
@@ -18,6 +20,10 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState('');
   const { theme, toggle } = useTheme();
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
+  const navHref = (anchor: string) => (isHome ? anchor : `/${anchor}`);
 
   useEffect(() => {
     const onScroll = () => {
@@ -52,26 +58,26 @@ export default function Navbar() {
       >
         <nav className="flex items-center justify-between px-6 h-full">
           {/* Logo */}
-          <a
-            href="#hero"
+          <Link
+            href="/"
             className="text-2xl font-black transition-colors duration-200"
             style={{ color: 'var(--accent)' }}
           >
             T
-          </a>
+          </Link>
 
           {/* Desktop links */}
           <ul className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map(({ label, href }) => (
               <li key={href} className="relative">
-                <a
-                  href={href}
+                <Link
+                  href={navHref(href)}
                   className="text-sm font-medium tracking-wide transition-colors duration-200 py-1"
                   style={{
                     color: active === href ? 'var(--accent)' : 'var(--muted)',
                   }}
-                  onMouseEnter={(e) => { if (active !== href) (e.target as HTMLAnchorElement).style.color = 'var(--accent)'; }}
-                  onMouseLeave={(e) => { if (active !== href) (e.target as HTMLAnchorElement).style.color = 'var(--muted)'; }}
+                  onMouseEnter={(e) => { if (active !== href) (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent)'; }}
+                  onMouseLeave={(e) => { if (active !== href) (e.currentTarget as HTMLAnchorElement).style.color = 'var(--muted)'; }}
                 >
                   {label}
                   {active === href && (
@@ -82,7 +88,7 @@ export default function Navbar() {
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -178,8 +184,8 @@ export default function Navbar() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.2 }}
                 >
-                  <a
-                    href={href}
+                  <Link
+                    href={navHref(href)}
                     className="block text-sm font-medium py-2.5 px-4 rounded-xl transition-all duration-200"
                     style={{
                       color: active === href ? 'var(--accent)' : 'var(--foreground)',
@@ -188,7 +194,7 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(false)}
                   >
                     {label}
-                  </a>
+                  </Link>
                 </motion.li>
               ))}
             </ul>

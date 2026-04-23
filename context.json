@@ -26,15 +26,15 @@
       "role": "Business & Strategy Analyst",
       "duration": "2022 - 2024",
       "context": "Worked during undergraduate degree",
-      "about": "Seat of Joy is an Indian startup that developed a safety seat for children designed specifically for two-wheelers, providing full-body protection during accidents — a gap no existing product addressed.",
+      "about": "Seat of Joy is an Indian startup incubated at IIT Madras that developed a safety seat for children specifically designed for two-wheelers — in India, 2 children die every day due to two-wheeler accidents and no existing product provided full-body protection during an accident. Seat of Joy fills that gap.",
       "achievements": [
-        "Developed a probabilistic market-sizing model using Indian Census 2011 data (100+ tables, 200K+ rows each), combining linear regression with birth-order and age-gap probability analysis to estimate 55M target customers with 5% YoY growth — a 45% improvement over the previous estimate, used in all investor pitch decks.",
-        "Built a supply-chain optimization model using operations research principles (solved via Gurobi / Excel) that maximised profit by balancing manufacturing costs, shipping costs, selling price, and state-level demand caps derived from the market-sizing model.",
-        "Conducted full competitor analysis — SWOT across three product categories and direct pricing analysis by sourcing manufacturing costs from suppliers — which informed product positioning and market launch strategy.",
-        "Led a team of 3 to develop the business and marketing pitch deck for Shark Tank India Auditions; presented data-backed market-size analysis, competitive landscape, pricing strategy, and go-to-market plan to investors, representing the startup at the auditions.",
-        "Performed strategic marketing work including competitor analytics, pricing strategy, market launch strategies, and market analysis."
+        "Developed a probabilistic market-sizing mathematical model from scratch using Indian Census 2011 data (100+ tables, 200K+ rows each), combining birth-order probability analysis and age-gap distributions with linear regression to estimate 55M target customers with 5% YoY growth — a 45% improvement over the previous estimate, used in all investor pitch decks. The model works by using two census tables: one mapping mother's age to child age-gap from a previous child (second/third births), and another recording whether each birth is a first, second, or higher-order child. Multiplying these probabilities gives the likelihood a given child falls in the 3–6 year target age range, then linear regression projects future growth. When the next census is released the model's 2011-based predictions can be validated against actual data.",
+        "Built a supply-chain optimization model using operations research principles (solved via Gurobi and Excel Solver) that maximises profit by balancing manufacturing costs, shipping costs, and selling price — with penalty terms for over-concentrating shipments into one state (elastic-net style) and state-level demand caps derived from the market-sizing model's per-state estimates.",
+        "Conducted full competitor analysis — SWOT across three product categories (child safety seats, two-wheeler accessories, and general child restraints) plus direct pricing analysis sourced by calling manufacturers to obtain their production costs — establishing the margin structure of the category and informing Seat of Joy's positioning and launch pricing strategy.",
+        "Led a team of 3 to develop the complete business and marketing pitch deck for Shark Tank India Auditions; the deck covered market-size analysis (backed by the mathematical model), competitive landscape, pricing strategy, and go-to-market plan — represented the startup at the auditions and answered all investor questions on the data-backed analysis.",
+        "Performed ongoing strategic marketing work: competitor analytics, pricing strategy, market launch strategies, and market analysis — supporting fundraising and product launch planning."
       ],
-      "skills_used": ["Python", "Excel", "Gurobi", "Linear Regression", "Probability & Statistics", "Operations Research", "Competitive Analysis", "Strategic Marketing", "Pitch Deck Development"]
+      "skills_used": ["Python", "Excel", "Gurobi", "Linear Regression", "Probability & Statistics", "Operations Research", "Competitive Analysis", "Strategic Marketing", "Pitch Deck Development", "Mathematical Modeling", "Data Analysis"]
     }
   ],
   "projects": [
@@ -61,6 +61,28 @@
       ],
       "technical_details": "React, TypeScript, Redux, Chart.js, and Firebase.",
       "link": "/projects/e-commerce-dashboard"
+    },
+    {
+      "id": "course-rag-pipeline",
+      "title": "Course RAG Pipeline",
+      "short_description": "Production-deployed agentic RAG system for UCLA MSBA students to query course materials — lecture slides, transcripts, and PDFs — using natural language.",
+      "live_url": "https://tirth-courserag.duckdns.org",
+      "motivation": "The UCLA MSBA program runs 4 simultaneous courses (MSA408, MSA409, MSA410, MSA413), each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic RAG system that classifies every query, self-verifies deadline answers to prevent hallucination, supports human-approved file uploads, and can explain exactly which source chunks drove any answer — all deployed at effectively zero infrastructure cost.",
+      "achievements": [
+        "Built a 13-node LangGraph agent with conditional routing across 5 query types: deadline, summary, upload, general Q&A, and source explanation.",
+        "Implemented self-verifying deadline extraction: after the LLM extracts a date, the system re-queries ChromaDB with a rephrased search, cross-references results, and surfaces conflicting dates with a confidence indicator — reducing hallucination risk on the most critical query type.",
+        "Designed human-in-the-loop file upload flow using LangGraph interrupt-before mechanism with a SQLite checkpointer: LLM proposes a Google Drive folder path with reasoning, user approves or edits before the file is embedded — preventing mis-categorised files from polluting the vector store.",
+        "Built deadline-boosted retrieval: chunks containing deadline keywords are tagged with a contains_deadline metadata flag at ingestion; the retriever merges a deadline-filtered query with a general query, deduplicates, and re-ranks — ensuring deadline chunks surface at top even when semantic similarity is not highest.",
+        "Implemented dual-provider LLM fallback: Claude Haiku as primary, GPT-4o-mini as fallback, with provider name surfaced in the UI for transparency.",
+        "Added OpenAI Vision fallback for scanned PDFs: when PyMuPDF extracts fewer than 30 characters from a page (image-based), the page is sent to GPT-4o-mini Vision with a verbatim-transcription prompt, 25-second per-page timeout, max 2 concurrent vision calls, and an early bail-out after 5 consecutive failures per file.",
+        "Deployed on Oracle Cloud Always Free ARM VPS (4 CPU, 24GB RAM) using Docker + Caddy + Let's Encrypt + DuckDNS at ~$1–4/month total (effectively just LLM API usage).",
+        "Solved 9 distinct production issues during deployment: Oracle iptables blocking ports 80/443 (fixed via iptables -I to insert before REJECT), DuckDNS domain expiry (fixed via cron ping job), Google OAuth credentials not accessible in Docker container (fixed via docker cp), ChromaDB metadata filter returning zero results (added fallback retry without course filter), LangGraph human-in-the-loop needing state persistence (integrated langgraph-checkpoint-sqlite), and more."
+      ],
+      "tech_stack": ["LangGraph", "FastAPI", "ChromaDB", "Claude Haiku", "OpenAI GPT-4o-mini", "Google Drive API", "Docker", "Caddy", "SQLite", "WebSocket", "Python", "Oracle Cloud"],
+      "technical_details": "LangGraph (13-node graph, interrupt-before for human-in-the-loop), FastAPI + WebSocket, ChromaDB (self-hosted), Claude claude-3-5-haiku-20241022 + GPT-4o-mini (fallback), OpenAI text-embedding-3-small (1536-dim), Google Drive API (OAuth 2.0), PyMuPDF + OpenAI Vision for scanned PDFs, aiosqlite for session persistence, Docker + Docker Compose, Caddy reverse proxy, Oracle Cloud Always Free ARM VPS.",
+      "architecture": "13-node LangGraph graph: input_handler → router (5-way conditional) → [deadline: retriever → deadline_extractor → deadline_verifier] / [summary: retriever → summary_redirector] / [upload: upload_handler → location_classifier → human_approval_gate (INTERRUPT) → upload_executor] / [general: retriever → general_responder] / [source_explanation: source_explainer] → response_output → END. Agent state tracks 15 fields. Session history persisted in SQLite.",
+      "link": "/projects/course-rag-pipeline",
+      "status": "complete"
     },
     {
       "id": "weather-dining-pipeline",

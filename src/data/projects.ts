@@ -34,6 +34,114 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: 'course-rag-pipeline',
+    title: 'Course RAG Pipeline',
+    short_description:
+      'Production-deployed agentic RAG system for UCLA MSBA students to query course materials — lecture slides, transcripts, and PDFs — using natural language. Live at tirth-courserag.duckdns.org.',
+    motivation:
+      'The UCLA MSBA program runs 4 simultaneous courses, each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic system that classifies every query, self-verifies deadline answers, supports human-approved file uploads, and can explain exactly which source chunks drove any answer — deployed at effectively zero infrastructure cost on Oracle Cloud Free Tier.',
+    achievements: [
+      'Built a 13-node LangGraph agent with conditional routing across 5 query types: deadline, summary, upload, general Q&A, and source explanation',
+      'Implemented self-verifying deadline extraction: LLM extracts date → re-queries ChromaDB with rephrased search → cross-references results → surfaces conflicts with confidence indicator',
+      'Designed human-in-the-loop upload approval using LangGraph interrupt-before + SQLite checkpointer: LLM proposes a Drive folder path, user approves/edits before embedding — preventing vector store pollution',
+      'Built deadline-boosted retrieval: chunks tagged with contains_deadline metadata at ingestion, merged and re-ranked with general results to surface deadline content even when semantic score is not highest',
+      'Added OpenAI Vision fallback for scanned PDFs: 25-sec timeout per page, max 2 concurrent calls, early bail-out after 5 consecutive failures',
+      'Deployed on Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM) using Docker + Caddy + DuckDNS at ~$1–4/month total',
+      'Solved 9 distinct production issues during deployment including Oracle iptables blocking (iptables -I fix), DuckDNS expiry (cron ping job), and OAuth credentials not accessible in Docker (docker cp fix)',
+    ],
+    tech_stack: ['LangGraph', 'FastAPI', 'ChromaDB', 'Claude Haiku', 'OpenAI', 'Google Drive API', 'Docker', 'Python', 'SQLite', 'WebSocket'],
+    technical_details: 'LangGraph, FastAPI, ChromaDB, Claude Haiku, GPT-4o-mini, OpenAI Embeddings, Google Drive API, PyMuPDF, Docker, Caddy, Oracle Cloud',
+    status: 'complete',
+    link: '/projects/course-rag-pipeline',
+    detail: {
+      problem_statement:
+        'UCLA MSBA students juggle 4 simultaneous courses — each with lecture slides, transcripts, homework deadlines, and project deliverables scattered across a shared Google Drive. Manual search is slow and error-prone, especially for deadline-critical queries ("when is HW3 due?"). The challenge: build a production-grade agentic system that can answer natural-language questions over course PDFs, verify its own deadline answers to prevent hallucination, let students upload new files safely without polluting the vector store, and explain exactly which source chunks it used — all at zero ongoing infrastructure cost.',
+      approach: [
+        {
+          step: 'LangGraph Agentic Orchestration',
+          detail:
+            'Designed a 13-node LangGraph graph with a priority-based router that first checks for pending clarifications, then tries regex pattern matching (e.g., "why did you", "where did that come from"), and only falls back to LLM classification if patterns fail — saving ~200 tokens per source-explanation follow-up. The router classifies each query into one of five types and routes to the appropriate branch.',
+        },
+        {
+          step: 'Self-Verifying Deadline Extraction',
+          detail:
+            'Deadline queries carry the highest accuracy requirement — a wrong date is worse than no answer. After extracting a deadline with the LLM, the system immediately re-queries ChromaDB with a rephrased version of the search and cross-references the extracted date against the new results. If two chunks give different dates for the same assignment, the response surfaces both and flags the discrepancy with a confidence indicator.',
+        },
+        {
+          step: 'Deadline-Boosted Retrieval',
+          detail:
+            'Chunks containing deadline keywords (due, deadline, submit, homework, exam, etc.) are tagged with a contains_deadline metadata flag during ingestion. The ChromaService.query_with_deadline_boost() method merges results from a deadline-filtered query with results from a general query, deduplicates, and re-ranks — ensuring deadline-containing chunks appear at the top even when the semantic similarity score is not highest (deadline keywords often appear as side notes with lower embedding similarity).',
+        },
+        {
+          step: 'Human-in-the-Loop Upload Approval',
+          detail:
+            'When a user uploads a file, the LangGraph graph pauses at a human_approval_gate node using LangGraph\'s interrupt_before mechanism with a SQLite checkpointer. The UI shows an approval dialog with the LLM\'s proposed Drive folder path and its reasoning. The user can approve, modify the path, or reject. Only approved uploads are chunked, embedded with OpenAI text-embedding-3-small, and stored in ChromaDB — preventing mis-categorised files from polluting the vector store.',
+        },
+        {
+          step: 'Vision Fallback for Scanned PDFs',
+          detail:
+            'PyMuPDF text extraction returns fewer than 30 characters for pages that are images (scanned slides, photographed documents). In this case, the PDFProcessor sends the page image to OpenAI Vision (GPT-4o-mini) with a strict verbatim-transcription prompt. To prevent API timeouts from hanging the pipeline: 25-second timeout per page, maximum 2 concurrent vision calls, and an early bail-out after 5 consecutive failures on a single file.',
+        },
+        {
+          step: 'Deployment & Infrastructure',
+          detail:
+            'Fully containerised with Docker Compose on an Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM). Caddy handles reverse proxying and automatic HTTPS via Let\'s Encrypt. DuckDNS provides the free dynamic domain (with a cron job pinging every 30 minutes to prevent expiry). Total infrastructure cost: ~$1–4/month — essentially just LLM API usage. Solved production issues including Oracle iptables blocking ports 80/443 (fixed via iptables -I to insert ACCEPT before the blanket REJECT rule) and Google OAuth credentials not accessible inside the running container (fixed via docker cp).',
+        },
+      ],
+      architecture: `
+START
+  ↓
+input_handler       → loads chat history from SQLite
+  ↓
+router              → priority: pending clarification → regex → LLM
+  ↓
+[CONDITIONAL ROUTING by query_type]
+
+  deadline branch:
+    retriever         → ChromaDB deadline-boosted search (k=5)
+    deadline_extractor → LLM: {assignment, date, time, confidence}
+    deadline_verifier  → re-query + cross-reference → flag conflicts
+    response_output
+
+  summary branch:
+    retriever         → ChromaDB search (k=10)
+    summary_redirector → return Drive links + page numbers
+    response_output
+
+  upload branch:
+    upload_handler    → extract file content preview
+    location_classifier → LLM proposes Drive folder path
+    human_approval_gate [INTERRUPT] ← user approves/edits/rejects
+    upload_executor   → Drive upload + chunk + embed + ChromaDB
+    response_output
+
+  general branch:
+    retriever         → ChromaDB search (k=7)
+    general_responder → LLM answer with cited sources
+    response_output
+
+  source_explanation branch:
+    source_explainer  → scan session history → return raw chunks
+    response_output
+
+END
+
+Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
+          EmbeddingService (text-embedding-3-small, 1536-dim)
+          ChromaService (metadata filter: course_id + quarter, fallback on zero results)
+          DriveService (Google Drive API, OAuth 2.0)
+          PDFProcessor (PyMuPDF + Vision fallback for scanned pages)`,
+      results: [
+        { metric: 'LangGraph Nodes', value: '13', description: 'Plus 1 interrupt point for human-in-the-loop' },
+        { metric: 'Query Types', value: '5', description: 'Deadline, summary, upload, general, source explanation' },
+        { metric: 'Infra Cost', value: '~$1–4/mo', description: 'Oracle Cloud Free Tier + DuckDNS + Let\'s Encrypt' },
+        { metric: 'Courses Indexed', value: '4', description: 'MSA408, MSA409, MSA410, MSA413' },
+        { metric: 'Production Bugs Solved', value: '9', description: 'iptables, domain expiry, Docker creds, ChromaDB filters, and more' },
+        { metric: 'Test Count', value: '33', description: '20 Phase 1 + 13 Phase 2 tests' },
+      ],
+    },
+  },
+  {
     id: 'weather-dining-pipeline',
     title: 'Yelp & Weather Intelligence Pipeline',
     short_description:

@@ -2,6 +2,7 @@ import { getProjectBySlug, projects } from '@/data/projects';
 import { ArrowLeft, Github, CheckCircle2, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import TableauPreviewCard from '@/components/TableauPreviewCard';
+import CourseRAGPreviewCard from '@/components/CourseRAGPreviewCard';
 import ScrollCubeWrapper from '@/components/ScrollCubeWrapper';
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from '@/components/AnimatedBackground';
@@ -34,6 +35,7 @@ export default async function ProjectPage({
   const { detail } = project;
   const isDataTech = slug === 'weather-dining-pipeline';
   const isCubeSolver = project.id === 'deep-cube-solver';
+  const isRAG = project.id === 'course-rag-pipeline';
 
   /* Accent colours stay per-project (unchanged from original) */
   const accentText   = isDataTech ? 'text-[#4e9bb9]'            : 'cube-accent-text';
@@ -232,6 +234,9 @@ export default async function ProjectPage({
 
             {/* Tableau Dashboard Preview */}
             {isDataTech && <TableauPreviewCard />}
+
+            {/* Course RAG Live Demo */}
+            {isRAG && <CourseRAGPreviewCard />}
           </>
         ) : (
           /* Fallback for projects without rich detail */

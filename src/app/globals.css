@@ -250,6 +250,12 @@ body {
   border-color: rgba(20, 184, 166, 0.55);
 }
 
+/* Site accent (blue) — matches homepage tag pills, adapts to light/dark */
+.site-accent-text   { color: var(--accent); }
+.site-accent-bg     { background-color: var(--accent-dim); }
+.site-accent-border { border-color: var(--accent-dim-hover); }
+.hover-site-accent-border:hover { border-color: var(--accent-hover); }
+
 /* ─── Utility Overrides ──────────────────────────────────────────────── */
 ::selection {
   background-color: rgba(96, 165, 250, 0.3);

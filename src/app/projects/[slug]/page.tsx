@@ -37,11 +37,11 @@ export default async function ProjectPage({
   const isCubeSolver = project.id === 'deep-cube-solver';
   const isRAG = project.id === 'course-rag-pipeline';
 
-  /* Accent colours stay per-project (unchanged from original) */
-  const accentText   = isDataTech ? 'text-[#4e9bb9]'            : 'cube-accent-text';
-  const accentBorder = isDataTech ? 'border-[#1f77b4]/30'       : 'cube-accent-border';
-  const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'           : 'cube-accent-bg';
-  const accentHover  = isDataTech ? 'hover:border-[#4e9bb9]/50' : 'hover:border-teal-500/40';
+  /* Accent colours per-project */
+  const accentText   = isDataTech ? 'text-[#4e9bb9]'            : isRAG ? 'site-accent-text'   : 'cube-accent-text';
+  const accentBorder = isDataTech ? 'border-[#1f77b4]/30'       : isRAG ? 'site-accent-border' : 'cube-accent-border';
+  const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'           : isRAG ? 'site-accent-bg'     : 'cube-accent-bg';
+  const accentHover  = isDataTech ? 'hover:border-[#4e9bb9]/50' : isRAG ? 'hover-site-accent-border' : 'hover:border-teal-500/40';
 
   const mainContent = (
     <main
@@ -196,7 +196,7 @@ export default async function ProjectPage({
                   </span>
                 </div>
                 <pre
-                  className={`${isDataTech ? 'text-[#92c5de]' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
+                  className={`${isDataTech ? 'text-[#92c5de]' : isRAG ? 'site-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
                 >
                   {detail.architecture}
                 </pre>

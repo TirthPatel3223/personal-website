@@ -210,6 +210,71 @@ body {
   50%       { opacity: 1; }
 }
 
+/* ─── Cube Solver Dual-Accent Tokens ────────────────────────────────── */
+.cube-page {
+  --cp:      #a78bfa;
+  --cp-h:    #c4b5fd;
+  --cp-dim:  rgba(167,139,250,0.10);
+  --cp-dim-h:rgba(167,139,250,0.18);
+  --cp-bdr:  rgba(167,139,250,0.22);
+  --cp-glow: rgba(124,58,237,0.38);
+
+  --ct:      #2dd4bf;
+  --ct-h:    #5eead4;
+  --ct-dim:  rgba(45,212,191,0.09);
+  --ct-dim-h:rgba(45,212,191,0.16);
+  --ct-bdr:  rgba(45,212,191,0.22);
+
+  --cg:      rgb(74,222,128);
+}
+.light .cube-page {
+  --cp:      #7c3aed;
+  --cp-h:    #6d28d9;
+  --cp-dim:  rgba(124,58,237,0.07);
+  --cp-dim-h:rgba(124,58,237,0.13);
+  --cp-bdr:  rgba(124,58,237,0.25);
+  --cp-glow: rgba(124,58,237,0.07);
+
+  --ct:      #0d9488;
+  --ct-h:    #0f766e;
+  --ct-dim:  rgba(13,148,136,0.07);
+  --ct-dim-h:rgba(13,148,136,0.14);
+  --ct-bdr:  rgba(13,148,136,0.25);
+}
+
+@keyframes cube-float {
+  0%,100%{ transform: translateY(0) rotate3d(0,1,0,0deg) }
+  33%    { transform: translateY(-13px) rotate3d(0,1,0,1.8deg) }
+  66%    { transform: translateY(-6px) rotate3d(0,1,0,-1.1deg) }
+}
+@keyframes cube-blink {
+  0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.75)}
+}
+@keyframes cube-aura {
+  0%,100%{opacity:.6} 50%{opacity:1}
+}
+
+/* ─── Cube Solver Page — hero responsive grid ───────────────────────── */
+.dca-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 2rem;
+  align-items: center;
+  padding: 6.5rem 0 4rem;
+}
+@media (max-width: 860px) {
+  .dca-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .dca-hero-grid > div:last-child {
+    order: -1;
+  }
+  .dca-hero-grid img {
+    width: 240px !important;
+    height: 240px !important;
+  }
+}
+
 /* ─── Cube Solver Page — theme-aware scrims & accents ───────────────── */
 .cube-hero-bg {
   background-color: rgba(5, 8, 16, 0.82);

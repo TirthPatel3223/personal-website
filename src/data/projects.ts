@@ -231,12 +231,11 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
       |  + SLA Alerting  |  |  maps & metrics  |
       +------------------+  +------------------+`,
       results: [
-        { metric: 'Freezing Sentiment', value: '0.71' },
-        { metric: 'Avg Review Stars', value: '3.85' },
-        { metric: 'Overall Sentiment', value: '0.58' },
-        { metric: 'Records Processed', value: '10M+' },
-        { metric: 'Snowflake Latency', value: '<5s' },
-        { metric: 'Dashboards', value: 'Live', description: 'Interactive executive dashboard available on Tableau Public' },
+        { metric: 'Records Processed',  value: '10M+',   description: 'Yelp reviews + weather data'       },
+        { metric: 'Peak Sentiment',      value: '0.71',   description: 'Freezing weather paradox'          },
+        { metric: 'Query Latency',       value: '< 5s',   description: 'Snowflake star-schema DW'          },
+        { metric: 'Avg Review Stars',    value: '3.85★',  description: 'Across all weather types'          },
+        { metric: 'Volume Drop (Rain)',  value: '50.7%',  description: 'vs. pleasant-day baseline'         },
       ],
       github_url: 'https://github.com/TirthPatel3223/Yelp-Weather-Pipeline',
     },

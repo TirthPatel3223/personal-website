@@ -8,7 +8,27 @@
       "Bash(npx tsc --noEmit --project tsconfig.json)",
       "Bash(npx tsc --noEmit)",
       "Bash(npm run build)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(curl -s \"https://raw.githubusercontent.com/SwapnilMane22/portfolio/HEAD/frontend/src/components/Header/Header.js\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/SwapnilMane22/portfolio/HEAD/frontend/src/components/Header/Header.css\")",
+      "Bash(curl -s \"https://api.github.com/repos/SwapnilMane22/portfolio/contents/frontend/src/components/AnimatedBackground\")",
+      "Bash(python3 -c \"import sys,json; [print\\(x['name']\\) for x in json.load\\(sys.stdin\\)]\")",
+      "Bash(curl -s \"https://api.github.com/repos/SwapnilMane22/portfolio/contents/frontend/src/components/Skills\")",
+      "Bash(curl -s \"https://api.github.com/repos/SwapnilMane22/portfolio/contents/frontend/src/components/Navbar\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/SwapnilMane22/portfolio/HEAD/frontend/src/components/AnimatedBackground/AnimatedBackground.js\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/SwapnilMane22/portfolio/HEAD/frontend/src/components/AnimatedBackground/AnimatedBackground.css\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/SwapnilMane22/portfolio/HEAD/frontend/src/components/Navbar/Navbar.js\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/SwapnilMane22/portfolio/HEAD/frontend/src/components/Navbar/Navbar.css\")",
+      "Bash(npm run *)",
+      "Bash(start http://localhost:3000)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(python -c ' *)",
+      "Bash(git -C \"c:\\\\Users\\\\tirth\\\\OneDrive\\\\Desktop\\\\Agentic_Systems\\\\Personal_Website\" status)",
+      "Bash(git -C \"c:\\\\Users\\\\tirth\\\\OneDrive\\\\Desktop\\\\Agentic_Systems\\\\Personal_Website\" log --oneline -5)",
+      "Bash(git -C \"c:\\\\Users\\\\tirth\\\\OneDrive\\\\Desktop\\\\Agentic_Systems\\\\Personal_Website\" diff --stat)"
     ]
   }
 }

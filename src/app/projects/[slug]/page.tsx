@@ -6,6 +6,10 @@ import CourseRAGPreviewCard from '@/components/CourseRAGPreviewCard';
 import ScrollCubeWrapper from '@/components/ScrollCubeWrapper';
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from '@/components/AnimatedBackground';
+import WeatherParticles from '@/components/WeatherParticles';
+import WeatherPipelineArchDiagram from '@/components/WeatherPipelineArchDiagram';
+import WeatherPipelineInsights from '@/components/WeatherPipelineInsights';
+import DeepCubeAPage from '@/components/DeepCubeAPage';
 
 export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.id }));
@@ -74,6 +78,7 @@ export default async function ProjectPage({
             isDataTech ? 'bg-[#1f77b4]/12' : 'bg-teal-500/8'
           }`}
         />
+        {isDataTech && <WeatherParticles />}
 
         <div className="relative max-w-5xl mx-auto px-4 pt-28 pb-16">
           {/* Back link */}
@@ -195,11 +200,15 @@ export default async function ProjectPage({
                     architecture-diagram
                   </span>
                 </div>
-                <pre
-                  className={`${isDataTech ? 'text-[#92c5de]' : isRAG ? 'site-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
-                >
-                  {detail.architecture}
-                </pre>
+                {isDataTech ? (
+                  <WeatherPipelineArchDiagram />
+                ) : (
+                  <pre
+                    className={`${isRAG ? 'site-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
+                  >
+                    {detail.architecture}
+                  </pre>
+                )}
               </div>
             </section>
 
@@ -216,6 +225,11 @@ export default async function ProjectPage({
                     <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--muted)' }}>
                       {r.metric}
                     </p>
+                    {r.description && (
+                      <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--muted)', opacity: 0.7 }}>
+                        {r.description}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -231,6 +245,9 @@ export default async function ProjectPage({
                 ))}
               </div>
             </section>
+
+            {/* Weather Paradox Findings */}
+            {isDataTech && <WeatherPipelineInsights />}
 
             {/* Tableau Dashboard Preview */}
             {isDataTech && <TableauPreviewCard />}
@@ -318,8 +335,7 @@ export default async function ProjectPage({
   );
 
   if (isCubeSolver) {
-    /* Cube page: Rubik's cube stays as background, no animated blobs */
-    return <ScrollCubeWrapper>{mainContent}</ScrollCubeWrapper>;
+    return <ScrollCubeWrapper><DeepCubeAPage project={project} /></ScrollCubeWrapper>;
   }
 
   /* All other project pages: use the animated blob background */

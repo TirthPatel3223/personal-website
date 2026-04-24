@@ -10,10 +10,11 @@ import { Github, Linkedin, Mail, FileText, MapPin } from 'lucide-react';
 
 const skills: Record<string, string[]> = {
   Languages: ['Python', 'SQL', 'R', 'JavaScript', 'TypeScript'],
-  'ML / AI': ['PyTorch', 'TensorFlow', 'scikit-learn', 'Hugging Face', 'LLMs & RAG'],
-  'Data Engineering': ['PySpark', 'Snowflake', 'Airflow', 'dbt', 'Kafka'],
-  Analytics: ['Tableau', 'Power BI', 'Pandas', 'NumPy', 'Matplotlib'],
-  Tools: ['Git', 'Docker', 'AWS', 'GCP', 'Jupyter'],
+  'ML / AI': ['PyTorch', 'scikit-learn', 'LangGraph', 'Hugging Face', 'LLMs & RAG'],
+  'Data Engineering': ['PySpark', 'Snowflake', 'Airflow', 'FastAPI', 'ChromaDB'],
+  'Analytics & Visualization': ['Tableau', 'Pandas', 'NumPy', 'Matplotlib', 'VADER NLP'],
+  'Optimization & Modeling': ['Gurobi', 'Linear Regression', 'Probability & Statistics', 'Operations Research', 'Mathematical Modeling'],
+  Tools: ['Git', 'Docker', 'Next.js', 'Oracle Cloud', 'Jupyter'],
 };
 
 /* ─── Shared animation variants ────────────────────────────────────── */
@@ -202,24 +203,28 @@ export default function Home() {
               <>
                 I grew up fascinated by how systems work — which led me to pursue a B.Tech in Engineering at{' '}
                 <span className="font-medium" style={{ color: 'var(--accent)' }}>IIT Madras</span>, one of India&apos;s
-                premier technical institutions. There, I developed a deep foundation in mathematics, algorithms, and
-                statistical thinking, which sparked my passion for turning raw data into meaningful insight.
+                premier technical institutions. There, I built a deep foundation in mathematics, statistics, and
+                algorithms — and developed a taste for turning complex, messy data into decisions that actually matter.
               </>,
               <>
-                After graduation, I joined{' '}
-                <span className="font-medium" style={{ color: 'var(--accent)' }}>Seat of Joy</span> as a Data Analyst,
-                where I built end-to-end analytics pipelines and customer-facing dashboards. The startup environment
-                pushed me to wear many hats — data engineering, ML modeling, and stakeholder communication — and taught
-                me how to ship fast without sacrificing rigor.
+                During my undergrad, I joined{' '}
+                <span className="font-medium" style={{ color: 'var(--accent)' }}>Seat of Joy</span> — a child safety
+                startup incubated at IIT Madras — as a Business &amp; Strategy Analyst. I built a probabilistic
+                market-sizing model from Indian Census data (100+ tables, 200K+ rows each) that estimated 55M target
+                customers with 5% YoY growth, developed a supply-chain optimization model using operations research
+                principles, led full competitor and pricing analysis across the category, and represented the startup
+                at{' '}
+                <span className="font-medium" style={{ color: 'var(--accent)' }}>Shark Tank India Auditions</span>{' '}
+                — pitching data-backed market and business strategy to investors.
               </>,
               <>
                 I&apos;m now pursuing my{' '}
                 <span className="font-medium" style={{ color: 'var(--accent)' }}>
                   Master of Science in Business Analytics (MSBA) at UCLA Anderson
                 </span>
-                , deepening my expertise in machine learning, optimization, and data strategy. I&apos;m driven by
-                problems where data meets real-world impact — from NLP pipelines to deep reinforcement learning to
-                production-grade recommendation systems.
+                , deepening my expertise in machine learning, data engineering, and optimization. I&apos;m drawn to
+                problems where rigorous analysis drives real-world impact — from production agentic RAG systems to
+                large-scale data pipelines to deep reinforcement learning.
               </>,
             ].map((content, i) => (
               <motion.p

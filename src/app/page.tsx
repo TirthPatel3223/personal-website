@@ -140,7 +140,7 @@ export default function Home() {
                 <Mail className="w-5 h-5" />
               </a>
               <a
-                href="/tirth_resume_enhanced.docx"
+                href="/tirth_resume_main.pdf"
                 target="_blank"
                 className="inline-flex items-center gap-2 font-medium rounded-full px-5 py-2.5 transition-all duration-200 text-sm"
                 style={{
@@ -486,7 +486,7 @@ export default function Home() {
             {[
               { href: 'https://www.linkedin.com/in/tirthpatel3223', icon: <Linkedin className="w-5 h-5" />, label: 'LinkedIn' },
               { href: 'https://github.com/TirthPatel3223', icon: <Github className="w-5 h-5" />, label: 'GitHub' },
-              { href: '/tirth_resume_enhanced.docx', icon: <FileText className="w-5 h-5" />, label: 'Resume' },
+              { href: '/tirth_resume_main.pdf', icon: <FileText className="w-5 h-5" />, label: 'Resume' },
             ].map(({ href, icon, label }) => (
               <a
                 key={label}

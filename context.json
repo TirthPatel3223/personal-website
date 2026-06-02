@@ -109,6 +109,60 @@
       "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/MSBA_405/Dashboard",
       "link": "/projects/weather-dining-pipeline",
       "status": "complete"
+    },
+    {
+      "id": "covid-impact-analysis",
+      "title": "COVID-19 Impact Analysis",
+      "short_description": "Interactive Tableau visualization analyzing COVID-19's impact on India — tracking vaccination rollout, weekly case surges, and death rate trajectories with demographic context.",
+      "motivation": "To quantify the pandemic's real-world effects on India through vaccination rates, case trajectories, and death rates — contextualised by demographic indicators like HDI, median age, and population density.",
+      "tech_stack": ["Tableau", "Data Visualization", "SQL"],
+      "achievements": [
+        "Visualized the dramatic impact of vaccination on death rates — weekly death rate dropped from 3.5 to near 0 after vaccination rollout began",
+        "Captured India's devastating second wave: weekly new cases peaked at 2.2M+ around February 2021",
+        "Tracked vaccination milestone of 140M+ total people vaccinated with clear inflection points",
+        "Built demographic context layer showing HDI (0.6), median age (28.2), and population density (450.4) for analytical framing",
+        "Created before/after vaccination comparison revealing vaccination as the critical intervention in reducing mortality"
+      ],
+      "key_metrics": {
+        "peak_weekly_cases": "2.2M+",
+        "total_vaccinated": "140M+",
+        "death_rate_before": "3.5",
+        "death_rate_after": "~0",
+        "population_infected": "1.389%",
+        "hdi": "0.6",
+        "median_age": "28.2",
+        "population_density": "450.4"
+      },
+      "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/CovidData_Visualization/India",
+      "link": "/projects/covid-impact-analysis",
+      "status": "complete"
+    },
+    {
+      "id": "msba-orders-analysis",
+      "title": "E-Commerce Seller & Logistics Analytics",
+      "short_description": "Multi-dashboard Tableau analytics dissecting seller performance, shipping logistics, and product characteristics across 89K+ e-commerce orders.",
+      "motivation": "To provide a comprehensive analytical view of e-commerce operations by building interconnected Tableau dashboards that dissect seller performance, shipping efficiency, and product characteristics.",
+      "tech_stack": ["Tableau", "Data Visualization", "SQL"],
+      "achievements": [
+        "Built 3 interconnected dashboards covering seller revenue, shipping logistics, and product analysis across 89,316 orders",
+        "Identified extreme revenue concentration — top sellers drive the majority of $2.44M total revenue with average order value of $340.9",
+        "Discovered shipping cost disparity — median shipping cost is 22.18% of price vs. average of 62.91%, revealing heavy-product outliers inflating costs",
+        "Achieved 90.34% on-time delivery rate with median order cycle time of 10 days across all product categories",
+        "Created interactive filters by city, seller ID, product category, and delivery date enabling granular segment analysis",
+        "Mapped São Paulo as the dominant market with 14K+ orders, followed by Rio de Janeiro and Belo Horizonte"
+      ],
+      "key_metrics": {
+        "total_orders": "89,316",
+        "total_revenue": "$2,441,873",
+        "average_order_value": "$340.9",
+        "on_time_delivery": "90.34%",
+        "median_cycle_time": "10 days",
+        "median_shipping_cost_ratio": "22.18%",
+        "avg_shipping_cost_ratio": "62.91%"
+      },
+      "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/MSBA_orders_analysis/SellersAnalysis",
+      "link": "/projects/msba-orders-analysis",
+      "status": "complete"
     }
   ]
 }

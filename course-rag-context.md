@@ -1,7 +1,4 @@
 # Course RAG Pipeline — Full Context Document
-
-> **Purpose:** This document provides complete context about the Course RAG project for use by an LLM to generate resume bullet points, website project cards, and interview talking points. It covers what was built, why, the full architecture, every major engineering decision, challenges faced and how they were solved, tools used, and results.
-
 ---
 
 ## Project Overview

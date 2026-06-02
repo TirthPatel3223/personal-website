@@ -3,6 +3,10 @@ import { ArrowLeft, Github, CheckCircle2, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import TableauPreviewCard from '@/components/TableauPreviewCard';
 import CourseRAGPreviewCard from '@/components/CourseRAGPreviewCard';
+import CovidTableauCard from '@/components/CovidTableauCard';
+import CovidInsights from '@/components/CovidInsights';
+import OrdersTableauCard from '@/components/OrdersTableauCard';
+import OrdersInsights from '@/components/OrdersInsights';
 import ScrollCubeWrapper from '@/components/ScrollCubeWrapper';
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from '@/components/AnimatedBackground';
@@ -40,16 +44,34 @@ export default async function ProjectPage({
   const isDataTech = slug === 'weather-dining-pipeline';
   const isCubeSolver = project.id === 'deep-cube-solver';
   const isRAG = project.id === 'course-rag-pipeline';
+  const isCovid = project.id === 'covid-impact-analysis';
+  const isOrders = project.id === 'msba-orders-analysis';
 
   /* Accent colours per-project */
-  const accentText   = isDataTech ? 'text-[#4e9bb9]'            : isRAG ? 'site-accent-text'   : 'cube-accent-text';
-  const accentBorder = isDataTech ? 'border-[#1f77b4]/30'       : isRAG ? 'site-accent-border' : 'cube-accent-border';
-  const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'           : isRAG ? 'site-accent-bg'     : 'cube-accent-bg';
-  const accentHover  = isDataTech ? 'hover:border-[#4e9bb9]/50' : isRAG ? 'hover-site-accent-border' : 'hover:border-teal-500/40';
+  const accentText   = isDataTech ? 'text-[#4e9bb9]'
+    : isCovid ? 'covid-accent-text'
+    : isOrders ? 'orders-accent-text'
+    : isRAG ? 'site-accent-text'
+    : 'cube-accent-text';
+  const accentBorder = isDataTech ? 'border-[#1f77b4]/30'
+    : isCovid ? 'covid-accent-border'
+    : isOrders ? 'orders-accent-border'
+    : isRAG ? 'site-accent-border'
+    : 'cube-accent-border';
+  const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'
+    : isCovid ? 'covid-accent-bg'
+    : isOrders ? 'orders-accent-bg'
+    : isRAG ? 'site-accent-bg'
+    : 'cube-accent-bg';
+  const accentHover  = isDataTech ? 'hover:border-[#4e9bb9]/50'
+    : isCovid ? 'hover-covid-accent-border'
+    : isOrders ? 'hover-orders-accent-border'
+    : isRAG ? 'hover-site-accent-border'
+    : 'hover:border-teal-500/40';
 
   const mainContent = (
     <main
-      className={`min-h-screen selection:bg-teal-500/20${isCubeSolver ? ' cube-body-bg' : ''}`}
+      className={`min-h-screen selection:bg-teal-500/20${isCubeSolver ? ' cube-body-bg' : ''}${isCovid ? ' covid-body-bg' : ''}${isOrders ? ' orders-body-bg' : ''}`}
       style={{
         color: 'var(--foreground)',
         position: 'relative',
@@ -60,7 +82,7 @@ export default async function ProjectPage({
 
       {/* ── HERO BANNER ─────────────────────────────────────────────── */}
       <div
-        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}`}
+        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}${isCovid ? ' covid-hero-bg' : ''}${isOrders ? ' orders-hero-bg' : ''}`}
         style={{ borderBottom: '1px solid var(--border)' }}
       >
         {/* Project-specific gradient overlay (keeps original look) */}
@@ -68,6 +90,10 @@ export default async function ProjectPage({
           className={`absolute inset-0 pointer-events-none bg-gradient-to-br ${
             isDataTech
               ? 'from-[#0a192f]/90 via-transparent to-transparent'
+              : isCovid
+              ? 'covid-dark-gradient from-[#1a0a00]/80 via-transparent to-transparent'
+              : isOrders
+              ? 'orders-dark-gradient from-[#051015]/85 via-transparent to-transparent'
               : isCubeSolver
               ? 'cube-dark-gradient from-teal-950/70 via-teal-950/30 to-transparent'
               : 'from-teal-950/40 via-transparent to-transparent'
@@ -75,7 +101,10 @@ export default async function ProjectPage({
         />
         <div
           className={`absolute top-0 left-1/3 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none ${
-            isDataTech ? 'bg-[#1f77b4]/12' : 'bg-teal-500/8'
+            isDataTech ? 'bg-[#1f77b4]/12'
+            : isCovid ? 'bg-[#e07020]/10'
+            : isOrders ? 'bg-[#5f9ea0]/10'
+            : 'bg-teal-500/8'
           }`}
         />
         {isDataTech && <WeatherParticles />}
@@ -144,7 +173,7 @@ export default async function ProjectPage({
           <>
             {/* Problem Statement */}
             <section>
-              <SectionLabel isDataTech={isDataTech}>Problem Statement</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders}>Problem Statement</SectionLabel>
               <div className={`glass rounded-2xl p-8 border ${accentBorder}`}>
                 <p className="leading-relaxed text-lg" style={{ color: 'var(--foreground)' }}>
                   {detail.problem_statement}
@@ -154,7 +183,7 @@ export default async function ProjectPage({
 
             {/* Approach / Methodology */}
             <section>
-              <SectionLabel isDataTech={isDataTech}>Approach &amp; Methodology</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders}>Approach &amp; Methodology</SectionLabel>
               <div className="space-y-4">
                 {detail.approach.map((item, i) => (
                   <div
@@ -185,7 +214,7 @@ export default async function ProjectPage({
 
             {/* Architecture Diagram */}
             <section>
-              <SectionLabel isDataTech={isDataTech}>Architecture</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders}>Architecture</SectionLabel>
               <div className={`glass border ${accentBorder} rounded-2xl overflow-hidden`}>
                 <div
                   className="flex items-center gap-2 px-5 py-3"
@@ -204,7 +233,7 @@ export default async function ProjectPage({
                   <WeatherPipelineArchDiagram />
                 ) : (
                   <pre
-                    className={`${isRAG ? 'site-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
+                    className={`${isRAG ? 'site-accent-text' : isCovid ? 'covid-accent-text' : isOrders ? 'orders-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
                   >
                     {detail.architecture}
                   </pre>
@@ -214,7 +243,7 @@ export default async function ProjectPage({
 
             {/* Results / Impact */}
             <section>
-              <SectionLabel isDataTech={isDataTech}>Results &amp; Impact</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders}>Results &amp; Impact</SectionLabel>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
                 {detail.results.map((r, i) => (
                   <div
@@ -251,6 +280,14 @@ export default async function ProjectPage({
 
             {/* Tableau Dashboard Preview */}
             {isDataTech && <TableauPreviewCard />}
+
+            {/* COVID-19 Insights & Dashboard */}
+            {isCovid && <CovidInsights />}
+            {isCovid && <CovidTableauCard />}
+
+            {/* MSBA Orders Insights & Dashboard */}
+            {isOrders && <OrdersInsights />}
+            {isOrders && <OrdersTableauCard />}
 
             {/* Course RAG Live Demo */}
             {isRAG && <CourseRAGPreviewCard />}
@@ -352,19 +389,32 @@ export default async function ProjectPage({
 function SectionLabel({
   children,
   isDataTech,
+  isCovid,
+  isOrders,
 }: {
   children: React.ReactNode;
   isDataTech?: boolean;
+  isCovid?: boolean;
+  isOrders?: boolean;
 }) {
+  const hasGradient = isDataTech || isCovid || isOrders;
+  const gradientClass = isDataTech
+    ? 'from-[#1f77b4] to-[#4e9bb9]'
+    : isCovid
+    ? 'from-[#e07020] to-[#f59e0b]'
+    : isOrders
+    ? 'from-[#2d6a6f] to-[#5f9ea0]'
+    : '';
+
   return (
     <div className="flex items-center gap-3 mb-6">
       <h2
         className={`section-title text-2xl font-bold tracking-tight ${
-          isDataTech
-            ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#1f77b4] to-[#4e9bb9]'
+          hasGradient
+            ? `text-transparent bg-clip-text bg-gradient-to-r ${gradientClass}`
             : ''
         }`}
-        style={isDataTech ? undefined : { color: 'var(--title)' }}
+        style={hasGradient ? undefined : { color: 'var(--title)' }}
       >
         {children}
       </h2>

@@ -340,18 +340,174 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
     id: 'covid-impact-analysis',
     title: 'COVID-19 Impact Analysis',
     short_description:
-      "Multi-dataset SQL analysis and Tableau visualization of COVID-19's economic and social impact across sectors.",
+      "Interactive Tableau visualization analyzing COVID-19's impact on India — tracking vaccination rollout, weekly case surges, and death rate trajectories with demographic context.",
     motivation:
-      "To quantify the pandemic's real-world effects on employment, GDP, and healthcare using publicly available government datasets.",
+      "To quantify the pandemic's real-world effects on India through vaccination rates, case trajectories, and death rates — contextualised by demographic indicators like HDI, median age, and population density — and surface actionable patterns through interactive Tableau dashboards built entirely from joined public datasets.",
     achievements: [
-      'Joined and cleaned 5+ public datasets (2M+ rows) in MySQL with complex CTEs and window functions',
-      'Built a Tableau story with 12 interactive dashboards across demographics and sectors',
-      'Identified sector recovery patterns correlating with specific policy intervention timelines',
+      'Visualized the dramatic impact of vaccination on death rates — weekly death rate dropped from 3.5 to near 0 after vaccination rollout began',
+      'Captured India\'s devastating second wave: weekly new cases peaked at 2.2M+ around February 2021',
+      'Tracked vaccination milestone of 140M+ total people vaccinated with clear inflection points',
+      'Built demographic context layer showing HDI (0.6), median age (28.2), and population density (450.4) for analytical framing',
+      'Created before/after vaccination comparison revealing vaccination as the critical intervention in reducing mortality',
     ],
-    tech_stack: ['MySQL', 'Tableau', 'SQL', 'Python', 'Pandas'],
-    technical_details: 'MySQL, Tableau, SQL, Python, Pandas',
+    tech_stack: ['Tableau', 'Data Visualization', 'SQL'],
+    technical_details: 'Tableau (data joins, calculated fields, interactive filters), SQL for data preparation',
     status: 'complete',
     link: '/projects/covid-impact-analysis',
+    detail: {
+      problem_statement:
+        "The COVID-19 pandemic generated massive amounts of data across countries, but raw numbers alone don't tell the story. The challenge was to build an interactive visualization that contextualises India's pandemic trajectory — vaccination progress, case surges, and death rates — against demographic indicators like Human Development Index, median age, and population density. The goal: surface clear before-and-after vaccination patterns and make the data explorable for anyone, built entirely within Tableau using joined public datasets.",
+      approach: [
+        {
+          step: 'Data Collection & Joining',
+          detail:
+            'Imported multiple public COVID-19 datasets into Tableau, including daily case counts, vaccination records, death statistics, and country-level demographic indicators (HDI, median age, population density). Performed data joins directly within Tableau on country and date keys to create a unified analytical dataset.',
+        },
+        {
+          step: 'Demographic Context Layer',
+          detail:
+            'Created a KPI header showing India\'s key demographic indicators — Human Development Index (0.6), Median Age (28.2), Population Density (450.4) — alongside pandemic-specific metrics: Percentage of Population Vaccinated (1.929%), Percentage Population Dead (0.035%), and Percentage of Population Infected (1.389%). These provide essential context for interpreting the pandemic data.',
+        },
+        {
+          step: 'Temporal Trend Visualization',
+          detail:
+            'Built three interconnected time-series charts — Total People Vaccinated (cumulative), Weekly New Cases (with wave identification), and Weekly Death Rate — all aligned on the same time axis (March 2020 – May 2021). Color-coded bars distinguish pre-vaccination (orange) from post-vaccination (blue) periods to highlight the intervention effect.',
+        },
+        {
+          step: 'Vaccination Impact Analysis',
+          detail:
+            'Overlaid vaccination introduction markers on death rate and case charts to visually demonstrate the causal relationship between vaccine rollout and declining mortality. The death rate chart clearly shows the drop from a peak of ~3.5 to near-zero after vaccination began, while case volume shows the second wave\'s severity was not matched by proportional mortality.',
+        },
+      ],
+      architecture: `
+  ┌─────────────────────────┐    ┌─────────────────────────┐
+  │   COVID-19 Case Data    │    │   Vaccination Records   │
+  │   (Daily by country)    │    │   (Daily by country)    │
+  └───────────┬─────────────┘    └───────────┬─────────────┘
+              │                              │
+              └──────────┬───────────────────┘
+                         │  Tableau Data Join
+                         │  (country + date keys)
+                         ▼
+              ┌─────────────────────────┐
+              │   Demographic Data      │
+              │   HDI, Age, Density     │
+              └───────────┬─────────────┘
+                         │  Joined
+                         ▼
+              ┌─────────────────────────┐
+              │     Tableau Desktop     │
+              │  Calculated Fields      │
+              │  Interactive Filters    │
+              │  Before/After Coloring  │
+              └───────────┬─────────────┘
+                         │
+                         ▼
+              ┌─────────────────────────┐
+              │  Interactive Dashboard  │
+              │  KPI Cards + 3 Charts   │
+              │  Vaccination · Cases ·  │
+              │  Death Rate Trends      │
+              └─────────────────────────┘`,
+      results: [
+        { metric: 'Peak Weekly Cases', value: '2.2M+', description: 'India second wave (Feb 2021)' },
+        { metric: 'Vaccinated', value: '140M+', description: 'Total people vaccinated' },
+        { metric: 'Death Rate Drop', value: '3.5 → ~0', description: 'After vaccination rollout' },
+        { metric: 'Population Infected', value: '1.389%', description: 'Of total population' },
+        { metric: 'HDI', value: '0.6', description: 'Human Development Index' },
+        { metric: 'Median Age', value: '28.2', description: 'Years' },
+      ],
+    },
+  },
+  {
+    id: 'msba-orders-analysis',
+    title: 'E-Commerce Seller & Logistics Analytics',
+    short_description:
+      'Multi-dashboard Tableau analytics dissecting seller performance, shipping logistics, and product characteristics across 89K+ e-commerce orders — revealing revenue concentration, delivery patterns, and cost structures.',
+    motivation:
+      'To provide a comprehensive analytical view of e-commerce operations by building interconnected Tableau dashboards that dissect seller performance, shipping efficiency, and product characteristics — enabling data-driven decisions on seller management, logistics optimization, and pricing strategy.',
+    achievements: [
+      'Built 3 interconnected dashboards covering seller revenue, shipping logistics, and product analysis across 89,316 orders',
+      'Identified extreme revenue concentration — top sellers drive the majority of $2.44M total revenue with average order value of $340.9',
+      'Discovered shipping cost disparity — median shipping cost is 22.18% of price vs. average of 62.91%, revealing heavy-product outliers inflating costs',
+      'Achieved 90.34% on-time delivery rate with median order cycle time of 10 days across all product categories',
+      'Created interactive filters by city, seller ID, product category, and delivery date enabling granular segment analysis',
+      'Mapped São Paulo as the dominant market with 14K+ orders, followed by Rio de Janeiro and Belo Horizonte',
+    ],
+    tech_stack: ['Tableau', 'Data Visualization', 'SQL'],
+    technical_details: 'Tableau (data joins, calculated fields, interactive filters, multi-dashboard navigation), SQL for data preparation',
+    status: 'complete',
+    link: '/projects/msba-orders-analysis',
+    detail: {
+      problem_statement:
+        'E-commerce platforms generate vast transactional data across sellers, orders, shipping, and products — but without structured analysis, patterns in revenue concentration, delivery performance, and cost drivers remain hidden. The challenge: build a comprehensive multi-dashboard Tableau visualization that dissects seller performance (revenue and sales volume), shipping logistics (cycle time, on-time rates, cost structures), and product characteristics (weight, volume, category distributions) — all with interactive filtering to enable segment-specific insights at the city, seller, and product category level.',
+      approach: [
+        {
+          step: 'Data Integration & Joining',
+          detail:
+            'Imported e-commerce transactional tables (orders, order items, sellers, products, customers, payments) into Tableau and performed joins on order ID, seller ID, and product ID keys to create a unified dataset spanning 89,316 orders with complete seller, shipping, and product metadata.',
+        },
+        {
+          step: 'Seller Performance Dashboard',
+          detail:
+            'Built the first dashboard visualizing revenue per company (horizontal bar chart ranked by seller), revenue distribution (pie chart by product category — toys at 75.52% dominance), MoM sales and revenue growth (bar charts with positive/negative indicators), and time-series trends for sales per month and revenue per month. Added KPI cards for total revenue ($2,441,873) and average order value ($340.9).',
+        },
+        {
+          step: 'Shipping & Delivery Dashboard',
+          detail:
+            'Created the second dashboard analyzing orders per city (São Paulo leading at 14K+), sales per seller, estimated vs. actual delivery delta (histogram showing most deliveries arrive early), shipping cost distribution, order cycle time distribution, and shipping cost as percentage of price. Added KPI cards: median order cycle time (10 days), on-time delivery rate (90.34%), median shipping cost/price (22.18%), and average shipping cost/price (62.91%).',
+        },
+        {
+          step: 'Product Analysis Dashboard',
+          detail:
+            'Designed the third dashboard mapping product characteristics: sales per seller by order count, product category distribution (pie chart), product weight distribution (gradient histogram from 0–40K+ grams), product volume distribution (histogram), and a treemap/heatmap visualization of product dimensions. Added KPI cards: average product weight (2,087g) and average product volume (15,248cc).',
+        },
+        {
+          step: 'Interactive Filtering & Cross-Dashboard Navigation',
+          detail:
+            'Implemented interactive filters across all dashboards — filtering by customer city, seller ID, product category, order status, delivery date range, and order cycle time. Enabled cross-dashboard navigation so users can drill from seller revenue to their specific shipping performance to product characteristics.',
+        },
+      ],
+      architecture: `
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+  │   Orders     │  │  Order Items  │  │   Sellers    │
+  │   Table      │  │   Table       │  │   Table      │
+  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘
+         │                 │                 │
+         └────────┬────────┴────────┬────────┘
+                  │  Tableau Joins  │
+                  │  (order_id,     │
+                  │   seller_id)    │
+                  ▼                 ▼
+  ┌──────────────┐           ┌──────────────┐
+  │  Products    │           │  Customers   │
+  │  Table       │           │  Table       │
+  └──────┬───────┘           └──────┬───────┘
+         │                          │
+         └──────────┬───────────────┘
+                    │  product_id, customer_id
+                    ▼
+         ┌─────────────────────────────┐
+         │      Unified Dataset        │
+         │   89,316 orders joined      │
+         └────────────┬────────────────┘
+                      │
+         ┌────────────┼────────────────┐
+         ▼            ▼                ▼
+  ┌─────────────┐ ┌──────────────┐ ┌──────────────┐
+  │  Dashboard 1 │ │  Dashboard 2  │ │  Dashboard 3  │
+  │  Seller      │ │  Shipping &   │ │  Product      │
+  │  Revenue     │ │  Delivery     │ │  Analysis     │
+  └─────────────┘ └──────────────┘ └──────────────┘`,
+      results: [
+        { metric: 'Total Orders', value: '89,316', description: 'Across all sellers and cities' },
+        { metric: 'Total Revenue', value: '$2.44M', description: 'Across all product categories' },
+        { metric: 'Avg Order Value', value: '$340.9', description: 'Per order' },
+        { metric: 'On-Time Delivery', value: '90.34%', description: 'Delivered by estimated date' },
+        { metric: 'Median Cycle Time', value: '10 days', description: 'Order to delivery' },
+        { metric: 'Shipping/Price', value: '22.18%', description: 'Median shipping cost ratio' },
+      ],
+    },
   },
 ];
 

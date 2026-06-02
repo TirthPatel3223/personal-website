@@ -344,7 +344,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
     motivation:
       "To quantify the pandemic's real-world effects on India through vaccination rates, case trajectories, and death rates — contextualised by demographic indicators like HDI, median age, and population density — and surface actionable patterns through interactive Tableau dashboards built entirely from joined public datasets.",
     achievements: [
-      'Visualized the dramatic impact of vaccination on death rates — weekly death rate dropped from 3.5 to near 0 after vaccination rollout began',
+      'Visualized the dramatic impact of vaccination on death rates — sharp decline in death rate even though there is a sharp increase in the number of cases after vaccination',
       'Captured India\'s devastating second wave: weekly new cases peaked at 2.2M+ around February 2021',
       'Tracked vaccination milestone of 140M+ total people vaccinated with clear inflection points',
       'Built demographic context layer showing HDI (0.6), median age (28.2), and population density (450.4) for analytical framing',
@@ -376,7 +376,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
         {
           step: 'Vaccination Impact Analysis',
           detail:
-            'Overlaid vaccination introduction markers on death rate and case charts to visually demonstrate the causal relationship between vaccine rollout and declining mortality. The death rate chart clearly shows the drop from a peak of ~3.5 to near-zero after vaccination began, while case volume shows the second wave\'s severity was not matched by proportional mortality.',
+            'Overlaid vaccination introduction markers on death rate and case charts to visually demonstrate the causal relationship between vaccine rollout and declining mortality. The death rate chart clearly shows a sharp decline in death rate even though there is a sharp increase in the number of cases after vaccination, while case volume shows the second wave\'s severity was not matched by proportional mortality.',
         },
       ],
       architecture: `
@@ -412,7 +412,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
       results: [
         { metric: 'Peak Weekly Cases', value: '2.2M+', description: 'India second wave (Feb 2021)' },
         { metric: 'Vaccinated', value: '140M+', description: 'Total people vaccinated' },
-        { metric: 'Death Rate Drop', value: '3.5 → ~0', description: 'After vaccination rollout' },
+        { metric: 'Death Rate Decline', value: 'Sharp Drop', description: 'Despite increase in cases after vaccination' },
         { metric: 'Population Infected', value: '1.389%', description: 'Of total population' },
         { metric: 'HDI', value: '0.6', description: 'Human Development Index' },
         { metric: 'Median Age', value: '28.2', description: 'Years' },

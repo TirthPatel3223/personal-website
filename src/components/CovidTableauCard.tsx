@@ -69,7 +69,7 @@ export default function CovidTableauCard() {
           <div
             className="relative w-full rounded-xl overflow-hidden shadow-2xl"
             style={{
-              minHeight: "690px",
+              minHeight: "900px",
               borderColor: "rgba(224, 112, 32, 0.20)",
               border: "1px solid rgba(224, 112, 32, 0.20)",
               background: "var(--surface-raised)",
@@ -124,7 +124,7 @@ export default function CovidTableauCard() {
                 id="covid-tableau-dashboard-embed"
                 src={TABLEAU_EMBED_URL}
                 width="100%"
-                height="650"
+                height="860"
                 frameBorder="0"
                 allowFullScreen
                 title="COVID-19 Impact Analysis — India Dashboard"
@@ -143,7 +143,7 @@ export default function CovidTableauCard() {
             {[
               {
                 label: "Vaccination Impact",
-                desc: "Death rate dropped from 3.5 to near 0 after vaccination rollout",
+                desc: "Sharp decline in death rate even though there is a sharp increase in the number of cases after vaccination",
               },
               {
                 label: "Second Wave Severity",

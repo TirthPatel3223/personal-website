@@ -20,10 +20,10 @@ const covidKPIs = [
     note: "Peak weekly death rate (pre-vaccination era)",
   },
   {
-    label: "Death Rate After",
-    value: "~0",
+    label: "Death Rate Decline",
+    value: "Sharp Drop",
     color: "#3b6fcc",
-    note: "Vaccination drove death rate to near-zero",
+    note: "Despite sharp increase in cases after vaccination",
   },
 ];
 
@@ -88,7 +88,7 @@ export default function CovidInsights() {
               <div
                 className="h-full rounded-full"
                 style={{
-                  width: k.value === "~0" ? "5%" : k.value === "3.5" ? "100%" : k.value === "2.2M+" ? "95%" : "80%",
+                  width: k.value === "Sharp Drop" ? "5%" : k.value === "3.5" ? "100%" : k.value === "2.2M+" ? "95%" : "80%",
                   background: k.color,
                   opacity: 0.85,
                 }}

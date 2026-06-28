@@ -68,7 +68,7 @@ export default function TableauPreviewCard() {
           {/* ── Embed window ───────────────────────────────────────── */}
           <div
             className="relative w-full rounded-xl overflow-hidden border border-[#4e9bb9]/30 shadow-2xl bg-[#0d1f33]"
-            style={{ minHeight: "690px" }}
+            style={{ minHeight: "1000px" }}
           >
             {/* Fake browser chrome */}
             <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#1f77b4]/20 bg-[#071526]">
@@ -110,7 +110,7 @@ export default function TableauPreviewCard() {
                 id="tableau-dashboard-embed"
                 src={TABLEAU_EMBED_URL}
                 width="100%"
-                height="650"
+                height="960"
                 frameBorder="0"
                 allowFullScreen
                 title="Weather-Driven Consumer Experience — Tableau Dashboard"

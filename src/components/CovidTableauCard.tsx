@@ -69,7 +69,7 @@ export default function CovidTableauCard() {
           <div
             className="relative w-full rounded-xl overflow-hidden shadow-2xl"
             style={{
-              minHeight: "900px",
+              minHeight: "680px",
               borderColor: "rgba(224, 112, 32, 0.20)",
               border: "1px solid rgba(224, 112, 32, 0.20)",
               background: "var(--surface-raised)",
@@ -124,7 +124,7 @@ export default function CovidTableauCard() {
                 id="covid-tableau-dashboard-embed"
                 src={TABLEAU_EMBED_URL}
                 width="100%"
-                height="860"
+                height="640"
                 frameBorder="0"
                 allowFullScreen
                 title="COVID-19 Impact Analysis — India Dashboard"

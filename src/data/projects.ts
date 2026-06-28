@@ -29,10 +29,120 @@ export interface Project {
   technical_details: string;
   status: ProjectStatus;
   link: string;
+  hero_image?: string; // optional background image for the hero banner
   detail?: ProjectDetail;
 }
 
 export const projects: Project[] = [
+  {
+    id: 'mapblazer-wait-time-prediction',
+    title: 'Mapblazer Wait Time Prediction',
+    short_description:
+      'An end-to-end machine learning pipeline that predicts real-time theme park ride wait times — powering the Mapblazer routing engine by forecasting how crowds will shift hours into a guest\'s day. Beats the historical baseline by 53.8%.',
+    motivation:
+      'Mapblazer optimizes a guest\'s theme park itinerary from their must-ride list, live wait times, and walking distances. But a route built on the "current" 9 AM wait times falls apart by the time the guest reaches their 1 PM attraction — crowds shift all day, cascading one bad estimate into a ruined plan. The routing algorithm needed to see the future, not the present. I built the predictive engine that forecasts wait times across the day so the optimizer can anticipate crowd flow instead of chasing it.',
+    achievements: [
+      'Architected an end-to-end ML pipeline comparing three distinct architectures (Facebook Prophet, XGBoost Local, and XGBoost Global) across 1.5M+ theme park wait-time telemetry records spanning 6 Southern California parks.',
+      'Cut the historical-baseline prediction error by 53.8% with a fine-tuned Prophet time-series model — slashing Mean Absolute Error from 7.08 minutes to just 3.27 minutes.',
+      'Engineered cyclical sin/cosine temporal features so gradient-boosted trees could model continuous daily and seasonal crowd flow on a sub-year dataset — without breaking on the 23:59→00:00 and Dec→Jan boundaries.',
+      'Eliminated catastrophic "fat-tail" prediction failures, achieving a 90.38% error-containment rate (predictions within ±10 minutes of reality) versus the baseline\'s 74%.',
+      'Slashed severe misses (errors > 10 minutes) by 62.9% — dropping the severe-error rate from 25.9% to 9.6% across a 50,000+ sample holdout set.',
+      'Built a live API inference harness that pulls the Queue-Times API in real time, computes live temporal features, and benchmarks all three architectures against the historical baseline simultaneously to monitor live model drift.',
+    ],
+    tech_stack: ['Python', 'XGBoost', 'Facebook Prophet', 'Pandas', 'NumPy', 'scikit-learn', 'Matplotlib', 'Queue-Times API'],
+    technical_details:
+      'Facebook Prophet (flat growth, daily/weekly seasonality, US holiday regressors), XGBoost (local per-ride models with RandomizedSearchCV tuning + a unified global model using native categorical embeddings), cyclical sin/cosine feature engineering, domain-aware ETL, and a real-time Queue-Times API inference harness.',
+    status: 'complete',
+    link: '/projects/mapblazer-wait-time-prediction',
+    hero_image: '/mapblazer_hero.png',
+    detail: {
+      problem_statement:
+        'Mapblazer is an AI theme park routing app that builds a guest\'s optimal ride itinerary from their must-visit attractions, real-time wait times, and walking distances. The flaw: the optimizer relied on "current" wait times pulled from park APIs, but wait times are highly dynamic — a route optimized at 9:00 AM is already wrong by the time a guest reaches their 1:00 PM attraction, cascading small errors into a broken plan. The routing engine needed accurate forward predictions of wait times to anticipate how crowds shift through the day. Building those models meant solving two hard problems: the dataset spanned less than a full year, so tree-based models like XGBoost couldn\'t reliably extrapolate raw chronological datetime inputs, and irregular US holidays violently disrupt the normal daily and weekly crowd cycles. The challenge was to engineer features and architectures that learn the underlying rhythm of park crowds — accurately enough to forecast, not just describe.',
+      approach: [
+        {
+          step: 'Domain-Aware Data Filtering',
+          detail:
+            'Raw wait-time telemetry is noisy: a "0-minute" wait can mean a true walk-on during operating hours or an artifact of an overnight park closure or a scraping outage. The ETL layer (data_utils.py) preserves genuine walk-on zeros while discarding closure zeros using per-park operating-hour windows and start dates, caps wait times below 900 minutes to drop sensor errors, and resamples every ride to a clean 30-minute grid to smooth high-frequency micro-fluctuations.',
+        },
+        {
+          step: 'Cyclical Feature Engineering',
+          detail:
+            'With under a year of data, gradient-boosted trees can\'t extrapolate raw datetime values — they only learn splits inside the dates they\'ve seen. I encoded continuous time into cyclical sin/cosine embeddings of the hour and month, so the model sees 23:59 and 00:00 (and Dec and Jan) as adjacent rather than maximally distant. These joined explicit dayofweek, is_weekend, and is_holiday flags to let the trees map the true daily and seasonal shape of crowd flow regardless of the specific calendar date.',
+        },
+        {
+          step: 'Three Competing Architectures',
+          detail:
+            'I built and benchmarked three model families. Prophet: a dedicated time-series model per ride with flat growth, daily/weekly seasonality, and explicit US-holiday regressors to capture the irregular surges trees struggle with. XGBoost Local: an independent, RandomizedSearchCV-tuned gradient-boosted tree for every single ride, specialized to its unique pattern. XGBoost Global: one unified tree trained across all parks and rides, using park and ride names as native categorical features so it can borrow signal across attractions — and train far faster than hundreds of local loops.',
+        },
+        {
+          step: 'Leakage-Free Chronological Validation',
+          detail:
+            'Every model uses a strict chronological 80/20 split rather than a random one — training only on the past and validating on the future, exactly mirroring how the model is used in production. Rides with insufficient historical mass (fewer than 50 resampled points) are skipped to avoid overfitting on thin data. Models were then evaluated on a 50,000+ sample holdout, measuring not just average error but the full error distribution and severe-miss rate.',
+        },
+        {
+          step: 'Real-Time Inference Harness',
+          detail:
+            'A production-style harness synchronously hits the Queue-Times API for every mapped park, flattens the ride hierarchy across park "lands", computes live temporal features for the current timestamp, and runs inference across all three architectures plus the historical baseline simultaneously. It enforces the exact categorical ontology learned at training time and writes a side-by-side comparison matrix — making live model drift directly observable second by second.',
+        },
+        {
+          step: 'Error-Distribution Analysis',
+          detail:
+            'Beyond MAE, I profiled the full signed error distribution (predicted − actual) for each architecture against the baseline on both standard holdout and high-traffic weekend/holiday data. This surfaced how each model controls the dangerous "fat tails" — the large misses that actually break a route — proving Prophet not only lowers average error but dramatically tightens the worst-case behavior the optimizer is most sensitive to.',
+        },
+      ],
+      architecture: `
+                     ┌───────────────────────────────────────────┐
+                     │   Raw Wait-Time Telemetry  (1.5M+ rows)   │
+                     │               6 SoCal parks               │
+                     └───────────────────────────────────────────┘
+                                           │
+                                           v
+                   ┌───────────────────────────────────────────────┐
+                   │             data_utils.py  -  ETL             │
+                   │   keep walk-on 0s, drop closure / outage 0s   │
+                   │      per-park open / close hour windows       │
+                   │    cap < 900 min / resample to 30-min grid    │
+                   └───────────────────────────────────────────────┘
+                                           │
+                                           v
+                    ┌─────────────────────────────────────────────┐
+                    │        Cyclical Feature Engineering         │
+                    │   hour & month -> sin / cos  (continuous)   │
+                    │     dayofweek / is_weekend / is_holiday     │
+                    └─────────────────────────────────────────────┘
+                                           │
+           ┌───────────────────────────────┼───────────────────────────────┐
+           │                               │                               │
+           v                               v                               v
+┌─────────────────────┐        ┌───────────────────────┐        ┌─────────────────────┐
+│       Prophet       │        │     XGBoost Local     │        │   XGBoost Global    │
+│   per-ride model    │        │    per-ride model     │        │  one unified tree   │
+│    flat growth +    │        │  RandomizedSearchCV   │        │   park & ride as    │
+│  daily / weekly +   │        │      hyper-tuned      │        │  native categories  │
+│     US holidays     │        │                       │        │                     │
+│      MAE  3.27      │        │       MAE  4.39       │        │      MAE  3.91      │
+└─────────────────────┘        └───────────────────────┘        └─────────────────────┘
+           │                               │                               │
+           └───────────────────────────────┼───────────────────────────────┘
+                                           │
+                                           v
+                   ┌───────────────────────────────────────────────┐
+                   │          Real-Time Inference Harness          │
+                   │       Queue-Times API -> live features        │
+                   │   3 architectures + baseline, side by side    │
+                   │     -> live model-drift comparison matrix     │
+                   └───────────────────────────────────────────────┘`,
+      results: [
+        { metric: 'Prophet MAE', value: '3.27 min', description: 'Down from a 7.08 min historical baseline' },
+        { metric: 'Accuracy Gain', value: '53.8%', description: 'MAE reduction vs. baseline (Prophet)' },
+        { metric: 'Error Containment', value: '90.38%', description: 'Predictions within ±10 min (vs. 74% baseline)' },
+        { metric: 'Severe Misses', value: '−62.9%', description: 'Errors > 10 min: 25.9% → 9.6%' },
+        { metric: 'Records Processed', value: '1.5M+', description: 'Wait-time telemetry points' },
+        { metric: 'ML Architectures', value: '3', description: 'Prophet · XGBoost Local · XGBoost Global' },
+      ],
+      github_url: 'https://github.com/TirthPatel3223/Mapblazer_Wait_Time_Prediction',
+    },
+  },
   {
     id: 'course-rag-pipeline',
     title: 'Course RAG Pipeline',
@@ -253,8 +363,8 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
       'Achieved 100% solve rate on test set within optimal or near-optimal move counts',
       'Reduced training time 40% through symmetry-based data augmentation',
     ],
-    tech_stack: ['PyTorch', 'CUDA', 'Deep RL', 'Python', 'NumPy'],
-    technical_details: 'PyTorch, CUDA, Deep Reinforcement Learning, Python, NumPy',
+    tech_stack: ['PyTorch', 'TensorFlow', 'CUDA', 'Deep Learning', 'Deep RL', 'Python', 'NumPy'],
+    technical_details: 'PyTorch, TensorFlow, CUDA, Deep Learning, Deep Reinforcement Learning, Python, NumPy',
     status: 'complete',
     link: '/projects/deep-cube-solver',
     detail: {
@@ -380,35 +490,34 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
         },
       ],
       architecture: `
-  ┌─────────────────────────┐    ┌─────────────────────────┐
-  │   COVID-19 Case Data    │    │   Vaccination Records   │
-  │   (Daily by country)    │    │   (Daily by country)    │
-  └───────────┬─────────────┘    └───────────┬─────────────┘
-              │                              │
-              └──────────┬───────────────────┘
-                         │  Tableau Data Join
-                         │  (country + date keys)
-                         ▼
-              ┌─────────────────────────┐
-              │   Demographic Data      │
-              │   HDI, Age, Density     │
-              └───────────┬─────────────┘
-                         │  Joined
-                         ▼
-              ┌─────────────────────────┐
-              │     Tableau Desktop     │
-              │  Calculated Fields      │
-              │  Interactive Filters    │
-              │  Before/After Coloring  │
-              └───────────┬─────────────┘
-                         │
-                         ▼
-              ┌─────────────────────────┐
-              │  Interactive Dashboard  │
-              │  KPI Cards + 3 Charts   │
-              │  Vaccination · Cases ·  │
-              │  Death Rate Trends      │
-              └─────────────────────────┘`,
+┌───────────────────────┐         ┌───────────────────────┐
+│  COVID-19 Case Data   │         │  Vaccination Records  │
+│  (daily by country)   │         │  (daily by country)   │
+└───────────────────────┘         └───────────────────────┘
+            │                                 │
+            └────────────────┬────────────────┘
+                             │
+                             v
+              ┌─────────────────────────────┐
+              │     + Demographic Data      │
+              │  joined on country + date   │
+              └─────────────────────────────┘
+                             │
+                             v
+               ┌───────────────────────────┐
+               │      Tableau Desktop      │
+               │    calculated fields /    │
+               │   interactive filters /   │
+               │  before & after coloring  │
+               └───────────────────────────┘
+                             │
+                             v
+                ┌─────────────────────────┐
+                │  Interactive Dashboard  │
+                │  KPI cards + 3 charts:  │
+                │  vaccination / cases /  │
+                │    death-rate trends    │
+                └─────────────────────────┘`,
       results: [
         { metric: 'Peak Weekly Cases', value: '2.2M+', description: 'India second wave (Feb 2021)' },
         { metric: 'Vaccinated', value: '140M+', description: 'Total people vaccinated' },
@@ -469,36 +578,32 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
         },
       ],
       architecture: `
-  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-  │   Orders     │  │  Order Items  │  │   Sellers    │
-  │   Table      │  │   Table       │  │   Table      │
-  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘
-         │                 │                 │
-         └────────┬────────┴────────┬────────┘
-                  │  Tableau Joins  │
-                  │  (order_id,     │
-                  │   seller_id)    │
-                  ▼                 ▼
-  ┌──────────────┐           ┌──────────────┐
-  │  Products    │           │  Customers   │
-  │  Table       │           │  Table       │
-  └──────┬───────┘           └──────┬───────┘
-         │                          │
-         └──────────┬───────────────┘
-                    │  product_id, customer_id
-                    ▼
-         ┌─────────────────────────────┐
-         │      Unified Dataset        │
-         │   89,316 orders joined      │
-         └────────────┬────────────────┘
-                      │
-         ┌────────────┼────────────────┐
-         ▼            ▼                ▼
-  ┌─────────────┐ ┌──────────────┐ ┌──────────────┐
-  │  Dashboard 1 │ │  Dashboard 2  │ │  Dashboard 3  │
-  │  Seller      │ │  Shipping &   │ │  Product      │
-  │  Revenue     │ │  Delivery     │ │  Analysis     │
-  └─────────────┘ └──────────────┘ └──────────────┘`,
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│     Orders    │   │  Order Items  │   │    Sellers    │   │    Products   │   │   Customers   │
+└───────────────┘   └───────────────┘   └───────────────┘   └───────────────┘   └───────────────┘
+        │                   │                   │                   │                   │
+        └───────────────────┴───────────────────┼───────────────────┴───────────────────┘
+                                                │
+                                                v
+                                 ┌─────────────────────────────┐
+                                 │        Tableau Joins        │
+                                 │  on order_id / seller_id /  │
+                                 │  product_id / customer_id   │
+                                 └─────────────────────────────┘
+                                                │
+                                                v
+                                   ┌─────────────────────────┐
+                                   │     Unified Dataset     │
+                                   │  89,316 orders joined   │
+                                   └─────────────────────────┘
+                                                │
+                 ┌──────────────────────────────┼──────────────────────────────┐
+                 │                              │                              │
+                 v                              v                              v
+       ┌───────────────────┐        ┌───────────────────────┐       ┌─────────────────────┐
+       │    Dashboard 1    │        │      Dashboard 2      │       │     Dashboard 3     │
+       │  Seller Revenue   │        │  Shipping & Delivery  │       │  Product Analysis   │
+       └───────────────────┘        └───────────────────────┘       └─────────────────────┘`,
       results: [
         { metric: 'Total Orders', value: '89,316', description: 'Across all sellers and cities' },
         { metric: 'Total Revenue', value: '$2.44M', description: 'Across all product categories' },

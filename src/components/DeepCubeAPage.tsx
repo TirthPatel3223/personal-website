@@ -214,7 +214,7 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
   const { detail } = project;
   const githubUrl = detail?.github_url;
 
-  const purplePills = ['Python', 'PyTorch', 'CUDA', 'NumPy', 'Symmetry Groups'];
+  const purplePills = ['Python', 'PyTorch', 'TensorFlow', 'CUDA', 'Deep Learning', 'NumPy', 'Symmetry Groups'];
   const tealPills   = ['Weighted A*', 'NetworkX', 'Matplotlib'];
 
   const metrics = [

@@ -19,7 +19,7 @@ export default function WeatherPipelineArchDiagram() {
   return (
     <div className="p-6 overflow-x-auto">
       <svg
-        viewBox="0 0 1080 290"
+        viewBox="0 0 1080 300"
         style={{ width: "100%", minWidth: 720, display: "block" }}
       >
         {/* Airflow orchestration bounding box */}
@@ -98,15 +98,15 @@ export default function WeatherPipelineArchDiagram() {
           </g>
         ))}
 
-        {/* Annotations */}
-        <text x={670} y={240} fontSize={10} fill="rgba(125,211,252,0.6)" fontFamily="ui-monospace, monospace">
-          Clustered on date_key + weather_category
+        {/* Annotations — stacked legend (kept on separate lines to avoid overlap) */}
+        <text x={40} y={246} fontSize={10} fill="rgba(245,158,11,0.7)" fontFamily="ui-monospace, monospace">
+          10M+ reviews · historical weather aligned by geo + timestamp
         </text>
-        <text x={460} y={240} fontSize={10} fill="rgba(45,212,191,0.6)" fontFamily="ui-monospace, monospace">
-          VADER compound score → Positive/Neutral/Negative
+        <text x={40} y={266} fontSize={10} fill="rgba(45,212,191,0.7)" fontFamily="ui-monospace, monospace">
+          VADER compound score → Positive / Neutral / Negative
         </text>
-        <text x={40} y={248} fontSize={10} fill="rgba(245,158,11,0.6)" fontFamily="ui-monospace, monospace">
-          10M+ reviews · Historical weather aligned by geo + timestamp
+        <text x={40} y={286} fontSize={10} fill="rgba(125,211,252,0.7)" fontFamily="ui-monospace, monospace">
+          Snowflake clustered on date_key + weather_category
         </text>
       </svg>
     </div>

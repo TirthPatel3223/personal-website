@@ -47,12 +47,17 @@ export default function OrdersTableauCard() {
       >
         <div className="flex flex-col gap-8">
           {/* ── Header row ─────────────────────────────────────────── */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <BarChart2 className="w-5 h-5 orders-accent-text" />
-              <span className="text-sm font-semibold orders-accent-text uppercase tracking-wider">
-                Live · 3 Interactive Dashboards
-              </span>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <BarChart2 className="w-5 h-5 orders-accent-text" />
+                <span className="text-sm font-semibold orders-accent-text uppercase tracking-wider">
+                  Live · 3 Interactive Dashboards
+                </span>
+              </div>
+              <p className="text-xs font-bold max-w-md" style={{ color: "var(--foreground)" }}>
+                For the best experience, open the dashboard in fullscreen — it was designed to be viewed at full size.
+              </p>
             </div>
             <a
               href={TABLEAU_PUBLIC_URL}

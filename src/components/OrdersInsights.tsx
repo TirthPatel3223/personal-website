@@ -40,14 +40,7 @@ const kpiCards = [
 
 export default function OrdersInsights() {
   return (
-    <section>
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#2d6a6f] to-[#5f9ea0] whitespace-nowrap">
-          Operational KPIs — Key Findings
-        </h2>
-        <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
-      </div>
-
+    <div>
       {/* KPI strip */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
         {kpiCards.map((k) => (
@@ -117,6 +110,6 @@ export default function OrdersInsights() {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

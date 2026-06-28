@@ -10,7 +10,7 @@ import { Github, Linkedin, Mail, FileText, MapPin } from 'lucide-react';
 
 const skills: Record<string, string[]> = {
   Languages: ['Python', 'SQL', 'R', 'JavaScript', 'TypeScript'],
-  'ML / AI': ['PyTorch', 'scikit-learn', 'LangGraph', 'Hugging Face', 'LLMs & RAG'],
+  'ML / AI': ['PyTorch', 'TensorFlow', 'Deep Learning', 'CUDA', 'scikit-learn', 'LangGraph', 'Hugging Face', 'LLMs & RAG'],
   'Data Engineering': ['PySpark', 'Snowflake', 'Airflow', 'FastAPI', 'ChromaDB'],
   'Analytics & Visualization': ['Tableau', 'Pandas', 'NumPy', 'Matplotlib', 'VADER NLP'],
   'Optimization & Modeling': ['Gurobi', 'Linear Regression', 'Probability & Statistics', 'Operations Research', 'Mathematical Modeling'],

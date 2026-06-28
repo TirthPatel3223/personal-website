@@ -1,7 +1,7 @@
 {
   "personal_info": {
     "name": "Tirth",
-    "title": "Software Engineer & Developer",
+    "title": "Data Analyst and Machine Learning",
     "contact": {
       "email": "tirth@example.com",
       "linkedin": "https://linkedin.com/in/tirth",
@@ -162,6 +162,39 @@
       },
       "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/MSBA_orders_analysis/SellersAnalysis",
       "link": "/projects/msba-orders-analysis",
+      "status": "complete"
+    },
+    {
+      "id": "themepark-wait-time-prediction",
+      "title": "Real-Time Queue Wait Time Predictor",
+      "short_description": "An end-to-end machine learning pipeline predicting real-time theme park ride wait times using Time Series and Gradient Boosting architectures to outperform historical baselines by over 53%.",
+      "motivation": "Mapblazer is a theme park routing app that optimizes a guest's itinerary based on their preferences. Historically, the routing algorithm relied on 'current' wait times fetched from park APIs. However, because wait times are highly dynamic, a route optimized for 9:00 AM becomes entirely inaccurate by the time a guest reaches their 1:00 PM attraction, causing cascading delays that ruin the itinerary. To solve this, the routing algorithm required accurate future predictions of wait times to anticipate crowd shifts throughout the day. Building these predictive models introduced major data challenges: our dataset spanned less than a full year, meaning standard tree-based models (like XGBoost) couldn't reliably extrapolate pure chronological datetime inputs. To overcome this, I engineered continuous datetime inputs into cyclical, time-agnostic features (like sine/cosine mappings of the hour and month) allowing XGBoost to map underlying daily crowd flow regardless of the specific date. Furthermore, since irregular US holidays drastically disrupt standard crowd cycles, I deployed Facebook Prophet—a dedicated time-series architecture—to explicitly capture holiday effects and benchmark against the XGBoost models.",
+      "tech_stack": [
+        "Python",
+        "XGBoost",
+        "Facebook Prophet",
+        "Pandas",
+        "Matplotlib",
+        "Seaborn",
+        "Queue-Times API"
+      ],
+      "achievements": [
+        "Architected an end-to-end Machine Learning pipeline comparing three distinct architectures (Facebook Prophet, XGBoost Local, and XGBoost Global) across 1.5M+ theme park wait time telemetry records.",
+        "Engineered advanced cyclical features encoding continuous temporal data into sine/cosine embeddings, ensuring the models mapped seamless chronological transitions without losing edge-case walk-on data.",
+        "Outperformed historical baseline prediction accuracy by an incredible 53.8% using a fine-tuned Prophet time-series model, slashing the overall Mean Absolute Error (MAE) from 7.08 minutes to just 3.27 minutes.",
+        "Effectively eliminated catastrophic prediction failures ('fat tails') by achieving a 90.38% Error Containment Rate (predictions landing strictly within ±10 minutes of reality), heavily outperforming the baseline's 74%.",
+        "Slashed 'Severe Misses' (errors > 10 minutes) by a staggering 62.9% utilizing the Prophet architecture, dropping the severe error rate from 25.9% to just 9.6% across the entire 50,000+ sample holdout dataset.",
+        "Developed a live API inference harness that synchronously hits the Queue-Times API, computes live temporal features, and generates predictions across all three architectures simultaneously to benchmark live model drift."
+      ],
+      "key_metrics": {
+        "prophet_mae_improvement": "53.8% reduction vs baseline",
+        "severe_error_reduction": "62.9% decrease in predictions missing by >10 minutes",
+        "error_containment_rate": "90.38% of predictions fell within ±10 mins",
+        "prophet_mae": "3.27 minutes",
+        "xgboost_global_mae_improvement": "44.8% reduction vs baseline",
+        "historical_records_processed": "1.5M+"
+      },
+      "github_url": "https://github.com/TirthPatel3223/Mapblazer_Wait_Time_Prediction",
       "status": "complete"
     }
   ]

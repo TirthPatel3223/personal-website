@@ -357,6 +357,24 @@ body {
 .light .orders-body-bg  { background-color: rgba(245, 252, 252, 0.88); }
 .light .orders-dark-gradient { display: none; }
 
+/* ─── Mapblazer Page — Amber / Flame Tokens (brand #F49611) ─────────── */
+.mapblazer-accent-text   { color: #f59e0b; }
+.mapblazer-accent-bg     { background-color: rgba(244, 150, 17, 0.10); }
+.mapblazer-accent-border { border-color: rgba(244, 150, 17, 0.32); }
+.hover-mapblazer-accent-border:hover { border-color: rgba(244, 150, 17, 0.55); }
+
+.light .mapblazer-accent-text   { color: #b86a08; }
+.light .mapblazer-accent-bg     { background-color: rgba(244, 150, 17, 0.12); }
+.light .mapblazer-accent-border { border-color: rgba(184, 106, 8, 0.40); }
+.light .hover-mapblazer-accent-border:hover { border-color: rgba(184, 106, 8, 0.60); }
+
+/* Mapblazer hero scrim — warm near-black in dark, warm cream in light */
+.mapblazer-hero-bg  { background-color: rgba(16, 10, 2, 0.80); }
+.mapblazer-body-bg  { background-color: rgba(16, 10, 2, 0.55); }
+.light .mapblazer-hero-bg  { background-color: rgba(255, 249, 238, 0.90); }
+.light .mapblazer-body-bg  { background-color: rgba(255, 249, 238, 0.88); }
+.light .mapblazer-dark-gradient { display: none; }
+
 /* ─── Utility Overrides ──────────────────────────────────────────────── */
 ::selection {
   background-color: rgba(96, 165, 250, 0.3);

@@ -14,6 +14,7 @@ import WeatherParticles from '@/components/WeatherParticles';
 import WeatherPipelineArchDiagram from '@/components/WeatherPipelineArchDiagram';
 import WeatherPipelineInsights from '@/components/WeatherPipelineInsights';
 import DeepCubeAPage from '@/components/DeepCubeAPage';
+import MapblazerResultsChart from '@/components/MapblazerResultsChart';
 
 export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.id }));
@@ -46,32 +47,37 @@ export default async function ProjectPage({
   const isRAG = project.id === 'course-rag-pipeline';
   const isCovid = project.id === 'covid-impact-analysis';
   const isOrders = project.id === 'msba-orders-analysis';
+  const isMapblazer = project.id === 'mapblazer-wait-time-prediction';
 
   /* Accent colours per-project */
   const accentText   = isDataTech ? 'text-[#4e9bb9]'
     : isCovid ? 'covid-accent-text'
     : isOrders ? 'orders-accent-text'
+    : isMapblazer ? 'mapblazer-accent-text'
     : isRAG ? 'site-accent-text'
     : 'cube-accent-text';
   const accentBorder = isDataTech ? 'border-[#1f77b4]/30'
     : isCovid ? 'covid-accent-border'
     : isOrders ? 'orders-accent-border'
+    : isMapblazer ? 'mapblazer-accent-border'
     : isRAG ? 'site-accent-border'
     : 'cube-accent-border';
   const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'
     : isCovid ? 'covid-accent-bg'
     : isOrders ? 'orders-accent-bg'
+    : isMapblazer ? 'mapblazer-accent-bg'
     : isRAG ? 'site-accent-bg'
     : 'cube-accent-bg';
   const accentHover  = isDataTech ? 'hover:border-[#4e9bb9]/50'
     : isCovid ? 'hover-covid-accent-border'
     : isOrders ? 'hover-orders-accent-border'
+    : isMapblazer ? 'hover-mapblazer-accent-border'
     : isRAG ? 'hover-site-accent-border'
     : 'hover:border-teal-500/40';
 
   const mainContent = (
     <main
-      className={`min-h-screen selection:bg-teal-500/20${isCubeSolver ? ' cube-body-bg' : ''}${isCovid ? ' covid-body-bg' : ''}${isOrders ? ' orders-body-bg' : ''}`}
+      className={`min-h-screen selection:bg-teal-500/20${isCubeSolver ? ' cube-body-bg' : ''}${isCovid ? ' covid-body-bg' : ''}${isOrders ? ' orders-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}`}
       style={{
         color: 'var(--foreground)',
         position: 'relative',
@@ -82,9 +88,17 @@ export default async function ProjectPage({
 
       {/* ── HERO BANNER ─────────────────────────────────────────────── */}
       <div
-        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}${isCovid ? ' covid-hero-bg' : ''}${isOrders ? ' orders-hero-bg' : ''}`}
+        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}${isCovid ? ' covid-hero-bg' : ''}${isOrders ? ' orders-hero-bg' : ''}${isMapblazer ? ' mapblazer-hero-bg' : ''}`}
         style={{ borderBottom: '1px solid var(--border)' }}
       >
+        {/* Mapblazer hero background image (sits beneath the scrim gradients) */}
+        {isMapblazer && project.hero_image && (
+          <div
+            className="absolute inset-0 pointer-events-none bg-cover bg-center opacity-25"
+            style={{ backgroundImage: `url(${project.hero_image})` }}
+          />
+        )}
+
         {/* Project-specific gradient overlay (keeps original look) */}
         <div
           className={`absolute inset-0 pointer-events-none bg-gradient-to-br ${
@@ -94,6 +108,8 @@ export default async function ProjectPage({
               ? 'covid-dark-gradient from-[#1a0a00]/80 via-transparent to-transparent'
               : isOrders
               ? 'orders-dark-gradient from-[#051015]/85 via-transparent to-transparent'
+              : isMapblazer
+              ? 'mapblazer-dark-gradient from-[#100a02]/85 via-[#100a02]/40 to-transparent'
               : isCubeSolver
               ? 'cube-dark-gradient from-teal-950/70 via-teal-950/30 to-transparent'
               : 'from-teal-950/40 via-transparent to-transparent'
@@ -104,6 +120,7 @@ export default async function ProjectPage({
             isDataTech ? 'bg-[#1f77b4]/12'
             : isCovid ? 'bg-[#e07020]/10'
             : isOrders ? 'bg-[#5f9ea0]/10'
+            : isMapblazer ? 'bg-[#f49611]/12'
             : 'bg-teal-500/8'
           }`}
         />
@@ -173,7 +190,7 @@ export default async function ProjectPage({
           <>
             {/* Problem Statement */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders}>Problem Statement</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders} isMapblazer={isMapblazer}>Problem Statement</SectionLabel>
               <div className={`glass rounded-2xl p-8 border ${accentBorder}`}>
                 <p className="leading-relaxed text-lg" style={{ color: 'var(--foreground)' }}>
                   {detail.problem_statement}
@@ -181,9 +198,59 @@ export default async function ProjectPage({
               </div>
             </section>
 
+            {/* Course RAG Live Demo — sits between Problem Statement and Results */}
+            {isRAG && <CourseRAGPreviewCard />}
+
+            {/* Results / Impact */}
+            <section>
+              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders} isMapblazer={isMapblazer}>Results &amp; Impact</SectionLabel>
+              {isCovid ? (
+                <CovidInsights />
+              ) : isOrders ? (
+                <OrdersInsights />
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+                    {detail.results.map((r, i) => (
+                      <div
+                        key={i}
+                        className={`glass border ${accentBorder} ${accentHover} rounded-2xl p-5 transition-colors text-center`}
+                      >
+                        <p className={`text-2xl md:text-3xl font-black ${accentText} mb-1`}>{r.value}</p>
+                        <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--muted)' }}>
+                          {r.metric}
+                        </p>
+                        {r.description && (
+                          <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--muted)', opacity: 0.7 }}>
+                            {r.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className={`glass border ${accentBorder} rounded-2xl p-6 space-y-3`}>
+                    {project.achievements.map((ach, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <CheckCircle2 className={`w-5 h-5 ${accentText} shrink-0 mt-0.5`} />
+                        <span className="text-sm leading-relaxed" style={{ color: 'var(--foreground)' }}>
+                          {ach}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </section>
+
+            {/* Dashboards — directly below Results & Impact */}
+            {isDataTech && <TableauPreviewCard />}
+            {isCovid && <CovidTableauCard />}
+            {isOrders && <OrdersTableauCard />}
+
             {/* Approach / Methodology */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders}>Approach &amp; Methodology</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders} isMapblazer={isMapblazer}>Approach &amp; Methodology</SectionLabel>
               <div className="space-y-4">
                 {detail.approach.map((item, i) => (
                   <div
@@ -214,7 +281,7 @@ export default async function ProjectPage({
 
             {/* Architecture Diagram */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders}>Architecture</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders} isMapblazer={isMapblazer}>Architecture</SectionLabel>
               <div className={`glass border ${accentBorder} rounded-2xl overflow-hidden`}>
                 <div
                   className="flex items-center gap-2 px-5 py-3"
@@ -233,7 +300,8 @@ export default async function ProjectPage({
                   <WeatherPipelineArchDiagram />
                 ) : (
                   <pre
-                    className={`${isRAG ? 'site-accent-text' : isCovid ? 'covid-accent-text' : isOrders ? 'orders-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
+                    className={`${isRAG ? 'site-accent-text' : isCovid ? 'covid-accent-text' : isOrders ? 'orders-accent-text' : isMapblazer ? 'mapblazer-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
+                    style={{ fontVariantLigatures: 'none', fontFeatureSettings: '"liga" 0, "calt" 0' }}
                   >
                     {detail.architecture}
                   </pre>
@@ -241,56 +309,11 @@ export default async function ProjectPage({
               </div>
             </section>
 
-            {/* Results / Impact */}
-            <section>
-              <SectionLabel isDataTech={isDataTech} isCovid={isCovid} isOrders={isOrders}>Results &amp; Impact</SectionLabel>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-                {detail.results.map((r, i) => (
-                  <div
-                    key={i}
-                    className={`glass border ${accentBorder} ${accentHover} rounded-2xl p-5 transition-colors text-center`}
-                  >
-                    <p className={`text-2xl md:text-3xl font-black ${accentText} mb-1`}>{r.value}</p>
-                    <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--muted)' }}>
-                      {r.metric}
-                    </p>
-                    {r.description && (
-                      <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--muted)', opacity: 0.7 }}>
-                        {r.description}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className={`glass border ${accentBorder} rounded-2xl p-6 space-y-3`}>
-                {project.achievements.map((ach, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className={`w-5 h-5 ${accentText} shrink-0 mt-0.5`} />
-                    <span className="text-sm leading-relaxed" style={{ color: 'var(--foreground)' }}>
-                      {ach}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
+            {/* Mapblazer model performance + error histogram */}
+            {isMapblazer && <MapblazerResultsChart />}
 
             {/* Weather Paradox Findings */}
             {isDataTech && <WeatherPipelineInsights />}
-
-            {/* Tableau Dashboard Preview */}
-            {isDataTech && <TableauPreviewCard />}
-
-            {/* COVID-19 Insights & Dashboard */}
-            {isCovid && <CovidInsights />}
-            {isCovid && <CovidTableauCard />}
-
-            {/* MSBA Orders Insights & Dashboard */}
-            {isOrders && <OrdersInsights />}
-            {isOrders && <OrdersTableauCard />}
-
-            {/* Course RAG Live Demo */}
-            {isRAG && <CourseRAGPreviewCard />}
           </>
         ) : (
           /* Fallback for projects without rich detail */
@@ -391,19 +414,23 @@ function SectionLabel({
   isDataTech,
   isCovid,
   isOrders,
+  isMapblazer,
 }: {
   children: React.ReactNode;
   isDataTech?: boolean;
   isCovid?: boolean;
   isOrders?: boolean;
+  isMapblazer?: boolean;
 }) {
-  const hasGradient = isDataTech || isCovid || isOrders;
+  const hasGradient = isDataTech || isCovid || isOrders || isMapblazer;
   const gradientClass = isDataTech
     ? 'from-[#1f77b4] to-[#4e9bb9]'
     : isCovid
     ? 'from-[#e07020] to-[#f59e0b]'
     : isOrders
     ? 'from-[#2d6a6f] to-[#5f9ea0]'
+    : isMapblazer
+    ? 'from-[#f97316] to-[#fbbf24]'
     : '';
 
   return (
@@ -414,7 +441,7 @@ function SectionLabel({
             ? `text-transparent bg-clip-text bg-gradient-to-r ${gradientClass}`
             : ''
         }`}
-        style={hasGradient ? undefined : { color: 'var(--title)' }}
+        style={isMapblazer ? { color: 'transparent' } : hasGradient ? undefined : { color: 'var(--title)' }}
       >
         {children}
       </h2>

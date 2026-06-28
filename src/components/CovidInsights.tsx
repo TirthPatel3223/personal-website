@@ -28,26 +28,17 @@ const covidKPIs = [
 ];
 
 const demographicContext = [
-  { label: "HDI", value: "0.6" },
-  { label: "Median Age", value: "28.2" },
   { label: "Pop. Density", value: "450.4" },
   { label: "% Vaccinated", value: "1.929%" },
-  { label: "% Dead", value: "0.035%" },
+  { label: "Fatality Percentage", value: "0.035%" },
   { label: "% Infected", value: "1.389%" },
 ];
 
 export default function CovidInsights() {
   return (
-    <section>
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#e07020] to-[#f59e0b] whitespace-nowrap">
-          Vaccination Impact — Key Findings
-        </h2>
-        <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
-      </div>
-
+    <div>
       {/* Demographic context strip */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {demographicContext.map((d) => (
           <div
             key={d.label}
@@ -104,6 +95,6 @@ export default function CovidInsights() {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

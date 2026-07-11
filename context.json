@@ -8,16 +8,14 @@
       "github": "https://github.com/tirth"
     },
     "summary": "I am a passionate software engineer focused on building intelligent web applications, AI integrations, and scalable architectures. I love solving complex problems and turning ideas into impactful digital experiences.",
-    "skills": [
-      "JavaScript",
-      "TypeScript",
-      "React",
-      "Next.js",
-      "Node.js",
-      "Python",
-      "AI SDKs",
-      "Prompt Engineering"
-    ]
+    "skills": {
+      "Languages": ["Python", "SQL", "R", "JavaScript", "TypeScript"],
+      "ML / AI": ["PyTorch", "TensorFlow", "Deep Learning", "CUDA", "scikit-learn", "LangGraph", "Hugging Face", "LLMs & RAG"],
+      "Data Engineering": ["PySpark", "Snowflake", "Airflow", "FastAPI", "ChromaDB"],
+      "Analytics & Visualization": ["Tableau", "Pandas", "NumPy", "Matplotlib", "VADER NLP"],
+      "Optimization & Modeling": ["Gurobi", "Linear Regression", "Probability & Statistics", "Operations Research", "Mathematical Modeling"],
+      "Tools": ["Git", "Docker", "Next.js", "Oracle Cloud", "Jupyter"]
+    }
   },
   "work_experience": [
     {
@@ -87,7 +85,7 @@
     {
       "id": "weather-dining-pipeline",
       "title": "Yelp & Weather Intelligence Pipeline",
-      "short_description": "End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 10M+ records.",
+      "short_description": "End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 2M+ records.",
       "motivation": "Built to discover whether weather statistically drives restaurant ratings and dining behavior at scale, using the full Yelp Academic Dataset and live weather API data.",
       "tech_stack": ["PySpark", "Snowflake", "Apache Airflow", "Tableau", "VADER NLP", "Python", "OpenWeatherMap API"],
       "achievements": [
@@ -95,14 +93,14 @@
         "Identified Extreme Heat as the major deterrent to dining out, dropping review volume to ~30/day with the lowest sentiment (0.65)",
         "Found that Rainy/Snowy weather causes a 50.7% drop in volume (143/day) but retains a resilient sentiment index identical to pleasant days (0.69)",
         "Generated Regional Penalty Heatmaps isolating weather biases",
-        "Designed Snowflake star-schema data warehouse processing 10M+ records with sub-5-second query latency",
+        "Designed Snowflake star-schema data warehouse processing 2M+ records with sub-5-second query latency",
         "Published interactive Tableau executive dashboard on Tableau Public"
       ],
       "key_metrics": {
         "freezing_sentiment": "0.71",
         "average_review_stars": "3.85",
         "overall_sentiment": "0.58",
-        "records_processed": "10M+",
+        "records_processed": "2M+",
         "query_latency": "< 5 seconds"
       },
       "github_url": "https://github.com/TirthPatel3223/Yelp-Weather-Pipeline",

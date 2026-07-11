@@ -255,7 +255,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
     id: 'weather-dining-pipeline',
     title: 'Yelp & Weather Intelligence Pipeline',
     short_description:
-      'End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 10M+ records.',
+      'End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 2M+ records.',
     motivation:
       'Curious whether weather drives restaurant ratings and business patterns, I built a production-grade data pipeline ingesting the full Yelp Academic Dataset and OpenWeatherMap API, performing distributed ETL at scale, NLP sentiment scoring, and surfacing insights through an executive Tableau dashboard.',
     achievements: [
@@ -263,7 +263,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
       'Identified Extreme Heat as the major deterrent to dining out, dropping review volume to ~30/day with the lowest sentiment (0.65)',
       'Found that Rainy/Snowy weather causes a 50.7% drop in volume (143/day vs 290/day) but retains a resilient sentiment index identical to pleasant days (0.69)',
       'Generated Regional Penalty Heatmaps highlighting specific cities where weather unfairly skews ratings, isolating weather biases',
-      'Designed a Snowflake star-schema data warehouse with sub-5-second query latency processing 10M+ records',
+      'Designed a Snowflake star-schema data warehouse with sub-5-second query latency processing 2M+ records',
     ],
     tech_stack: ['PySpark', 'Snowflake', 'Airflow', 'Tableau', 'VADER NLP', 'Python'],
     technical_details: 'PySpark, Snowflake, Apache Airflow, Tableau, VADER NLP, Python',
@@ -281,7 +281,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
         {
           step: 'PySpark ETL',
           detail:
-            'Cleaned and deduplicated 10M+ records using distributed PySpark on a 3-node local cluster. Joined review and weather datasets on composite (city_slug, date) keys. Handled schema drift, null imputation, and timezone normalization.',
+            'Cleaned and deduplicated 2M+ records using distributed PySpark on a 3-node local cluster. Joined review and weather datasets on composite (city_slug, date) keys. Handled schema drift, null imputation, and timezone normalization.',
         },
         {
           step: 'Sentiment Analysis',
@@ -315,7 +315,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
                          v
               +----------------------+
               |     PySpark ETL      |  <-- 3-node cluster
-              |  Clean & Join        |      10M+ records
+              |  Clean & Join        |      2M+ records
               |  Deduplicate         |      ~4 hrs full run
               +----------+-----------+
                          |  Enriched records
@@ -341,7 +341,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
       |  + SLA Alerting  |  |  maps & metrics  |
       +------------------+  +------------------+`,
       results: [
-        { metric: 'Records Processed',  value: '10M+',   description: 'Yelp reviews + weather data'       },
+        { metric: 'Records Processed',  value: '2M+',    description: 'Yelp reviews + weather data'       },
         { metric: 'Peak Sentiment',      value: '0.71',   description: 'Freezing weather paradox'          },
         { metric: 'Query Latency',       value: '< 5s',   description: 'Snowflake star-schema DW'          },
         { metric: 'Avg Review Stars',    value: '3.85★',  description: 'Across all weather types'          },

@@ -100,7 +100,7 @@ export default function WeatherPipelineArchDiagram() {
 
         {/* Annotations — stacked legend (kept on separate lines to avoid overlap) */}
         <text x={40} y={246} fontSize={10} fill="rgba(245,158,11,0.7)" fontFamily="ui-monospace, monospace">
-          10M+ reviews · historical weather aligned by geo + timestamp
+          2M+ reviews · historical weather aligned by geo + timestamp
         </text>
         <text x={40} y={266} fontSize={10} fill="rgba(45,212,191,0.7)" fontFamily="ui-monospace, monospace">
           VADER compound score → Positive / Neutral / Negative

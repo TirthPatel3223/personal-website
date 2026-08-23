@@ -70,8 +70,8 @@ export default function CrewPairingDemoCard() {
       <div>
         <div className="flex items-center gap-3 mb-6">
           <h2
-            className="section-title text-2xl font-bold tracking-tight bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a78bfa]"
-            style={{ color: 'transparent' }}
+            className="section-title text-2xl font-bold tracking-tight"
+            style={{ color: 'var(--title)' }}
           >
             Watch It Solve a Month
           </h2>
@@ -103,7 +103,7 @@ export default function CrewPairingDemoCard() {
                 href={DEMO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 inline-flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-full px-5 py-2.5 text-sm transition-colors shadow-lg"
+                className="shrink-0 inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-full px-5 py-2.5 text-sm transition-colors shadow-lg"
               >
                 Open the demo full-screen
                 <ExternalLink className="w-4 h-4" />
@@ -170,7 +170,7 @@ export default function CrewPairingDemoCard() {
                     href={DEMO_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-full px-5 py-2.5 text-sm transition-colors"
+                    className="inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-full px-5 py-2.5 text-sm transition-colors"
                   >
                     Open the demo
                     <ExternalLink className="w-4 h-4" />
@@ -204,7 +204,7 @@ export default function CrewPairingDemoCard() {
                     border: '1px solid rgba(99, 102, 241, 0.15)',
                   }}
                 >
-                  <span className="w-2 h-2 rounded-full bg-[#6366f1] shrink-0 mt-1.5" />
+                  <span className="w-2 h-2 rounded-full bg-[var(--accent)] shrink-0 mt-1.5" />
                   <div>
                     <p className="text-sm font-semibold mb-0.5" style={{ color: 'var(--title)' }}>
                       {label}

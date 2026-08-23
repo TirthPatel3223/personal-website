@@ -47,8 +47,8 @@ export default function RouteOptItineraryCard() {
     <section>
       <div className="flex items-center gap-3 mb-6">
         <h2
-          className="section-title text-2xl font-bold tracking-tight bg-clip-text bg-gradient-to-r from-[#036446] to-[#0b8055] dark:from-[#34d399] dark:to-[#6ee7b7]"
-          style={{ color: 'transparent' }}
+          className="section-title text-2xl font-bold tracking-tight"
+          style={{ color: 'var(--title)' }}
         >
           A Solved Day
         </h2>
@@ -60,7 +60,8 @@ export default function RouteOptItineraryCard() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="glass border routeopt-accent-border rounded-2xl overflow-hidden"
+        whileHover={{ y: -5, transition: { type: 'spring', stiffness: 320, damping: 22 } }}
+        className="glass border routeopt-accent-border rounded-2xl overflow-hidden home-card"
       >
         {/* Command strip */}
         <div
@@ -137,7 +138,7 @@ export default function RouteOptItineraryCard() {
                     key={s.n}
                     style={{
                       borderBottom: '1px solid var(--border)',
-                      background: s.must ? 'rgba(16, 185, 129, 0.07)' : undefined,
+                      background: s.must ? 'var(--accent-dim)' : undefined,
                     }}
                   >
                     <td className="py-3 pr-4 font-mono text-xs" style={{ color: 'var(--muted)' }}>

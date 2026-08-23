@@ -26,11 +26,11 @@ const S = {
   secHdr:  { display: 'flex', alignItems: 'center', gap: 14, marginBottom: '1.75rem' } as const,
   secRule: { flex: 1, height: 1, background: 'var(--border)' } as const,
   card: (border: string): React.CSSProperties => ({
-    background: 'rgba(15,10,26,.55)',
+    background: 'var(--dca-card)',
     backdropFilter: 'blur(16px)',
     borderRadius: 16,
     border: `1px solid ${border}`,
-    transition: 'border-color .2s',
+    transition: 'transform .35s var(--ease-spring), border-color .2s',
   }),
 };
 
@@ -73,7 +73,7 @@ function Step({
   const bg     = accent === 'p' ? 'var(--cp-dim)'  : 'var(--ct-dim)';
   const border = accent === 'p' ? 'var(--cp-bdr)'  : 'var(--ct-bdr)';
   return (
-    <div style={{ display: 'flex', gap: 15, alignItems: 'flex-start', padding: '1.1rem 1.4rem', borderRadius: 16, border: '1px solid var(--border)', background: 'rgba(15,10,26,.35)', backdropFilter: 'blur(10px)', transition: 'border-color .2s, background .2s' }}>
+    <div className="home-card" style={{ display: 'flex', gap: 15, alignItems: 'flex-start', padding: '1.1rem 1.4rem', borderRadius: 16, border: '1px solid var(--border)', background: 'var(--dca-card-soft)', backdropFilter: 'blur(10px)' }}>
       <div style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0, marginTop: 1, display: 'grid', placeItems: 'center', fontSize: '.78rem', fontWeight: 700, border: `1px solid ${border}`, color, background: bg }}>
         {n}
       </div>
@@ -137,7 +137,7 @@ function FlowArrow({ accent }: { accent: 'p' | 't' }) {
 
 function ArchDiagram() {
   return (
-    <div style={{ borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border)', background: 'rgba(4,2,10,.88)', backdropFilter: 'blur(20px)' }}>
+    <div className="home-card" style={{ borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--dca-arch)', backdropFilter: 'blur(20px)' }}>
       {/* title bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 16px', borderBottom: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', gap: 5 }}>
@@ -164,7 +164,10 @@ function ArchDiagram() {
           <FlowArrow accent="p" />
           <div style={{ position: 'relative' }}>
             <FlowNode variant="p" title="Training Dataset" sub="50M+ (state s, distance d) pairs" />
-            <span style={{ position: 'absolute', top: '50%', right: 'calc(100% + 10px)', transform: 'translateY(-50%)', fontSize: '.6rem', color: 'var(--cp)', background: 'var(--cp-dim)', border: '1px dashed var(--cp-bdr)', borderRadius: 5, padding: '3px 8px', whiteSpace: 'nowrap' }}>
+            {/* Sat outside the node at right: calc(100% + 10px), which put it past
+                the diagram's own overflow:hidden edge and clipped it to a stub.
+                Tucked into the node's top-right corner instead. */}
+            <span style={{ position: 'absolute', top: -9, right: 8, fontSize: '.6rem', color: 'var(--cp)', background: 'var(--cp-dim)', border: '1px dashed var(--cp-bdr)', borderRadius: 5, padding: '3px 8px', whiteSpace: 'nowrap' }}>
               ⟳ Symmetry Aug ×48
             </span>
           </div>
@@ -327,7 +330,7 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
           {/* Problem Statement */}
           <section>
             <SecLabel accent="p">Problem Statement</SecLabel>
-            <div style={{ ...S.card('var(--cp-bdr)'), padding: '2rem 2.25rem' }}>
+            <div className="home-card" style={{ ...S.card('var(--cp-bdr)'), padding: '2rem 2.25rem' }}>
               <p style={{ fontSize: '1.025rem', lineHeight: 1.88, color: 'var(--foreground)' }}>
                 The <span style={{ color: 'var(--cp)', fontWeight: 600 }}>Maltese Gear Cube</span> is a mechanical puzzle with a state space of approximately{' '}
                 <span style={{ color: 'var(--cp)', fontWeight: 600 }}>4.9&thinsp;×&thinsp;10<sup>19</sup></span> configurations, orders of magnitude larger than a standard Rubik&apos;s Cube. Classical search algorithms such as BFS and IDA* become computationally intractable at this scale without a highly accurate heuristic to prune the tree. The challenge: learn a{' '}
@@ -396,7 +399,7 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
             {/* 4-up metric grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: '1.5rem' }}>
               {metrics.map(m => (
-                <div key={m.lbl} style={{ borderRadius: 16, padding: '1.5rem 1rem', border: '1px solid var(--border)', background: 'rgba(15,10,26,.5)', backdropFilter: 'blur(12px)', textAlign: 'center', transition: 'border-color .2s, transform .2s' }}>
+                <div key={m.lbl} className="home-card" style={{ borderRadius: 16, padding: '1.5rem 1rem', border: '1px solid var(--border)', background: 'var(--dca-card-firm)', backdropFilter: 'blur(12px)', textAlign: 'center' }}>
                   <div style={{ fontSize: 'clamp(1.9rem, 4vw, 2.7rem)', fontWeight: 900, letterSpacing: '-.025em', lineHeight: 1, marginBottom: 8, color: m.accent === 'p' ? 'var(--cp)' : 'var(--ct)' }}>{m.val}</div>
                   <div style={{ fontSize: '.67rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--muted)' }}>{m.lbl}</div>
                 </div>
@@ -404,7 +407,7 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
             </div>
 
             {/* achievement list */}
-            <div style={{ ...S.card('var(--cp-bdr)'), padding: '1.5rem 1.75rem' }}>
+            <div className="home-card" style={{ ...S.card('var(--cp-bdr)'), padding: '1.5rem 1.75rem' }}>
               {achievements.map((ach, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 11, padding: '10px 0', borderBottom: i < achievements.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
                   <span style={{ flexShrink: 0, marginTop: 2, color: 'var(--cp)' }}><CheckIcon /></span>

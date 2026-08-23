@@ -90,8 +90,8 @@ export default function CrewPairingResultsChart() {
     <section>
       <div className="flex items-center gap-3 mb-6">
         <h2
-          className="section-title text-2xl font-bold tracking-tight bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a78bfa]"
-          style={{ color: 'transparent' }}
+          className="section-title text-2xl font-bold tracking-tight"
+          style={{ color: 'var(--title)' }}
         >
           Policy Performance
         </h2>

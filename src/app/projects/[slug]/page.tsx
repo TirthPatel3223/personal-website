@@ -12,7 +12,6 @@ import WeatherPipelineArchDiagram from '@/components/WeatherPipelineArchDiagram'
 import WeatherPipelineInsights from '@/components/WeatherPipelineInsights';
 import DeepCubeAPage from '@/components/DeepCubeAPage';
 import MapblazerResultsChart from '@/components/MapblazerResultsChart';
-import MapblazerArchDiagram from '@/components/MapblazerArchDiagram';
 import MapblazerDashboardCard from '@/components/MapblazerDashboardCard';
 import CrewPairingDemoCard from '@/components/CrewPairingDemoCard';
 import CrewPairingResultsChart from '@/components/CrewPairingResultsChart';
@@ -77,9 +76,15 @@ export default async function ProjectPage({
     : isRAG ? 'hover-site-accent-border'
     : 'hover:border-teal-500/40';
 
+  /* Every project page runs the homepage theme: each glass panel gets the same
+     lift + accent bar + top-left glow the homepage cards have on hover. The bar and
+     glow colours come from the page's own --fx-* vars (globals.css), so the pages
+     keep their individual accents. */
+  const cardFx = ' home-card';
+
   const mainContent = (
     <main
-      className={`min-h-screen selection:bg-teal-500/20${isCubeSolver ? ' cube-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}${isRouteOpt ? ' routeopt-body-bg' : ''}${isCrewPairing ? ' crewpair-body-bg' : ''}${isAirbnb ? ' airbnb-body-bg' : ''}`}
+      className={`min-h-screen${isCubeSolver ? ' cube-body-bg' : ''}${isDataTech ? ' datatech-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}${isRouteOpt ? ' routeopt-body-bg' : ''}${isCrewPairing ? ' crewpair-body-bg' : ''}${isAirbnb ? ' airbnb-body-bg' : ''}`}
       style={{
         color: 'var(--foreground)',
         position: 'relative',
@@ -101,30 +106,16 @@ export default async function ProjectPage({
           />
         )}
 
-        {/* Project-specific gradient overlay (keeps original look) */}
-        <div
-          className={`absolute inset-0 pointer-events-none bg-gradient-to-br ${
-            isDataTech
-              ? 'from-[#0a192f]/90 via-transparent to-transparent'
-              : isMapblazer
-              ? 'mapblazer-dark-gradient from-[#100a02]/85 via-[#100a02]/40 to-transparent'
-              : isRouteOpt
-              ? 'routeopt-dark-gradient from-[#04120c]/85 via-[#04120c]/40 to-transparent'
-              : isCrewPairing
-              ? 'crewpair-dark-gradient from-[#080918]/85 via-[#080918]/40 to-transparent'
-              : isAirbnb
-              ? 'airbnb-dark-gradient from-[#18080d]/85 via-[#18080d]/40 to-transparent'
-              : isCubeSolver
-              ? 'cube-dark-gradient from-teal-950/70 via-teal-950/30 to-transparent'
-              : 'from-teal-950/40 via-transparent to-transparent'
-          }`}
-        />
+        {/* No scrim gradient over the hero: the animated blob background is the
+            backdrop here exactly as it is on the homepage. Only the accent glow
+            below stays, which is the per-project equivalent of the homepage's own
+            radial accent washes. */}
         <div
           className={`absolute top-0 left-1/3 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none ${
             isDataTech ? 'bg-[#1f77b4]/12'
             : isMapblazer ? 'bg-[#f49611]/12'
-            : isRouteOpt ? 'bg-[#10b981]/14'
-            : isCrewPairing ? 'bg-[#6366f1]/14'
+            : isRouteOpt ? 'bg-[#60a5fa]/12'
+            : isCrewPairing ? 'bg-[#60a5fa]/12'
             : isAirbnb ? 'bg-[#FF385C]/14'
             : 'bg-teal-500/8'
           }`}
@@ -150,8 +141,19 @@ export default async function ProjectPage({
           )}
 
           <h1
-            className="text-4xl md:text-6xl font-black tracking-tight mb-5 max-w-3xl leading-tight"
-            style={{ color: 'var(--title)' }}
+            className={`text-4xl md:text-6xl font-black tracking-tight mb-5 max-w-3xl leading-tight${
+              isRouteOpt || isCrewPairing ? ' bg-clip-text' : ''
+            }`}
+            /* Homepage-theme pages reuse the hero wordmark gradient from page.tsx. */
+            style={
+              isRouteOpt || isCrewPairing
+                ? {
+                    color: 'transparent',
+                    backgroundImage:
+                      'linear-gradient(135deg, var(--accent-hover), var(--accent), #1d4ed8)',
+                  }
+                : { color: 'var(--title)' }
+            }
           >
             {project.title}
           </h1>
@@ -195,8 +197,8 @@ export default async function ProjectPage({
           <>
             {/* Problem Statement */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing} isAirbnb={isAirbnb} isRouteOpt={isRouteOpt}>Problem Statement</SectionLabel>
-              <div className={`glass rounded-2xl p-8 border ${accentBorder}`}>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb}>Problem Statement</SectionLabel>
+              <div className={`glass rounded-2xl p-8 border ${accentBorder}${cardFx}`}>
                 <p className="leading-relaxed text-lg" style={{ color: 'var(--foreground)' }}>
                   {detail.problem_statement}
                 </p>
@@ -208,12 +210,12 @@ export default async function ProjectPage({
 
             {/* Results / Impact */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing} isAirbnb={isAirbnb} isRouteOpt={isRouteOpt}>Results &amp; Impact</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb}>Results &amp; Impact</SectionLabel>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
                 {detail.results.map((r, i) => (
                   <div
                     key={i}
-                    className={`glass border ${accentBorder} ${accentHover} rounded-2xl p-5 transition-colors text-center`}
+                    className={`glass border ${accentBorder} ${accentHover} rounded-2xl p-5 transition-colors text-center${cardFx}`}
                   >
                     <p className={`text-2xl md:text-3xl font-black ${accentText} mb-1`}>{r.value}</p>
                     <p className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--muted)' }}>
@@ -231,7 +233,7 @@ export default async function ProjectPage({
               {/* Airbnb: the headline finding, spelled out under the metric grid */}
               {isAirbnb && <AirbnbFindingCallout />}
 
-              <div className={`glass border ${accentBorder} rounded-2xl p-6 space-y-3`}>
+              <div className={`glass border ${accentBorder} rounded-2xl p-6 space-y-3${cardFx}`}>
                 {project.achievements.map((ach, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <CheckCircle2 className={`w-5 h-5 ${accentText} shrink-0 mt-0.5`} />
@@ -260,12 +262,12 @@ export default async function ProjectPage({
 
             {/* Approach / Methodology */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing} isAirbnb={isAirbnb} isRouteOpt={isRouteOpt}>Approach &amp; Methodology</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb}>Approach &amp; Methodology</SectionLabel>
               <div className="space-y-4">
                 {detail.approach.map((item, i) => (
                   <div
                     key={i}
-                    className={`flex gap-5 glass border ${accentBorder} ${accentHover} rounded-2xl p-6 transition-colors`}
+                    className={`flex gap-5 glass border ${accentBorder} ${accentHover} rounded-2xl p-6 transition-colors${cardFx}`}
                   >
                     <div
                       className={`shrink-0 w-8 h-8 rounded-full ${accentBg} ${accentText} border ${accentBorder} flex items-center justify-center font-bold text-sm mt-0.5`}
@@ -291,8 +293,8 @@ export default async function ProjectPage({
 
             {/* Architecture Diagram */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing} isAirbnb={isAirbnb} isRouteOpt={isRouteOpt}>Architecture</SectionLabel>
-              <div className={`glass border ${accentBorder} rounded-2xl overflow-hidden`}>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb}>Architecture</SectionLabel>
+              <div className={`glass border ${accentBorder} rounded-2xl overflow-hidden${cardFx}`}>
                 <div
                   className="flex items-center gap-2 px-5 py-3"
                   style={{ borderBottom: '1px solid var(--border)' }}
@@ -308,8 +310,6 @@ export default async function ProjectPage({
                 </div>
                 {isDataTech ? (
                   <WeatherPipelineArchDiagram />
-                ) : isMapblazer ? (
-                  <MapblazerArchDiagram />
                 ) : (
                   <pre
                     className={`${isRAG ? 'site-accent-text' : isMapblazer ? 'mapblazer-accent-text' : isRouteOpt ? 'routeopt-accent-text' : isCrewPairing ? 'crewpair-accent-text' : isAirbnb ? 'airbnb-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
@@ -328,7 +328,7 @@ export default async function ProjectPage({
           /* Fallback for projects without rich detail */
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="col-span-1 md:col-span-2 space-y-8">
-              <section className={`glass p-8 rounded-3xl border ${accentBorder}`}>
+              <section className={`glass p-8 rounded-3xl border ${accentBorder}${cardFx}`}>
                 <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--title)' }}>
                   Motivation
                 </h2>
@@ -336,7 +336,7 @@ export default async function ProjectPage({
                   {project.motivation}
                 </p>
               </section>
-              <section className={`glass p-8 rounded-3xl border ${accentBorder}`}>
+              <section className={`glass p-8 rounded-3xl border ${accentBorder}${cardFx}`}>
                 <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--title)' }}>
                   Key Achievements
                 </h2>
@@ -355,7 +355,7 @@ export default async function ProjectPage({
               </section>
             </div>
             <div className="col-span-1">
-              <section className={`glass p-8 rounded-3xl border ${accentBorder}`}>
+              <section className={`glass p-8 rounded-3xl border ${accentBorder}${cardFx}`}>
                 <h3 className="text-xs font-bold mb-4 tracking-widest uppercase" style={{ color: 'var(--title)' }}>
                   Tech Stack
                 </h3>
@@ -418,30 +418,25 @@ export default async function ProjectPage({
   );
 }
 
+/* No isRouteOpt / isCrewPairing flags here on purpose: those two pages run the
+   homepage heading treatment — solid --title text with the accent gradient
+   underline from .section-title — rather than a per-project gradient fill. */
 function SectionLabel({
   children,
   isDataTech,
   isMapblazer,
-  isCrewPairing,
   isAirbnb,
-  isRouteOpt,
 }: {
   children: React.ReactNode;
   isDataTech?: boolean;
   isMapblazer?: boolean;
-  isCrewPairing?: boolean;
   isAirbnb?: boolean;
-  isRouteOpt?: boolean;
 }) {
-  const hasGradient = isDataTech || isMapblazer || isCrewPairing || isAirbnb || isRouteOpt;
+  const hasGradient = isDataTech || isMapblazer || isAirbnb;
   const gradientClass = isDataTech
     ? 'from-[#1f77b4] to-[#4e9bb9]'
     : isMapblazer
     ? 'from-[#f97316] to-[#fbbf24]'
-    : isRouteOpt
-    ? 'from-[#036446] to-[#0b8055] dark:from-[#34d399] dark:to-[#6ee7b7]'
-    : isCrewPairing
-    ? 'from-[#6366f1] to-[#a78bfa]'
     : isAirbnb
     ? 'from-[#a10d33] to-[#d1214e] dark:from-[#FF385C] dark:to-[#FF9A8B]'
     : '';
@@ -455,7 +450,7 @@ function SectionLabel({
             : ''
         }`}
         style={
-          isMapblazer || isCrewPairing || isAirbnb || isRouteOpt
+          isMapblazer || isAirbnb
             ? { color: 'transparent' }
             : hasGradient
             ? undefined

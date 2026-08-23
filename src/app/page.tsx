@@ -8,14 +8,19 @@ import { projects } from '@/data/projects';
 import { Github, Linkedin, Mail, FileText, MapPin } from 'lucide-react';
 
 const skills: Record<string, string[]> = {
-  Languages: ['Python', 'SQL', 'R', 'JavaScript', 'TypeScript'],
+  /* Two things keep the grid from going ragged, and both matter if you edit this:
+     group sizes are held to 7-13 items, and the ORDER is by rendered card weight
+     (label length, not item count - "Champion/Challenger Promotion" costs a whole
+     line) so each row of three holds cards of similar height. Every skill from the
+     original eight groups is still here, just regrouped. */
   'Machine Learning': ['XGBoost', 'Prophet', 'scikit-learn', 'PyTorch', 'TensorFlow', 'Deep Learning', 'Deep RL', 'CUDA', 'Time-Series Forecasting', 'Feature Engineering', 'Transformers', 'Deep Q-Networks', 'Reward Design'],
-  'LLMs & Generative AI': ['LangGraph', 'Agentic RAG', 'ChromaDB', 'Vector Search', 'Claude & OpenAI APIs', 'Embeddings', 'Hugging Face', 'Prompt Engineering'],
   'MLOps & Productionization': ['Databricks', 'Databricks Asset Bundles', 'Automated Retraining', 'Champion/Challenger Promotion', 'Data Quality Gates', 'GitHub Actions', 'CI/CD', 'Docker', 'AWS EC2', 'TensorBoard', 'Experiment Tracking'],
-  'Data Engineering': ['PySpark', 'Delta Lake', 'Snowflake', 'Airflow', 'Medallion Architecture', 'PostgreSQL', 'Supabase', 'FastAPI', 'Pydantic', 'ETL / ELT'],
+  'Optimization & Operations Research': ['Gurobi', 'Linear Programming', 'Mixed-Integer Programming', 'Combinatorial Optimization', 'Constraint Modeling', 'Lazy Constraint Generation', 'Routing & Scheduling', 'Operations Research'],
+  'Statistics & Causal Inference': ['Probability & Statistics', 'Regression', 'Causal Inference', 'Regression Discontinuity', 'Econometrics', 'Mathematical Modeling', 'Market Sizing Models'],
+  'Languages & Tools': ['Python', 'SQL', 'R', 'JavaScript', 'TypeScript', 'Git', 'Jupyter', 'pytest', 'Next.js', 'Excel', 'systemd', 'Oracle Cloud', 'YAML-Driven Configuration'],
+  'LLMs & Generative AI': ['LangGraph', 'Agentic RAG', 'ChromaDB', 'Vector Search', 'Claude & OpenAI APIs', 'Embeddings', 'Hugging Face', 'Prompt Engineering'],
   'Analytics & Visualization': ['Tableau', 'pandas', 'NumPy', 'Matplotlib', 'VADER NLP', 'Sentiment Analysis', 'KPI Design', 'Executive Dashboards', 'statsmodels', 'seaborn'],
-  'Statistics & Optimization': ['Probability & Statistics', 'Regression', 'Gurobi', 'Linear Programming', 'Mixed-Integer Programming', 'Operations Research', 'Mathematical Modeling', 'Market Sizing Models', 'Combinatorial Optimization', 'Constraint Modeling', 'Lazy Constraint Generation', 'Routing & Scheduling', 'Causal Inference', 'Regression Discontinuity', 'Econometrics'],
-  'Tools & Platforms': ['Git', 'Jupyter', 'Next.js', 'Oracle Cloud', 'Excel', 'systemd', 'pytest', 'YAML-Driven Configuration'],
+  'Data Engineering': ['PySpark', 'Delta Lake', 'Snowflake', 'Airflow', 'Medallion Architecture', 'PostgreSQL', 'Supabase', 'FastAPI', 'Pydantic', 'ETL / ELT'],
 };
 
 /* ─── Shared animation variants ────────────────────────────────────── */
@@ -260,6 +265,8 @@ export default function Home() {
             </h2>
           </motion.div>
 
+          {/* Current role. No bullet list yet — the internship has only just started,
+              so the card exists to place it on the timeline, nothing more. */}
           <motion.div
             custom={0}
             variants={fadeUp}
@@ -294,28 +301,88 @@ export default function Home() {
                   style={{ background: 'linear-gradient(90deg, var(--accent), var(--accent-hover))' }}
                 />
 
+                <div className="flex items-start justify-between flex-wrap gap-3">
+                  <div>
+                    <h3 className="text-2xl font-bold" style={{ color: 'var(--title)' }}>
+                      Data Science Intern
+                    </h3>
+                    <p className="font-medium mt-0.5" style={{ color: 'var(--accent)' }}>
+                      Becton Dickinson
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span
+                      className="inline-flex items-center gap-2 text-sm rounded-full px-3.5 py-1.5"
+                      style={{ background: 'var(--accent-dim)', color: 'var(--foreground)' }}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ background: 'var(--accent)' }}
+                      />
+                      Aug 2026 – Current
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            custom={0.12}
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="flex gap-6"
+          >
+            {/* Timeline spine */}
+            <div className="flex flex-col items-center">
+              <div
+                className="w-4 h-4 rounded-full shrink-0 mt-1.5"
+                style={{
+                  background: 'var(--accent)',
+                  border: '4px solid var(--background)',
+                  boxShadow: '0 0 0 2px var(--accent-dim)',
+                }}
+              />
+              <div className="w-px flex-1 mt-2" style={{ background: 'var(--border)' }} />
+            </div>
+
+            {/* Card */}
+            <div className="pb-12 flex-1">
+              <motion.div
+                whileHover={{ y: -4, transition: { type: 'spring', stiffness: 320, damping: 22 } }}
+                className="group relative glass rounded-2xl p-6 overflow-hidden"
+                style={{ borderRadius: 'var(--radius-md)' }}
+              >
+                {/* Accent bar on hover */}
+                <div
+                  className="absolute inset-x-0 top-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-2xl"
+                  style={{ background: 'linear-gradient(90deg, var(--accent), var(--accent-hover))' }}
+                />
+
                 <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
                   <div>
-                    <h3 className="text-xl font-bold" style={{ color: 'var(--title)' }}>
+                    <h3 className="text-2xl font-bold" style={{ color: 'var(--title)' }}>
                       Business &amp; Strategy Analyst
                     </h3>
                     <p className="font-medium mt-0.5" style={{ color: 'var(--accent)' }}>
                       Seat of Joy{' '}
                       <span className="font-normal text-xs opacity-60">(Incubated at IIT Madras)</span>
                     </p>
-                    <p className="text-xs mt-1.5 max-w-sm leading-relaxed opacity-70" style={{ color: 'var(--foreground)' }}>
+                    <p className="text-sm mt-1.5 max-w-md leading-relaxed opacity-80" style={{ color: 'var(--foreground)' }}>
                       Child safety startup developing a full-body protective seat for two-wheelers, addressing the 2 children lost daily in India to two-wheeler accidents.
                     </p>
                   </div>
                   <div className="text-right shrink-0">
                     <span
-                      className="text-sm rounded-full px-3 py-1"
+                      className="text-sm rounded-full px-3.5 py-1.5"
                       style={{ background: 'var(--accent-dim)', color: 'var(--foreground)' }}
                     >
                       2022 – 2024
                     </span>
                     <p
-                      className="flex items-center gap-1 text-xs mt-2 justify-end"
+                      className="flex items-center gap-1 text-sm mt-2 justify-end"
                       style={{ color: 'var(--muted)' }}
                     >
                       <MapPin className="w-3 h-3" />
@@ -324,7 +391,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <ul className="space-y-5 text-sm" style={{ color: 'var(--muted)' }}>
+                <ul className="space-y-6 text-base leading-relaxed" style={{ color: 'var(--muted)' }}>
                   {[
                     {
                       heading: 'Probabilistic Market-Sizing Model (Census Data)',
@@ -346,7 +413,7 @@ export default function Home() {
                     <li key={i} className="flex gap-3 items-start">
                       <span className="mt-1 shrink-0 text-base leading-none" style={{ color: 'var(--accent)' }}>▸</span>
                       <div>
-                        <span className="font-semibold block mb-1" style={{ color: 'var(--foreground)' }}>
+                        <span className="font-semibold block mb-1.5 text-[1.05rem]" style={{ color: 'var(--foreground)' }}>
                           {heading}
                         </span>
                         {body}

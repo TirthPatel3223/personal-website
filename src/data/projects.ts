@@ -73,12 +73,12 @@ export const projects: Project[] = [
     hero_image: '/mapblazer_hero.png',
     detail: {
       problem_statement:
-        'Mapblazer builds a guest\'s optimal ride itinerary from their must-visit attractions, live wait times, and walking distances. The flaw was that the optimizer routed on "current" wait times: a plan built at 9:00 AM is already wrong by the time the guest reaches their 1:00 PM attraction, and each stale estimate cascades into the next. What the solver actually needs is not a prediction endpoint but the entire cost surface, every attraction at every possible arrival time a week out, which makes this a batch forecasting problem rather than a model-serving one. Producing that surface reliably means answering the operational questions alongside the modelling ones: where the data comes from each hour, what retrains the model as crowd patterns drift, what happens when a run fails at 6am on a Sunday, and how anyone can tell whether the forecast being served right now is fresh or three weeks stale. The system runs unattended against three hard constraints: Databricks Free Edition jobs have no outbound internet, the upstream wait-time database sits on an EC2 instance that is not ours, and the whole thing had to cost nothing to operate.',
+        'Mapblazer builds a guest\'s optimal ride itinerary from their must-visit attractions, live wait times, and walking distances. The flaw was that the optimizer routed on "current" wait times: a plan built at 9:00 AM is already wrong by the time the guest reaches their 1:00 PM attraction, and each stale estimate cascades into the next. What the solver actually needs is not a prediction endpoint but the entire cost surface, every attraction at every possible arrival time a week out, which makes this a batch forecasting problem rather than a model-serving one. Producing that surface reliably means answering the operational questions alongside the modelling ones: where the data comes from each hour, what retrains the model as crowd patterns drift, what happens when a run fails at 6am on a Sunday, and how anyone can tell whether the forecast being served right now is fresh or three weeks stale.',
       approach: [
         {
           step: 'Ingestion: A Push Agent on the Source Host',
           detail:
-            'The upstream wait-time Postgres lives on an EC2 instance that is not ours, so the agent runs there and pushes outbound rather than being pulled from. Pulling would have meant exposing Postgres to a rotating set of CI runner IPs; pushing keeps the database connection on the loopback interface, needs no security-group change, and requires only outbound HTTPS. One hourly systemd run does four things: read the watermark as MAX(wait_time_id) from bronze itself, select the next batch above it, land it as Parquet, and MERGE it in insert-only. Because the watermark comes from the destination rather than a local cursor file, an interrupted run simply re-reads the same range and the MERGE absorbs the overlap. There is no local state that can drift out of sync, and nothing to repair by hand at 3am.',
+            'The ingestion agent runs on the same EC2 host as the upstream wait-time Postgres and pushes outbound rather than being pulled from. That was a deliberate choice: pulling would have meant exposing Postgres to a rotating set of CI runner IPs, while pushing keeps the database connection on the loopback interface, needs no security-group change, and requires only outbound HTTPS. One hourly systemd run does four things: read the watermark as MAX(wait_time_id) from bronze itself, select the next batch above it, land it as Parquet, and MERGE it in insert-only. Because the watermark comes from the destination rather than a local cursor file, an interrupted run simply re-reads the same range and the MERGE absorbs the overlap. There is no local state that can drift out of sync, and nothing to repair by hand at 3am.',
         },
         {
           step: 'Bronze to Silver: The Cleaning That Decides the Numbers',
@@ -121,6 +121,75 @@ export const projects: Project[] = [
             'Because the training job has no outbound internet, serving is pulled rather than pushed. A GitHub Actions workflow reads the gold _last tables over the Databricks SQL warehouse once, chunk-loads them into Supabase staging tables with idempotent inserts, then calls a PostgREST RPC that swaps staging and serving by table rename inside a single Postgres transaction, a catalog-only operation that is instant at any row count where the earlier DELETE/INSERT approach hit the free-tier statement timeout at 255K rows. Readers therefore always see one consistent KPI/forecast pair. The same fetch renders the public dashboard: one static HTML file with inline SVG charts and zero JavaScript, so it survives a strict Content-Security-Policy. The dashboard deploys even if the Supabase push fails, and the job still goes red so the failure is visible.',
         },
       ],
+      architecture: `
+  ── INGEST  -  AWS EC2, hourly systemd timer ────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ deploy/ec2/ingest.py      runs beside the source Postgres        │
+  │   pushes outbound by design: the database connection stays       │
+  │   on the loopback interface, no firewall rule to change,         │
+  │   and the only access needed is outbound HTTPS                   │
+  │   watermark = MAX(wait_time_id) read back from bronze            │
+  │   land Parquet -> MERGE insert-only, so a killed run just        │
+  │   re-reads the same range and the overlap is absorbed            │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  Free Edition has no outbound net
+                                   ↓
+
+  ── PIPELINE  -  Databricks serverless, Sunday 06:00 UTC ────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ bronze.wait_times_raw         842,539 rows                       │
+  │   append-only audit trail, never edited in place                 │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ silver.wait_times_current     ~390K rows . 109 attractions       │
+  │   UTC -> local time first, then park operating hours             │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  chronological 80/20 split
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ train    four families every run, holdout MAE in minutes         │
+  │                                                                  │
+  │   Prophet fleet    7.01  <- champion                             │
+  │   XGB global       8.26      XGB per-ride    8.45                │
+  │   Ride mean        9.51  <- floor, not a candidate               │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ gold.kpis_current  +  gold.predictions_current                   │
+  │   7 KPIs x 4 models . 7-day forecast + backtest rows             │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ 12 quality gates  ->  promote _current to _last                  │
+  │   atomic DEEP CLONE . serving.json pointer written last          │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  pulled out, never pushed
+                                   ↓
+
+  ── SERVE  -  GitHub Actions, Sunday 08:00 UTC ──────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ publish.py              reads gold _last over the Databricks     │
+  │                         SQL warehouse                            │
+  │ publish_serving() RPC   staging and serving renamed inside       │
+  │                         one Postgres transaction                 │
+  └────────────────────────────────┬─────────────────────────────────┘
+                ┌──────────────────┴──────────────────┐
+                ↓                                     ↓
+  ┌───────────────────────────┐         ┌───────────────────────────┐
+  │ Supabase PostgREST        │         │ GitHub Pages              │
+  │   read-only API           │         │   dashboard.py, zero JS   │
+  └───────────────────────────┘         └───────────────────────────┘
+                └──────────────────┬──────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Mapblazer routing solver                                         │
+  │   the whole cost surface: every ride x every arrival time        │
+  └──────────────────────────────────────────────────────────────────┘
+`,
       results: [
         { metric: 'Champion MAE', value: '7.01 min', description: 'Prophet fleet, vs. a 9.51 min baseline' },
         { metric: 'Accuracy Gain', value: '26.3%', description: 'MAE reduction vs. per-ride mean baseline' },
@@ -217,7 +286,7 @@ export const projects: Project[] = [
   └───────────────┬───────────────┘  └───────────────┬───────────────┘
                   │ W[ride, slot]                    │ c[i,j] . d[i]
                   └─────────────────┬────────────────┘
-                                    ▼
+                                    ↓
 
   ── MODEL  -  solver.py ─────────────────────────────────────────────
 
@@ -228,7 +297,7 @@ export const projects: Project[] = [
   │ max    sum p[i]*y[i]   -   gamma * a[0]                          │
   │        reward every ride reached, charge the whole loop's time   │
   └─────────────────────────────────┬────────────────────────────────┘
-                                    ▼
+                                    ↓
   ┌──────────────────────────────────────────────────────────────────┐
   │ constraints                                                      │
   │   degree tied to selection: in/out degree is y[i], not 1         │
@@ -237,7 +306,7 @@ export const projects: Project[] = [
   │   breaks as a linearised finish-before or start-after choice     │
   │   per-ride opening and closing hours                             │
   └─────────────────────────────────┬────────────────────────────────┘
-                                    ▼
+                                    ↓
 
   ── SEARCH  -  Gurobi ───────────────────────────────────────────────
 
@@ -245,7 +314,7 @@ export const projects: Project[] = [
   │ branch and bound . TimeLimit 10s . solution pool for alternates  │
   └─────────────────────────────────┬────────────────────────────────┘
                                     │  every integer-feasible candidate
-                                    ▼
+                                    ↓
   ┌──────────────────────────────────────────────────────────────────┐
   │ MIPSOL callback   _eliminate_subtours                            │
   │   read the arcs, walk successor[], find components   O(|N|)      │
@@ -253,7 +322,7 @@ export const projects: Project[] = [
   │   reject the candidate; the cut stays in the model               │
   └─────────────────────────────────┬────────────────────────────────┘
                                     │  repeat until no cycle remains
-                                    ▼
+                                    ↓
 
   ── OUTPUT ──────────────────────────────────────────────────────────
 
@@ -261,7 +330,7 @@ export const projects: Project[] = [
   │ replay the fixed plan minute by minute, idling included          │
   │ ranked itineraries + metadata: status . wait source . gaps       │
   └────────────────┬────────────────────────────────┬────────────────┘
-                   ▼                                ▼
+                   ↓                                ↓
                cli.py  markdown day             api.py  POST /solve
 `,
       results: [

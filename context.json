@@ -11,13 +11,6 @@
     },
     "summary": "Tirth Patel is a Data Scientist and ML Engineer currently pursuing a Master of Science in Business Analytics (MSBA) at UCLA Anderson. He holds a B.Tech in Engineering from IIT Madras, where he built a foundation in mathematics, statistics, and algorithms. His work centres on turning complex, messy data into decisions that matter: production agentic RAG systems, large-scale data pipelines, deep reinforcement learning, and operations-research style optimization. He is drawn to problems where rigorous analysis drives real-world impact, and to shipping models that keep running unattended rather than stopping at a notebook result.",
     "skills": {
-      "Languages": [
-        "Python",
-        "SQL",
-        "R",
-        "JavaScript",
-        "TypeScript"
-      ],
       "Machine Learning": [
         "XGBoost",
         "Prophet",
@@ -33,16 +26,6 @@
         "Deep Q-Networks",
         "Reward Design"
       ],
-      "LLMs & Generative AI": [
-        "LangGraph",
-        "Agentic RAG",
-        "ChromaDB",
-        "Vector Search",
-        "Claude & OpenAI APIs",
-        "Embeddings",
-        "Hugging Face",
-        "Prompt Engineering"
-      ],
       "MLOps & Productionization": [
         "Databricks",
         "Databricks Asset Bundles",
@@ -56,17 +39,49 @@
         "TensorBoard",
         "Experiment Tracking"
       ],
-      "Data Engineering": [
-        "PySpark",
-        "Delta Lake",
-        "Snowflake",
-        "Airflow",
-        "Medallion Architecture",
-        "PostgreSQL",
-        "Supabase",
-        "FastAPI",
-        "Pydantic",
-        "ETL / ELT"
+      "Optimization & Operations Research": [
+        "Gurobi",
+        "Linear Programming",
+        "Mixed-Integer Programming",
+        "Combinatorial Optimization",
+        "Constraint Modeling",
+        "Lazy Constraint Generation",
+        "Routing & Scheduling",
+        "Operations Research"
+      ],
+      "Statistics & Causal Inference": [
+        "Probability & Statistics",
+        "Regression",
+        "Causal Inference",
+        "Regression Discontinuity",
+        "Econometrics",
+        "Mathematical Modeling",
+        "Market Sizing Models"
+      ],
+      "Languages & Tools": [
+        "Python",
+        "SQL",
+        "R",
+        "JavaScript",
+        "TypeScript",
+        "Git",
+        "Jupyter",
+        "pytest",
+        "Next.js",
+        "Excel",
+        "systemd",
+        "Oracle Cloud",
+        "YAML-Driven Configuration"
+      ],
+      "LLMs & Generative AI": [
+        "LangGraph",
+        "Agentic RAG",
+        "ChromaDB",
+        "Vector Search",
+        "Claude & OpenAI APIs",
+        "Embeddings",
+        "Hugging Face",
+        "Prompt Engineering"
       ],
       "Analytics & Visualization": [
         "Tableau",
@@ -80,32 +95,17 @@
         "statsmodels",
         "seaborn"
       ],
-      "Statistics & Optimization": [
-        "Probability & Statistics",
-        "Regression",
-        "Gurobi",
-        "Linear Programming",
-        "Mixed-Integer Programming",
-        "Operations Research",
-        "Mathematical Modeling",
-        "Market Sizing Models",
-        "Combinatorial Optimization",
-        "Constraint Modeling",
-        "Lazy Constraint Generation",
-        "Routing & Scheduling",
-        "Causal Inference",
-        "Regression Discontinuity",
-        "Econometrics"
-      ],
-      "Tools & Platforms": [
-        "Git",
-        "Jupyter",
-        "Next.js",
-        "Oracle Cloud",
-        "Excel",
-        "systemd",
-        "pytest",
-        "YAML-Driven Configuration"
+      "Data Engineering": [
+        "PySpark",
+        "Delta Lake",
+        "Snowflake",
+        "Airflow",
+        "Medallion Architecture",
+        "PostgreSQL",
+        "Supabase",
+        "FastAPI",
+        "Pydantic",
+        "ETL / ELT"
       ]
     }
   },
@@ -124,6 +124,14 @@
     }
   ],
   "work_experience": [
+    {
+      "company": "Becton Dickinson",
+      "role": "Data Scientist Intern",
+      "duration": "Aug 2026 - Current",
+      "context": "Current role, in progress",
+      "achievements": [],
+      "note": "Recently started; no completed deliverables to report yet."
+    },
     {
       "company": "Seat of Joy",
       "incubation": "Incubated at IIT Madras",
@@ -161,7 +169,7 @@
       "page_url": "/projects/mapblazer-wait-time-prediction",
       "short_description": "A production ML pipeline that forecasts theme park ride wait times seven days ahead at 30-minute resolution, retrained unattended every week on Databricks and served through Supabase and a live public dashboard for $0/month. Powers the Mapblazer routing engine.",
       "motivation": "Mapblazer optimizes a guest's theme park itinerary from their must-ride list, live wait times, and walking distances. But a route built on the \"current\" 9 AM wait times falls apart by the time the guest reaches their 1 PM attraction, because crowds shift all day and one bad estimate cascades into a ruined plan. The routing solver needed to see the future, not the present. I built the forecasting system that predicts wait times across the whole week so the optimizer can anticipate crowd flow instead of chasing it.",
-      "problem_statement": "Mapblazer builds a guest's optimal ride itinerary from their must-visit attractions, live wait times, and walking distances. The flaw was that the optimizer routed on \"current\" wait times: a plan built at 9:00 AM is already wrong by the time the guest reaches their 1:00 PM attraction, and each stale estimate cascades into the next. What the solver actually needs is not a prediction endpoint but the entire cost surface, every attraction at every possible arrival time a week out, which makes this a batch forecasting problem rather than a model-serving one. Producing that surface reliably means answering the operational questions alongside the modelling ones: where the data comes from each hour, what retrains the model as crowd patterns drift, what happens when a run fails at 6am on a Sunday, and how anyone can tell whether the forecast being served right now is fresh or three weeks stale. The system runs unattended against three hard constraints: Databricks Free Edition jobs have no outbound internet, the upstream wait-time database sits on an EC2 instance that is not ours, and the whole thing had to cost nothing to operate.",
+      "problem_statement": "Mapblazer builds a guest's optimal ride itinerary from their must-visit attractions, live wait times, and walking distances. The flaw was that the optimizer routed on \"current\" wait times: a plan built at 9:00 AM is already wrong by the time the guest reaches their 1:00 PM attraction, and each stale estimate cascades into the next. What the solver actually needs is not a prediction endpoint but the entire cost surface, every attraction at every possible arrival time a week out, which makes this a batch forecasting problem rather than a model-serving one. Producing that surface reliably means answering the operational questions alongside the modelling ones: where the data comes from each hour, what retrains the model as crowd patterns drift, what happens when a run fails at 6am on a Sunday, and how anyone can tell whether the forecast being served right now is fresh or three weeks stale.",
       "approach_steps": [
         "Ingestion: A Push Agent on the Source Host",
         "Bronze to Silver: The Cleaning That Decides the Numbers",

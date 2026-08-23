@@ -224,6 +224,14 @@ body {
   --ct-bdr:  rgba(45,212,191,0.22);
 
   --cg:      rgb(74,222,128);
+
+  /* Card surfaces. These used to be hardcoded near-black rgba() values inline in
+     DeepCubeAPage, which meant light mode painted dark slabs of text on a pale
+     page. They are tokens now so both themes get a readable surface. */
+  --dca-card:      rgba(15, 10, 26, 0.55);
+  --dca-card-soft: rgba(15, 10, 26, 0.35);
+  --dca-card-firm: rgba(15, 10, 26, 0.50);
+  --dca-arch:      rgba(4, 2, 10, 0.88);
 }
 .light .cube-page {
   --cp:      #7c3aed;
@@ -238,6 +246,13 @@ body {
   --ct-dim:  rgba(13,148,136,0.07);
   --ct-dim-h:rgba(13,148,136,0.14);
   --ct-bdr:  rgba(13,148,136,0.25);
+
+  --cg:      #15803d;   /* green-700; green-400 is ~1.8:1 on a light card */
+
+  --dca-card:      rgba(255, 255, 255, 0.86);
+  --dca-card-soft: rgba(255, 255, 255, 0.74);
+  --dca-card-firm: rgba(255, 255, 255, 0.86);
+  --dca-arch:      rgba(255, 255, 255, 0.94);
 }
 
 @keyframes cube-float {
@@ -274,21 +289,24 @@ body {
 }
 
 /* ─── Cube Solver Page — theme-aware scrims & accents ───────────────── */
+/* This page KEEPS its scrim, unlike every other project page. Its background is not
+   the soft blob field but the fixed 3D cube from ScrollCubeWrapper, which scales up
+   as you scroll: with the scrim removed the cube shows straight through the cards and
+   the body text becomes unreadable. Only the .home-card hover treatment is shared. */
 .cube-hero-bg {
   background-color: rgba(5, 8, 16, 0.82);
 }
 .cube-body-bg {
   background-color: rgba(5, 8, 16, 0.55);
+  --fx-bar-a: var(--cp);
+  --fx-bar-b: var(--ct);
+  --fx-glow:  var(--cp-dim-h);
 }
 .light .cube-hero-bg {
   background-color: rgba(248, 250, 255, 0.92);
 }
 .light .cube-body-bg {
   background-color: rgba(248, 250, 255, 0.88);
-}
-/* Hide the dark teal gradient overlay in light mode */
-.light .cube-dark-gradient {
-  display: none;
 }
 
 /* Teal accent text — readable in both modes */
@@ -313,6 +331,19 @@ body {
   border-color: rgba(20, 184, 166, 0.55);
 }
 
+/* ─── Weather x Dining Page — hover-effect hook (accents stay inline Tailwind) ── */
+.datatech-body-bg {
+  background-color: transparent;
+  --fx-bar-a: #1f77b4;
+  --fx-bar-b: #4e9bb9;
+  --fx-glow:  rgba(31, 119, 180, 0.16);
+}
+.light .datatech-body-bg {
+  --fx-bar-a: #1b628f;
+  --fx-bar-b: #2f7fa3;
+  --fx-glow:  rgba(27, 98, 143, 0.12);
+}
+
 /* Site accent (blue) — matches homepage tag pills, adapts to light/dark */
 .site-accent-text   { color: var(--accent); }
 .site-accent-bg     { background-color: var(--accent-dim); }
@@ -330,95 +361,120 @@ body {
 .light .mapblazer-accent-border { border-color: rgba(184, 106, 8, 0.40); }
 .light .hover-mapblazer-accent-border:hover { border-color: rgba(184, 106, 8, 0.60); }
 
-/* Mapblazer hero scrim — warm near-black in dark, warm cream in light */
-.mapblazer-hero-bg  { background-color: rgba(16, 10, 2, 0.80); }
-.mapblazer-body-bg  { background-color: rgba(16, 10, 2, 0.55); }
-.light .mapblazer-hero-bg  { background-color: rgba(255, 249, 238, 0.90); }
-.light .mapblazer-body-bg  { background-color: rgba(255, 249, 238, 0.88); }
-.light .mapblazer-dark-gradient { display: none; }
-
-/* Architecture-diagram palette. The SVG references these with fill="var(--arch-*)",
-   so the diagram re-themes with the site instead of baking in dark-mode colours. */
-.mapblazer-arch {
-  --arch-src:    #94a3b8;
-  --arch-ingest: #f59e0b;
-  --arch-bronze: #fb923c;
-  --arch-silver: #cbd5e1;
-  --arch-champ:  #fbbf24;
-  --arch-chall:  #94a3b8;
-  --arch-gold:   #f59e0b;
-  --arch-gate:   #34d399;
-  --arch-fail:   #f87171;
-  --arch-serve:  #38bdf8;
-  --arch-lane:   rgba(255, 255, 255, 0.45);
+/* No scrim — homepage theme. The classes stay as hooks that carry the hover-effect
+   colours down to every .home-card on the page. */
+.mapblazer-hero-bg  { background-color: transparent; }
+.mapblazer-body-bg  {
+  background-color: transparent;
+  --fx-bar-a: #f59e0b;
+  --fx-bar-b: #fbbf24;
+  --fx-glow:  rgba(244, 150, 17, 0.16);
 }
-.light .mapblazer-arch {
-  --arch-src:    #475569;
-  --arch-ingest: #b45309;
-  --arch-bronze: #c2410c;
-  --arch-silver: #475569;
-  --arch-champ:  #b45309;
-  --arch-chall:  #64748b;
-  --arch-gold:   #a16207;
-  --arch-gate:   #047857;
-  --arch-fail:   #b91c1c;
-  --arch-serve:  #0369a1;
-  --arch-lane:   rgba(0, 0, 0, 0.55);
+.light .mapblazer-body-bg {
+  --fx-bar-a: #b86a08;
+  --fx-bar-b: #d97706;
+  --fx-glow:  rgba(184, 106, 8, 0.13);
 }
 
-/* ─── Route Optimiser Page — Emerald / Waypoint Tokens ─────────── */
-/* Deliberately NOT the sibling Mapblazer amber: the two projects sit next to each
-   other on the homepage, and the forecast page and the routing page need to be
-   told apart at a glance. */
-.routeopt-accent-text   { color: #34d399; }
-.routeopt-accent-bg     { background-color: rgba(16, 185, 129, 0.10); }
-.routeopt-accent-border { border-color: rgba(16, 185, 129, 0.32); }
-.hover-routeopt-accent-border:hover { border-color: rgba(52, 211, 153, 0.58); }
+/* ─── Route Optimiser Page — Homepage Theme (site blue) ─────────── */
+/* This page deliberately runs the SITE accent instead of a per-project palette:
+   it is meant to read as the homepage, not as its own micro-brand. The token
+   classes keep their `routeopt-` names so the page + card markup is unchanged,
+   but they now resolve to --accent / --accent-dim, which already flip per theme. */
+.routeopt-accent-text   { color: var(--accent); }
+.routeopt-accent-bg     { background-color: var(--accent-dim); }
+.routeopt-accent-border { border-color: var(--accent-dim-hover); }
+.hover-routeopt-accent-border:hover { border-color: rgba(96, 165, 250, 0.38); }
+.light .hover-routeopt-accent-border:hover { border-color: rgba(37, 99, 235, 0.32); }
 
-.light .routeopt-accent-text   { color: #047857; }
-.light .routeopt-accent-bg     { background-color: rgba(4, 120, 87, 0.09); }
-.light .routeopt-accent-border { border-color: rgba(4, 120, 87, 0.35); }
-.light .hover-routeopt-accent-border:hover { border-color: rgba(4, 120, 87, 0.60); }
+/* No hero/body scrim. The homepage lets the animated blob background come through
+   at full strength behind translucent .glass cards; a scrim here would flatten it
+   and is exactly what made this page feel unlike the rest of the site. The classes
+   stay as hooks (the --muted fix below rides on the body one). */
+.routeopt-hero-bg  { background-color: transparent; }
+.routeopt-body-bg  { background-color: transparent; }  /* --fx-* default to the site accent */
+.light .routeopt-hero-bg  { background-color: transparent; }
+.light .routeopt-body-bg  { background-color: transparent; }
 
-/* Hero scrim — deep pine night in dark, mint paper in light */
-.routeopt-hero-bg  { background-color: rgba(4, 18, 12, 0.80); }
-.routeopt-body-bg  { background-color: rgba(4, 18, 12, 0.55); }
-.light .routeopt-hero-bg  { background-color: rgba(240, 253, 247, 0.92); }
-.light .routeopt-body-bg  { background-color: rgba(240, 253, 247, 0.88); }
-.light .routeopt-dark-gradient { display: none; }
-
-/* Same fix as the Airbnb page: the site-wide light --muted (#718096) is only 3.85:1
-   on this scrim, and the shared template renders some captions at 0.7 opacity on top
-   of it. Redefining the token page-scoped lifts every consumer, inline styles too. */
+/* Same fix as the Airbnb page: the site-wide light --muted (#718096) is only ~3.8:1,
+   and the shared template renders some captions at 0.7 opacity on top of that.
+   Redefining the token page-scoped lifts every consumer, inline styles included. */
 .light .routeopt-body-bg { --muted: #55637a; }
 
-/* Time-split bar segments on the sample-itinerary card. */
-.routeopt-seg-ride  { background-color: #34d399; }
-.routeopt-seg-queue { background-color: rgba(52, 211, 153, 0.42); }
+/* Homepage card interaction, as pure CSS so the server-rendered project template
+   gets it without becoming a client component. Mirrors ProjectCard: a lift on
+   hover, a top accent bar that fades in, and an accent glow from the top-left. */
+.home-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s var(--ease-spring), box-shadow 0.3s ease,
+              border-color 0.3s ease, background 0.3s ease;
+}
+/* The three --fx-* hooks default to the site accent and are overridden per project
+   page (see the blocks below), so every page gets the same hover *behaviour* while
+   keeping its own colour. */
+.home-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    var(--fx-bar-a, var(--accent)), var(--fx-bar-b, var(--accent-hover)));
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.home-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left,
+    var(--fx-glow, var(--accent-dim)) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+/* ::after paints above static children, so lift the real content out of its way. */
+.home-card > * { position: relative; z-index: 1; }
+.home-card:hover { transform: translateY(-5px); }
+.home-card:hover::before,
+.home-card:hover::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .home-card:hover { transform: none; }
+}
+
+/* Time-split bar segments on the sample-itinerary card, on the site accent ramp. */
+.routeopt-seg-ride  { background-color: var(--accent); }
+.routeopt-seg-queue { background-color: rgba(96, 165, 250, 0.42); }
 .routeopt-seg-walk  { background-color: rgba(148, 163, 184, 0.55); }
 .routeopt-seg-idle  { background-color: rgba(148, 163, 184, 0.24); }
-.light .routeopt-seg-ride  { background-color: #047857; }
-.light .routeopt-seg-queue { background-color: rgba(4, 120, 87, 0.42); }
+.light .routeopt-seg-queue { background-color: rgba(37, 99, 235, 0.38); }
 .light .routeopt-seg-walk  { background-color: rgba(100, 116, 139, 0.50); }
 .light .routeopt-seg-idle  { background-color: rgba(100, 116, 139, 0.22); }
 
-/* ─── Crew Pairing Page — Indigo / Contrail Tokens ─────────────────── */
-.crewpair-accent-text   { color: #818cf8; }
-.crewpair-accent-bg     { background-color: rgba(99, 102, 241, 0.10); }
-.crewpair-accent-border { border-color: rgba(99, 102, 241, 0.32); }
-.hover-crewpair-accent-border:hover { border-color: rgba(129, 140, 248, 0.55); }
+/* ─── Crew Pairing Page — Homepage Theme (site blue) ─────────────── */
+/* Like the route optimiser, this page runs the SITE accent rather than a
+   per-project palette. The `crewpair-` class names are kept so the page and its
+   two custom components need no markup churn, but they resolve to --accent /
+   --accent-dim, which already flip per theme. */
+.crewpair-accent-text   { color: var(--accent); }
+.crewpair-accent-bg     { background-color: var(--accent-dim); }
+.crewpair-accent-border { border-color: var(--accent-dim-hover); }
+.hover-crewpair-accent-border:hover { border-color: rgba(96, 165, 250, 0.38); }
+.light .hover-crewpair-accent-border:hover { border-color: rgba(37, 99, 235, 0.32); }
 
-.light .crewpair-accent-text   { color: #4338ca; }
-.light .crewpair-accent-bg     { background-color: rgba(99, 102, 241, 0.10); }
-.light .crewpair-accent-border { border-color: rgba(67, 56, 202, 0.35); }
-.light .hover-crewpair-accent-border:hover { border-color: rgba(67, 56, 202, 0.60); }
+/* No scrim, and no --fx-* overrides: the .home-card hover falls back to the site
+   accent, which is exactly what this page now wants. */
+.crewpair-hero-bg  { background-color: transparent; }
+.crewpair-body-bg  { background-color: transparent; }
 
-/* Hero scrim — deep indigo night in dark, cool paper in light */
-.crewpair-hero-bg  { background-color: rgba(8, 9, 24, 0.78); }
-.crewpair-body-bg  { background-color: rgba(8, 9, 24, 0.52); }
-.light .crewpair-hero-bg  { background-color: rgba(246, 247, 255, 0.90); }
-.light .crewpair-body-bg  { background-color: rgba(246, 247, 255, 0.88); }
-.light .crewpair-dark-gradient { display: none; }
+/* Same page-scoped fix as Airbnb and the route optimiser: the site-wide light
+   --muted (#718096) is only ~3.8:1, and the shared template renders some captions
+   at 0.7 opacity on top of that. */
+.light .crewpair-body-bg { --muted: #55637a; }
 
 /* ─── Airbnb Superhost RDD Page — Rausch / Beló Tokens (brand #FF385C) ── */
 .airbnb-accent-text   { color: #ff5a5f; }
@@ -431,12 +487,19 @@ body {
 .light .airbnb-accent-border { border-color: rgba(193, 18, 63, 0.35); }
 .light .hover-airbnb-accent-border:hover { border-color: rgba(193, 18, 63, 0.60); }
 
-/* Hero scrim — deep rausch-tinted night in dark, warm blush paper in light */
-.airbnb-hero-bg  { background-color: rgba(24, 8, 13, 0.80); }
-.airbnb-body-bg  { background-color: rgba(24, 8, 13, 0.55); }
-.light .airbnb-hero-bg  { background-color: rgba(255, 247, 248, 0.92); }
-.light .airbnb-body-bg  { background-color: rgba(255, 247, 248, 0.88); }
-.light .airbnb-dark-gradient { display: none; }
+/* No scrim — homepage theme; the body class carries the rausch hover colours. */
+.airbnb-hero-bg  { background-color: transparent; }
+.airbnb-body-bg  {
+  background-color: transparent;
+  --fx-bar-a: #ff5a5f;
+  --fx-bar-b: #FF9A8B;
+  --fx-glow:  rgba(255, 56, 92, 0.16);
+}
+.light .airbnb-body-bg {
+  --fx-bar-a: #c1123f;
+  --fx-bar-b: #e0355f;
+  --fx-glow:  rgba(193, 18, 63, 0.12);
+}
 
 /* The site-wide light --muted (#718096) is only 3.81:1 on this page's warm scrim, and
    the shared project-page template renders some captions at 0.7 opacity on top of that.

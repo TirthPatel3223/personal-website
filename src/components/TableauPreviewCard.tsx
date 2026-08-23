@@ -113,7 +113,7 @@ export default function TableauPreviewCard() {
                 height="960"
                 frameBorder="0"
                 allowFullScreen
-                title="Weather-Driven Consumer Experience — Tableau Dashboard"
+                title="Weather-Driven Consumer Experience: Tableau Dashboard"
                 className="block w-full"
                 onLoad={() => setLoading(false)}
                 onError={() => {

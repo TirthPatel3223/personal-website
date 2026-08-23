@@ -55,9 +55,9 @@ const ROWS: Row[] = [
     policy: 'single-instance',
     kind: 'trained on one month, transferred',
     coverage: '0.528',
-    stranded: '—',
-    short: '—',
-    critical: '—',
+    stranded: 'N/A',
+    short: 'N/A',
+    critical: 'N/A',
   },
   {
     policy: 'random masked',
@@ -65,15 +65,15 @@ const ROWS: Row[] = [
     baseline: true,
     coverage: '0.47',
     stranded: '~55',
-    short: '—',
-    critical: '—',
+    short: 'N/A',
+    critical: 'N/A',
   },
   {
     policy: 'GERAD reference',
     kind: 'classical cost optimizer, deadheads throughout',
     baseline: true,
     coverage: '1.00',
-    stranded: '—',
+    stranded: 'N/A',
     short: '10',
     critical: '310',
   },
@@ -119,8 +119,8 @@ export default function CrewPairingResultsChart() {
           <div className="px-5 pt-5">
             <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
               Every policy is scored on the same{' '}
-              <strong style={{ color: 'var(--title)' }}>8 held-out instances</strong> — perturbations
-              of the base month whose seeds were never sampled during training — and the reference
+              <strong style={{ color: 'var(--title)' }}>8 held-out instances</strong> (perturbations
+              of the base month whose seeds were never sampled during training), and the reference
               solution is re-measured with this project&apos;s own connection classifiers, so the
               robustness columns compare like with like.
             </p>
@@ -212,7 +212,7 @@ export default function CrewPairingResultsChart() {
           <div className="px-5 pb-5 space-y-2">
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
               A <span className="font-mono">short</span> connection is a tight same-airport turn the
-              crew can make because it follows the aircraft — the robust kind. A{' '}
+              crew can make because it follows the aircraft, the robust kind. A{' '}
               <span className="font-mono">critical</span> connection has under 15 minutes of buffer,
               so one late inbound cascades. Higher is better in the short column and lower in the
               other three.
@@ -220,7 +220,7 @@ export default function CrewPairingResultsChart() {
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)', opacity: 0.85 }}>
               The reference row is not a like-for-like coverage comparison: it reaches 1.00 by
               deadheading throughout, which the headline runs deliberately did not model. The
-              comparison that does hold is robustness — and even per covered leg, the reference&apos;s
+              comparison that does hold is robustness, and even per covered leg, the reference&apos;s
               critical-connection rate is about 2.3 times the learned policy&apos;s. The trade this
               project makes is coverage for resilience, and it is a trade rather than a win.
             </p>
@@ -242,7 +242,7 @@ export default function CrewPairingResultsChart() {
           <div className="p-5 flex flex-col gap-4">
             <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
               The trained Q-function is already a value estimate, so at inference it doubles as a
-              search heuristic. No retraining, no new data — just a larger decode budget.
+              search heuristic. No retraining, no new data, just a larger decode budget.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -274,7 +274,7 @@ export default function CrewPairingResultsChart() {
                     </span>
                   </div>
                   <p className="text-xs mt-1" style={{ color: 'var(--muted)', opacity: 0.7 }}>
-                    {r.win ? 'greedy → beam 8×4' : 'tie — greedy already optimal here'}
+                    {r.win ? 'greedy → beam 8×4' : 'tie: greedy already optimal here'}
                   </p>
                 </div>
               ))}

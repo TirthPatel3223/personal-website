@@ -156,7 +156,7 @@ function ArchDiagram() {
         {/* LEFT: Training */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ textAlign: 'center', marginBottom: 16, fontSize: '.63rem', fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', paddingBottom: 8, borderBottom: '1px solid var(--cp-bdr)', color: 'var(--cp)' }}>
-            Phase 1 — Training
+            Phase 1: Training
           </div>
           <FlowNode variant="p" title="Maltese Gear Cube State Space" sub="~4.9 × 10<sup>19</sup> configurations" subColor="var(--cp)" />
           <FlowArrow accent="p" />
@@ -189,7 +189,7 @@ function ArchDiagram() {
         {/* RIGHT: Inference */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ textAlign: 'center', marginBottom: 16, fontSize: '.63rem', fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', paddingBottom: 8, borderBottom: '1px solid var(--ct-bdr)', color: 'var(--ct)' }}>
-            Phase 2 — Inference
+            Phase 2: Inference
           </div>
           <FlowNode variant="t" title="Scrambled Input State" sub="Any arbitrary starting configuration" />
           <FlowArrow accent="t" />
@@ -227,11 +227,11 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
   const achievements = [
     <>
       <strong>100% solve rate</strong> across 100 independently scrambled Maltese Gear Cube instances at
-      varying scramble depths — zero unsolved cases in the full evaluation set.
+      varying scramble depths: zero unsolved cases in the full evaluation set.
     </>,
     <>
       Solutions average <strong>1.08× the theoretical optimal</strong> move count, verified against BFS
-      on a reachable subgraph — well within the weighted A* bound imposed by w&nbsp;=&nbsp;0.6.
+      on a reachable subgraph, well within the weighted A* bound imposed by w&nbsp;=&nbsp;0.6.
     </>,
     <>
       <strong>Symmetry augmentation ×48</strong> reduced training time to convergence by 40% with no
@@ -282,8 +282,8 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
               </h1>
 
               <p style={{ fontSize: '1.025rem', fontWeight: 300, lineHeight: 1.8, color: 'var(--muted)', maxWidth: 510, marginBottom: '1.7rem' }}>
-                Applying the DeepCubeA algorithm to a puzzle with ~4.9&thinsp;×&thinsp;10<sup>19</sup> states
-                — using backward induction, a learned neural heuristic, and symmetry-augmented training to achieve a{' '}
+                Applying the DeepCubeA algorithm to a puzzle with ~4.9&thinsp;×&thinsp;10<sup>19</sup> states,
+                using backward induction, a learned neural heuristic, and symmetry-augmented training to achieve a{' '}
                 <strong style={{ color: 'var(--title)' }}>100% solve rate</strong> at near-optimal path lengths.
               </p>
 
@@ -330,8 +330,8 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
             <div style={{ ...S.card('var(--cp-bdr)'), padding: '2rem 2.25rem' }}>
               <p style={{ fontSize: '1.025rem', lineHeight: 1.88, color: 'var(--foreground)' }}>
                 The <span style={{ color: 'var(--cp)', fontWeight: 600 }}>Maltese Gear Cube</span> is a mechanical puzzle with a state space of approximately{' '}
-                <span style={{ color: 'var(--cp)', fontWeight: 600 }}>4.9&thinsp;×&thinsp;10<sup>19</sup></span> configurations — orders of magnitude larger than a standard Rubik&apos;s Cube. Classical search algorithms such as BFS and IDA* become computationally intractable at this scale without a highly accurate heuristic to prune the tree. The challenge: learn a{' '}
-                <span style={{ color: 'var(--cp)', fontWeight: 600 }}>cost-to-go function h(s)</span> entirely through self-supervised backward induction — no human-designed move sequences, no domain-specific solver — then deploy it inside a{' '}
+                <span style={{ color: 'var(--cp)', fontWeight: 600 }}>4.9&thinsp;×&thinsp;10<sup>19</sup></span> configurations, orders of magnitude larger than a standard Rubik&apos;s Cube. Classical search algorithms such as BFS and IDA* become computationally intractable at this scale without a highly accurate heuristic to prune the tree. The challenge: learn a{' '}
+                <span style={{ color: 'var(--cp)', fontWeight: 600 }}>cost-to-go function h(s)</span> entirely through self-supervised backward induction (no human-designed move sequences, no domain-specific solver) then deploy it inside a{' '}
                 <span style={{ color: 'var(--ct)', fontWeight: 600 }}>batched weighted A* search</span> that returns provably near-optimal solutions at 100% solve rate on any scrambled starting configuration.
               </p>
             </div>
@@ -341,22 +341,22 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
           <section>
             <SecLabel accent="none">Approach &amp; Methodology</SecLabel>
 
-            <PhaseRow label="Phase 1 — Training" accent="p" />
+            <PhaseRow label="Phase 1: Training" accent="p" />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
               <Step n={1} accent="p" title="State Representation"
-                body={<>Each Maltese Gear Cube configuration is encoded as a concatenated <strong>one-hot vector</strong> spanning all corner positions, corner orientations, edge positions, and gear-tooth orientations. This produces a high-dimensional binary input tensor that fully captures the puzzle state without ambiguity — feeding cleanly into the first linear layer of the network.</>}
+                body={<>Each Maltese Gear Cube configuration is encoded as a concatenated <strong>one-hot vector</strong> spanning all corner positions, corner orientations, edge positions, and gear-tooth orientations. This produces a high-dimensional binary input tensor that fully captures the puzzle state without ambiguity, feeding cleanly into the first linear layer of the network.</>}
               />
               <Step n={2} accent="p" title="Backward Induction Data Generation"
                 body={<>Starting from the <strong>solved state</strong>, apply sequences of <em>k</em> random legal moves to produce training pairs (<em>s</em>,&thinsp;<em>d</em>), where <em>d&nbsp;=&nbsp;k</em> is the exact cost-to-go. Sampling <em>k</em> uniformly across all depths guarantees coverage of the full difficulty spectrum without any BFS oracle.</>}
                 tags={[{ label: '50M+ samples', accent: 'p' }]}
               />
               <Step n={3} accent="p" title="Neural Network Training"
-                body={<>A deep fully-connected network — <strong>4 hidden layers × 2048 units</strong>, batch normalisation after every layer, ReLU activations — outputs a scalar h(<em>s</em>)&thinsp;∈&thinsp;ℝ<sup>≥0</sup>. Trained end-to-end via <strong>MSE loss</strong> L&thinsp;=&thinsp;(h(<em>s</em>)&thinsp;−&thinsp;<em>d</em>)<sup>2</sup> with Adam on uniformly-sampled mini-batches until validation loss converges.</>}
+                body={<>A deep fully-connected network (<strong>4 hidden layers × 2048 units</strong>, batch normalisation after every layer, ReLU activations) outputs a scalar h(<em>s</em>)&thinsp;∈&thinsp;ℝ<sup>≥0</sup>. Trained end-to-end via <strong>MSE loss</strong> L&thinsp;=&thinsp;(h(<em>s</em>)&thinsp;−&thinsp;<em>d</em>)<sup>2</sup> with Adam on uniformly-sampled mini-batches until validation loss converges.</>}
                 tags={[{ label: '4 × 2048 FC', accent: 'p' }]}
               />
               <Step n={4} accent="p" title="Symmetry-Based Data Augmentation"
-                body={<>The Maltese Gear Cube admits <strong>48 geometric symmetries</strong> — rotations and reflections that map valid states to equivalent valid states with identical cost-to-go. Applying all 48 transforms to every training sample multiplies the effective dataset 48×, yielding a <strong>40% reduction in wall-clock training time</strong> at zero additional data-collection cost.</>}
+                body={<>The Maltese Gear Cube admits <strong>48 geometric symmetries</strong>: rotations and reflections that map valid states to equivalent valid states with identical cost-to-go. Applying all 48 transforms to every training sample multiplies the effective dataset 48×, yielding a <strong>40% reduction in wall-clock training time</strong> at zero additional data-collection cost.</>}
                 tags={[{ label: '×48 aug', accent: 'p' }]}
               />
             </div>
@@ -365,12 +365,12 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '20px 0', padding: '12px 18px', borderRadius: 8, border: '1px dashed var(--ct-bdr)', background: 'var(--ct-dim)' }}>
               <span style={{ fontSize: '1.15rem', flexShrink: 0 }}>⚡</span>
               <div>
-                <div style={{ fontSize: '.8rem', fontWeight: 600, color: 'var(--ct)' }}>Trained weights frozen — switching to inference</div>
+                <div style={{ fontSize: '.8rem', fontWeight: 600, color: 'var(--ct)' }}>Trained weights frozen: switching to inference</div>
                 <div style={{ fontSize: '.72rem', color: 'var(--muted)', marginTop: 1 }}>Neural network deployed as a static heuristic inside the search loop</div>
               </div>
             </div>
 
-            <PhaseRow label="Phase 2 — Inference" accent="t" />
+            <PhaseRow label="Phase 2: Inference" accent="t" />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <Step n={5} accent="t" title="Batched Weighted A* Search"
@@ -378,7 +378,7 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
                 tags={[{ label: 'w = 0.6', accent: 't' }, { label: 'B = 1 000', accent: 't' }]}
               />
               <Step n={6} accent="t" title="Evaluation"
-                body={<>Tested on <strong>100 independently scrambled cubes</strong> across varying scramble depths. Solution length is compared against optimal paths computed via BFS on a reachable subgraph. The solver achieves a <span style={{ color: 'var(--ct)', fontWeight: 600 }}>100% solve rate</span> with paths averaging just <span style={{ color: 'var(--ct)', fontWeight: 600 }}>1.08× the optimal</span> move count — confirming near-optimality well within the theoretical w-bound.</>}
+                body={<>Tested on <strong>100 independently scrambled cubes</strong> across varying scramble depths. Solution length is compared against optimal paths computed via BFS on a reachable subgraph. The solver achieves a <span style={{ color: 'var(--ct)', fontWeight: 600 }}>100% solve rate</span> with paths averaging just <span style={{ color: 'var(--ct)', fontWeight: 600 }}>1.08× the optimal</span> move count, confirming near-optimality well within the theoretical w-bound.</>}
               />
             </div>
           </section>

@@ -6,14 +6,14 @@ const weatherFindings = [
     volume: 30,
     sentiment: 0.65,
     color: "#f97316",
-    note: "Major deterrent — lowest volume AND sentiment",
+    note: "Major deterrent: lowest volume AND sentiment",
   },
   {
     label: "Pleasant",
     volume: 305,
     sentiment: 0.69,
     color: "#34d399",
-    note: "Baseline — highest volume, average sentiment",
+    note: "Baseline: highest volume, average sentiment",
   },
   {
     label: "Rainy / Snowy",
@@ -27,7 +27,7 @@ const weatherFindings = [
     volume: 101,
     sentiment: 0.71,
     color: "#4e9bb9",
-    note: "Cold Weather Paradox — lowest volume, highest sentiment",
+    note: "Cold Weather Paradox: lowest volume, highest sentiment",
   },
 ];
 
@@ -38,7 +38,7 @@ export default function WeatherPipelineInsights() {
     <section>
       <div className="flex items-center gap-3 mb-6">
         <h2 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#1f77b4] to-[#4e9bb9] whitespace-nowrap">
-          The Weather Paradox — Key Findings
+          The Weather Paradox: Key Findings
         </h2>
         <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
       </div>

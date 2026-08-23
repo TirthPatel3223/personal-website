@@ -35,6 +35,7 @@ export default function ProjectCard({
   index?: number;
 }) {
   const isComingSoon = project.status === 'coming-soon';
+  const cardAchievements = project.card_achievements ?? project.achievements.slice(0, 3);
 
   return (
     <motion.div
@@ -151,7 +152,7 @@ export default function ProjectCard({
                 Achievements
               </span>
               <ul className="list-disc list-inside space-y-1.5 text-sm" style={{ color: 'var(--foreground)' }}>
-                {project.achievements.slice(0, 3).map((ach, i) => (
+                {cardAchievements.map((ach, i) => (
                   <li key={i}>{ach}</li>
                 ))}
               </ul>

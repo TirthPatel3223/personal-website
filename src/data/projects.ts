@@ -26,7 +26,12 @@ export interface Project {
   title: string;
   short_description: string;
   motivation: string;
+  /** Full technical achievement list — shown in full on the project detail page's
+   *  Results & Impact section, so it can stay long and dense. */
   achievements: string[];
+  /** Short, homepage-card-only highlights (3 one-liners). Falls back to the first
+   *  3 entries of `achievements` when omitted. */
+  card_achievements?: string[];
   tech_stack: string[];
   technical_details: string;
   status: ProjectStatus;
@@ -38,11 +43,16 @@ export interface Project {
 export const projects: Project[] = [
   {
     id: 'mapblazer-wait-time-prediction',
-    title: 'Theme Park Wait-Time Forecasting — Production MLOps Pipeline',
+    title: 'Theme Park Wait-Time Forecasting: Production MLOps Pipeline',
     short_description:
-      'A production ML pipeline that forecasts theme park ride wait times seven days ahead at 30-minute resolution, retrained unattended every week on Databricks and served through Supabase and a live public dashboard for $0/month. Powers the Mapblazer routing engine.',
+      'A production ML pipeline that forecasts theme park wait times a week ahead, retrained unattended every week on Databricks and served live for $0/month. Powers the Mapblazer routing engine.',
     motivation:
-      'Mapblazer optimizes a guest\'s theme park itinerary from their must-ride list, live wait times, and walking distances. But a route built on the "current" 9 AM wait times falls apart by the time the guest reaches their 1 PM attraction, because crowds shift all day and one bad estimate cascades into a ruined plan. The routing solver needed to see the future, not the present. I built the forecasting system that predicts wait times across the whole week so the optimizer can anticipate crowd flow instead of chasing it.',
+      'A route built on 9 AM wait times is already wrong by 1 PM, because crowds shift all day and one bad estimate cascades into a ruined plan. I built the forecasting system that predicts wait times across the whole week, so Mapblazer\'s routing engine can anticipate crowd flow instead of chasing it.',
+    card_achievements: [
+      'Ships fully unattended across 109 attractions in 5 parks, forecasting 7 days out for $0/month in infrastructure.',
+      'Cut holdout MAE 26.3% below baseline (7.01 vs 9.51 min) and lifted 10-minute accuracy from 64.5% to 76.6%.',
+      'A champion/challenger promotion gate and 12 automated quality checks keep the live dashboard from ever going stale.',
+    ],
     achievements: [
       'Shipped a fully unattended weekly forecasting system covering 109 attractions across 5 California theme parks, forecast 7 days ahead at 30-minute resolution, running end to end on Databricks with no manual step and $0/month in infrastructure.',
       'Cut holdout MAE 26.3% below the per-ride mean baseline (7.01 vs 9.51 minutes) and lifted the within-10-minute containment rate from 64.5% to 76.6%, with severe misses over 15 minutes down 42.1%, measured on a 78,110-observation chronological holdout.',
@@ -123,22 +133,170 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'airline-crew-pairing-rl',
-    title: 'Airline Crew Pairing — Transformer Deep-RL Scheduler',
+    id: 'mapblazer-route-optimization',
+    title: 'Theme Park Route Optimization: Time-Dependent MILP Solver',
     short_description:
-      'A ViT-style Deep Q-Network that builds a month of legal airline crew pairings one flight leg at a time on the GERAD benchmark instances. Every scheduling rule lives in the action mask, so the agent is feasible by construction, and one policy generalizes to schedules it has never seen — published as an interactive replay you can scrub decision by decision.',
+      'An exact Gurobi MILP that plans a whole park day at once: which rides to do, in what order, and at what time, with every queue priced by the 30-minute slot you actually arrive in. The routing engine behind Mapblazer.',
     motivation:
-      'Crew cost is second only to fuel for most airlines, and the classical answer — column generation over a set-partitioning integer program — is powerful but has to be rebuilt for each schedule and optimizes cost with robustness bolted on afterwards. I wanted to know whether a learned construction policy could do the other thing: obey a real rulebook exactly, generalize to a month it had never seen, and trade a little coverage for solutions that do not shatter when one flight runs late. It is the shape of problem a data scientist actually meets in operations — hard constraints that are not negotiable, an objective that is genuinely multi-term, and a stakeholder whose first question is what happens on a bad day.',
+      'A park day is not a shortest-path problem: a ride costs whatever its queue costs, the queue changes hour by hour, and the order you pick changes the costs that decide the order. I wanted to solve that feedback loop exactly rather than greedily, with an objective that says when idling for a cheaper slot is worth the wait it costs.',
+    card_achievements: [
+      'Solves the day exactly as a time-dependent orienteering problem, each ride priced by the 30-minute slot the plan arrives in.',
+      'Charging the whole day\'s makespan rather than queue time alone finished the same seven-ride Disneyland plan 130 minutes earlier.',
+      'Generates connectivity cuts lazily from a solver callback, so an exponential constraint family only ever costs a handful of rows.',
+    ],
+    achievements: [
+      'Modelled the park day as a time-dependent orienteering problem with mandatory nodes and solved it exactly in Gurobi rather than with the nearest-shortest-queue heuristic the problem invites: arrival time sets the queue, the queue sets the next arrival, and that feedback is precisely what greedy ordering cannot see.',
+      'Rewrote the objective from penalising queue time to charging the makespan of the whole loop, which fixed a concrete failure: the earlier version left walking and idling free and duly spent the entire time budget, finishing at closing time on every instance. The same seven-ride Disneyland day now finishes 130 minutes earlier, with less walking.',
+      'Scaled the two objective terms so a ride is never sacrificed to finish sooner: since an extra ride can lengthen the day by at most the whole budget, charging under min(priority)/T per minute makes the ride reward provably dominant, and the default half-of-that factor leaves a full 480-minute day costing half of one optional ride.',
+      'Kept the time-dependence linear by pinning arrival to a slot with two big-M inequalities and reading the queue as a constant table times a binary, so a genuinely time-varying cost stays inside a MILP instead of forcing a nonlinear model.',
+      'Replaced the exponential subtour-elimination family, 2^|R| constraints and roughly a trillion at forty rides, with lazy generation from a MIPSOL callback that walks the successor map in a single O(|N|) pass and cuts only the cycles it actually finds; the result is still exact, because a candidate surviving with no violated cut is provably one tour.',
+      'Expressed lunch breaks as a linearised finish-before-or-start-after disjunction and repeat rides as virtual twin nodes tied back to the original, so a pure routing model can schedule the same attraction twice and refuse to let any ride straddle a break.',
+      'Benchmarked the search budget instead of guessing it: the incumbent plateaus early, so the 10-second default lands within 0.4% of a 60-second search on both 12- and 16-ride days, and the finding that per-constraint big-M tightening made no measurable difference was recorded rather than quietly dropped.',
+      'Joined the solver to the live forecast service on normalised ride names, since the two datasets disagree on curly apostrophes, trademark symbols and capitalisation, and made uncovered rides a reported field on the response rather than a silent zero-wait assumption that would flatter every plan containing one.',
+    ],
+    tech_stack: ['Python', 'Gurobi', 'Mixed-Integer Programming', 'Operations Research', 'Combinatorial Optimization', 'FastAPI', 'Pydantic', 'pytest'],
+    technical_details:
+      'A time-dependent orienteering problem with mandatory nodes, solved exactly as a Gurobi MILP over arc, visit, slot, arrival, departure and wait variables, with connectivity enforced by lazily generated subtour cuts from a MIPSOL callback. The objective maximises priority-weighted rides less a scaled charge on the day\'s makespan; breaks and operating hours are linearised disjunctions and repeatable rides become virtual twin nodes. Queue costs come from the companion Prophet forecasting service at 30-minute resolution over a 7-day horizon, joined on normalised ride names, and the fixed plan is replayed minute by minute into a ranked itinerary served by both a CLI and a FastAPI endpoint.',
+    status: 'complete',
+    link: '/projects/mapblazer-route-optimization',
+    detail: {
+      problem_statement:
+        'Given a guest\'s must-do and nice-to-have rides, a start time and a time budget, decide which attractions to visit, in what order, and at what time. That is a Time-Dependent Orienteering Problem with mandatory nodes, and each of its three departures from the textbook Travelling Salesman Problem matters. You cannot do every ride, so the subset is part of the answer rather than given. The cost of visiting a node is its queue, which is not a constant but a function of when you arrive. And some rides are non-negotiable while others are merely worth points. The consequence is a circular dependency: the order determines the arrival times, the arrival times determine the queues, and the queues determine which order is best. Greedy rules such as "always take the shortest queue next" fail on exactly this, because the cheapest ride now can be the one that should have been left until the afternoon. The design question was therefore not which heuristic to use, but whether the whole day could be stated as one linear model and solved to optimality, with the time-dependence and the operational realities of breaks, opening hours and repeat rides all inside the model rather than patched on afterwards.',
+      approach: [
+        {
+          step: 'Naming the Problem Before Modelling It',
+          detail:
+            'The day is a single loop that leaves the park entrance and returns to it, so the depot is the entrance and the rides are nodes on a complete digraph. What separates this from a tour is that in- and out-degree are tied to a selection variable rather than fixed at one, which is the formal difference between orienteering and TSP: an unvisited ride simply carries no arcs and costs nothing, so choosing the subset and choosing the order happen in the same solve rather than in two passes that can disagree.',
+        },
+        {
+          step: 'An Objective That Charges for the Whole Day',
+          detail:
+            'The model maximises priority-weighted rides minus a small charge on the arrival time back at the entrance, which is the makespan of the day. That single term covers queueing, walking, riding and idling at once. An earlier version penalised queue time alone, which left walking and idling free, and the optimiser exploited it exactly as written: it used the entire time budget and finished at closing time on every instance. Charging the makespan brought the same seven-ride Disneyland day in 130 minutes earlier with less walking, and it also gets the time-dependence right for free, because idling to reach a cheaper slot lengthens the makespan while the smaller queue shortens it. The solver therefore waits only when the queue it skips is bigger than the wait it costs, which is the correct trade and one a queue-only penalty cannot express.',
+        },
+        {
+          step: 'Making Sure a Ride Is Never Traded for an Early Finish',
+          detail:
+            'Two terms in one objective need a defensible exchange rate, not a tuned constant. An extra ride can lengthen the day by at most the whole budget, so any per-minute charge below the smallest ride priority divided by the budget guarantees the ride reward wins. The default takes half of that bound for margin, which on a 480-minute day means a full-length day costs half of one optional ride and a twentieth of a mandatory one. The same weights are reused to score the reported routes, so the ranking the user sees agrees with what was actually optimised.',
+        },
+        {
+          step: 'Time-Dependent Queues, Kept Linear',
+          detail:
+            'The visit is cut into 30-minute slots matching the forecast grid. Two big-M inequalities force the slot indicator to the slot the arrival actually falls in, one equation reads that slot\'s forecast out of the wait matrix, and the resulting wait feeds the departure time, which feeds the next arrival. Linearity survives because the forecast is a constant table: the product is a number times a binary, never a variable times a variable. That is the whole mechanism by which choosing when to ride changes the cost of everything downstream while the model stays a MILP.',
+        },
+        {
+          step: 'Breaks, Opening Hours and Second Rides',
+          detail:
+            'A lunch break is a disjunction, finish before it or start after it, linearised with a binary that selects which of the two inequalities binds while a second big-M term excuses rides that were never visited. Operating hours are the same pattern without the choice. A ride worth doing twice becomes a virtual twin node with its own arrival time, a lower priority, and a constraint tying it to the original, which is what lets a pure routing formulation schedule the same attraction twice without any special-case logic in the search.',
+        },
+        {
+          step: 'Connectivity Without the Exponential Family',
+          detail:
+            'Degree constraints are local, so they admit a valid depot tour plus free-floating cycles among the ride nodes. The classical repair adds a cut for every subset, 2^|R| of them, about a trillion at forty rides, which cannot be written down. Instead the cuts are discovered rather than enumerated: the model is solved without any of them, and every time the solver reaches an integer-feasible candidate a callback reads the selected arcs, walks the successor map to find the components, and for each cycle that does not contain the depot adds exactly that subset\'s cut and rejects the candidate. Because flow conservation gives every visited node exactly one outgoing arc, the components are simple paths and cycles and the walk is a single linear pass. Nothing about exactness is given up: a candidate that survives with no violated cut is provably a single tour.',
+        },
+        {
+          step: 'Knowing When to Stop Searching',
+          detail:
+            'Finding a good route is fast; proving it optimal is not, because the root relaxation is already tight and the remaining work is closing one or two percent against a default tolerance that demands no rearrangement of the day saves even a fraction of a minute. Past roughly ten rides that proof does not finish. The incumbent, however, plateaus early, so the time limit was set from measurement rather than taste: on both a 12-ride and a 16-ride day, ten seconds lands within 0.4% of a sixty-second search. The status is reported honestly as a time limit rather than as optimality, and the finding that tightening the big-M constants per constraint made no measurable difference was written down rather than quietly abandoned.',
+        },
+        {
+          step: 'Joining to the Forecast Without Lying About Gaps',
+          detail:
+            'Queue costs come from the companion Prophet forecasting service, a 7-day horizon at 30-minute resolution across 109 attractions. The two systems key rides differently, so names are compared on letters and digits alone after trademark symbols are stripped, which is also why a misspelling that exists in both systems is left alone rather than corrected: it is the working join key. Rides the forecast does not cover are surfaced as a field on the response, because the fallback is to plan them as zero wait, and a plan that silently treats an unknown queue as no queue is worse than one that says it does not know.',
+        },
+      ],
+      architecture: `
+  ── INPUTS ──────────────────────────────────────────────────────────
+
+  ┌───────────────────────────────┐  ┌───────────────────────────────┐
+  │ Wait-Time Forecast API        │  │ data/parks.json               │
+  │   Prophet fleet . 7-day       │  │   5 parks . 116 rides         │
+  │   horizon . 30-minute slots   │  │   durations . operating hours │
+  │ predictions.py                │  │ data/walk_times.json          │
+  │   pages PostgREST, joins on   │  │   ride-to-ride walk minutes   │
+  │   letters-and-digits names    │  │   per park                    │
+  └───────────────┬───────────────┘  └───────────────┬───────────────┘
+                  │ W[ride, slot]                    │ c[i,j] . d[i]
+                  └─────────────────┬────────────────┘
+                                    ▼
+
+  ── MODEL  -  solver.py ─────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ nodes  depot 0 . one node per selected ride . a twin per repeat  │
+  │ vars   x[i,j] arc . y[i] visit . z[i,s] slot . a[i] e[i] w[i]    │
+  │                                                                  │
+  │ max    sum p[i]*y[i]   -   gamma * a[0]                          │
+  │        reward every ride reached, charge the whole loop's time   │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    ▼
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ constraints                                                      │
+  │   degree tied to selection: in/out degree is y[i], not 1         │
+  │   time carried along the route by a big-M switch on x[i,j]       │
+  │   the arrival slot pins z[i,s], which prices w[i] = W[ride(i),s] │
+  │   breaks as a linearised finish-before or start-after choice     │
+  │   per-ride opening and closing hours                             │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    ▼
+
+  ── SEARCH  -  Gurobi ───────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ branch and bound . TimeLimit 10s . solution pool for alternates  │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    │  every integer-feasible candidate
+                                    ▼
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ MIPSOL callback   _eliminate_subtours                            │
+  │   read the arcs, walk successor[], find components   O(|N|)      │
+  │   a cycle with no depot -> cbLazy exactly that subset's cut      │
+  │   reject the candidate; the cut stays in the model               │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    │  repeat until no cycle remains
+                                    ▼
+
+  ── OUTPUT ──────────────────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ replay the fixed plan minute by minute, idling included          │
+  │ ranked itineraries + metadata: status . wait source . gaps       │
+  └────────────────┬────────────────────────────────┬────────────────┘
+                   ▼                                ▼
+               cli.py  markdown day             api.py  POST /solve
+`,
+      results: [
+        { metric: 'Day Shortened', value: '130 min', description: 'Makespan objective vs. queue-time only, same 7 rides' },
+        { metric: 'Solve Budget', value: '10 s', description: 'Default time limit, set by benchmark' },
+        { metric: 'Gap to a 60s Search', value: '0.4%', description: 'Measured on 12- and 16-ride days' },
+        { metric: 'Optimality', value: 'Exact', description: 'Proven optimal to ~10 rides, best-found beyond' },
+        { metric: 'Park Coverage', value: '5 parks', description: '116 rides, durations and walk matrices' },
+        { metric: 'Forecast Grid', value: '30 min', description: '7-day horizon across 109 attractions' },
+      ],
+      github_url: 'https://github.com/TirthPatel3223/Mapblazer_Route_Optimization_Algorithm',
+    },
+  },
+  {
+    id: 'airline-crew-pairing-rl',
+    title: 'Airline Crew Pairing: Transformer Deep-RL Scheduler',
+    short_description:
+      'A ViT-style Deep Q-Network that builds a month of legal airline crew pairings one leg at a time, feasible by construction, published as an interactive replay you can scrub decision by decision.',
+    motivation:
+      'Crew cost is second only to fuel for most airlines, and the classical column-generation approach has to be rebuilt for every schedule. I wanted to know whether a learned construction policy could obey a real rulebook exactly, generalize to a month it had never seen, and trade a little coverage for solutions that don\'t shatter when one flight runs late.',
+    card_achievements: [
+      'Every scheduling rule lives in the action mask, so the agent can never emit an illegal pairing, verified over random rollouts.',
+      'Trained on 40 perturbed schedules, reaching 0.658 held-out coverage on 8 unseen instances the policy never trained on.',
+      'Reused the trained value network as a search heuristic at inference, no retraining, for a further 4-point coverage lift.',
+    ],
     achievements: [
       'Framed crew pairing as a sequential construction MDP (START a pairing, APPEND legs, CLOSE it back at base) over a 31-day, 1,013-leg GERAD benchmark network, so an episode is roughly 935 decisions and credit assignment lands on the tour that actually earned the reward rather than being smeared across a month of flight-by-flight assignments.',
-      'Moved every scheduling rule into the action mask — connection windows, duty flying time, legs per duty, duty span, duties per pairing, time away from base, per-base credit caps, daily crew availability, and a backward-DP check that the crew can still get home — so the network is never offered an illegal move and legality costs no penalty term and no repair pass.',
+      'Moved every scheduling rule into the action mask: connection windows, duty flying time, legs per duty, duty span, duties per pairing, time away from base, per-base credit caps, daily crew availability, and a backward-DP check that the crew can still get home, so the network is never offered an illegal move and legality costs no penalty term and no repair pass.',
       'Verified that claim independently instead of asserting it: a re-checker that re-derives legality from the finished pairing, run over random rollouts for both crew classes with delay modelling on and off, records zero feasibility violations.',
-      'Trained one policy across 40 perturbed variants of the base instance and evaluated it on 8 held-out variants whose seeds were never trained on, reaching 0.658 mean coverage for the cabin policy and 0.629 for cockpit against 0.47 for a random masked policy — with a train-versus-held-out coverage gap of 0.00 to 0.05 at plateau, the number that separates a learned scheduling rule from a memorized schedule.',
-      'Closed roughly 10 coverage points of the gap left by single-instance training, which transferred to the same held-out split at only 0.528 — the concrete payoff of training on a distribution of schedules instead of on the one in front of you.',
-      'Produced markedly more delay-resilient solutions than the benchmark\'s own reference: 85 critical sub-15-minute connections against the reference\'s 310, and about 53 robust short connections against its 10. The reference covers roughly 1.6 times as many legs by deadheading throughout, but even per covered leg its fragile-connection rate is about 2.3 times the policy\'s — the honest trade is coverage for resilience.',
+      'Trained one policy across 40 perturbed variants of the base instance and evaluated it on 8 held-out variants whose seeds were never trained on, reaching 0.658 mean coverage for the cabin policy and 0.629 for cockpit against 0.47 for a random masked policy, with a train-versus-held-out coverage gap of 0.00 to 0.05 at plateau, the number that separates a learned scheduling rule from a memorized schedule.',
+      'Closed roughly 10 coverage points of the gap left by single-instance training, which transferred to the same held-out split at only 0.528: the concrete payoff of training on a distribution of schedules instead of on the one in front of you.',
+      'Produced markedly more delay-resilient solutions than the benchmark\'s own reference: 85 critical sub-15-minute connections against the reference\'s 310, and about 53 robust short connections against its 10. The reference covers roughly 1.6 times as many legs by deadheading throughout, but even per covered leg its fragile-connection rate is about 2.3 times the policy\'s: the honest trade is coverage for resilience.',
       'Modelled the action space as a set rather than a fixed vector: a ViT-style transformer encoder lets every candidate leg attend to every other one, and a dueling pointer head scores a variable-length, permutation-equivariant action set, so one network handles a 56-way opening step and a 4-way continuation step without reshaping anything.',
-      'Reused the trained value network at inference as a search heuristic — beam search, plus an anytime best-first seeded with a full greedy dive so its answer can never be worse than greedy — buying about 4 coverage points for roughly 3 times the wall clock and no retraining, and documented why textbook-optimal A* was rejected: the only admissible bound available here is loose enough that the search degenerates into breadth-first.',
-      'Diagnosed the coverage ceiling rather than hand-waving it, with a terminal-state autopsy attributing the 250 to 290 uncovered legs — about 52% orphaned at non-base airports, about 20% blocked by exhausted base availability, about 25% cut off by the stranding guard, and credit caps never binding at all — then ranked the improvement levers by that evidence instead of by intuition.',
+      'Reused the trained value network at inference as a search heuristic: beam search, plus an anytime best-first seeded with a full greedy dive so its answer can never be worse than greedy, buying about 4 coverage points for roughly 3 times the wall clock and no retraining, and documented why textbook-optimal A* was rejected: the only admissible bound available here is loose enough that the search degenerates into breadth-first.',
+      'Diagnosed the coverage ceiling rather than hand-waving it, with a terminal-state autopsy attributing the 250 to 290 uncovered legs: about 52% orphaned at non-base airports, about 20% blocked by exhausted base availability, about 25% cut off by the stranding guard, and credit caps never binding at all; then ranked the improvement levers by that evidence instead of by intuition.',
       'Made every modelling choice auditable and every ablation a config edit: four YAML files where each value carries a source citation and a HIGH/MEDIUM/LOW confidence tag, an assumption register naming the load-bearing reconstructions, 84 tests, a live FastAPI training dashboard, and a published zero-backend replay site that animates a recorded solve leg by leg with the agent\'s top Q-values at each step.',
     ],
     tech_stack: ['PyTorch', 'Transformers', 'Deep RL', 'Double DQN', 'CUDA', 'NumPy', 'FastAPI', 'pytest', 'TensorBoard', 'Python', 'Operations Research'],
@@ -148,17 +306,17 @@ export const projects: Project[] = [
     link: '/projects/airline-crew-pairing-rl',
     detail: {
       problem_statement:
-        'A crew pairing is a legal multi-day tour of duty: a sequence of flights that leaves a crew base, splits into workdays separated by overnight layovers, and returns to the same base, all while obeying a thick rulebook of duty-hour limits, rest rules, legs per duty, time away from base, per-base credit caps and crew availability. Covering an airline\'s month with a cheap set of those tours is the first and most expensive stage of crew scheduling, and the classical method — implicitly enumerating an astronomical pool of candidate pairings and solving a set-partitioning integer program by column generation — is well understood but expensive to build, specific to the instance it was built for, and optimizes cost with robustness added afterwards. This project takes the other route and learns a construction policy: the agent walks the connection network, appends legs to an open pairing and closes it back at base, trained on a distribution of perturbed schedules so a changed month does not mean re-solving from scratch. Three things had to be true for that to be worth anything. The schedule it emits must be legal, not approximately legal, which rules out learning legality from a penalty. It must hold up on a month whose seed was never trained on, not only on the month it was fitted to. And the numbers it reports must be measured against something real — here, the benchmark\'s own reference solution from a classical cost optimizer, scored with the same connection classifiers.',
+        'A crew pairing is a legal multi-day tour of duty: a sequence of flights that leaves a crew base, splits into workdays separated by overnight layovers, and returns to the same base, all while obeying a thick rulebook of duty-hour limits, rest rules, legs per duty, time away from base, per-base credit caps and crew availability. Covering an airline\'s month with a cheap set of those tours is the first and most expensive stage of crew scheduling, and the classical method (implicitly enumerating an astronomical pool of candidate pairings and solving a set-partitioning integer program by column generation) is well understood but expensive to build, specific to the instance it was built for, and optimizes cost with robustness added afterwards. This project takes the other route and learns a construction policy: the agent walks the connection network, appends legs to an open pairing and closes it back at base, trained on a distribution of perturbed schedules so a changed month does not mean re-solving from scratch. Three things had to be true for that to be worth anything. The schedule it emits must be legal, not approximately legal, which rules out learning legality from a penalty. It must hold up on a month whose seed was never trained on, not only on the month it was fitted to. And the numbers it reports must be measured against something real: the benchmark\'s own reference solution from a classical cost optimizer, scored with the same connection classifiers.',
       approach: [
         {
           step: 'Choosing the Decision, Not Just the Model',
           detail:
-            'The source paper assigns crews flight by flight; three granularities were weighed here and sequential pairing construction won. The agent opens a pairing at a base, extends it, and closes it back at that base, repeating until every leg is covered or nothing legal remains. That choice does real work: it concentrates credit assignment on the tour that earned the reward, keeps episodes at roughly the number of legs plus the number of pairings rather than exploding, and maps cleanly onto a network that scores a set of candidate moves. Deadheads — crew riding as passengers to reposition — are first-class actions at half credit with a per-pairing budget and a hop-bounded reachability guard, not a post-processing fix.',
+            'The source paper assigns crews flight by flight; three granularities were weighed here and sequential pairing construction won. The agent opens a pairing at a base, extends it, and closes it back at that base, repeating until every leg is covered or nothing legal remains. That choice does real work: it concentrates credit assignment on the tour that earned the reward, keeps episodes at roughly the number of legs plus the number of pairings rather than exploding, and maps cleanly onto a network that scores a set of candidate moves. Deadheads (crew riding as passengers to reposition) are first-class actions at half credit with a per-pairing budget and a hop-bounded reachability guard, not a post-processing fix.',
         },
         {
           step: 'Feasibility Lives in the Action Mask',
           detail:
-            'Every rule is evaluated before an action is offered: the connection window and its classification into short, sit or layover, maximum flying time and legs and span per duty, duties per pairing, total time away from base, per-base credit caps, per-base daily crew availability reduced by vacations, and a backward dynamic-programming check that the crew can still reach its home base from wherever the move would leave it. A one-step viability lookahead keeps the agent out of dead ends. The consequence is that the network cannot emit an illegal schedule, so no reward budget is spent teaching it the rulebook and no repair heuristic runs afterwards — and when an open pairing does run out of legal continuations, it is discarded, its resources refunded and a large strand penalty fired, rather than the episode quietly corrupting.',
+            'Every rule is evaluated before an action is offered: the connection window and its classification into short, sit or layover, maximum flying time and legs and span per duty, duties per pairing, total time away from base, per-base credit caps, per-base daily crew availability reduced by vacations, and a backward dynamic-programming check that the crew can still reach its home base from wherever the move would leave it. A one-step viability lookahead keeps the agent out of dead ends. The consequence is that the network cannot emit an illegal schedule, so no reward budget is spent teaching it the rulebook and no repair heuristic runs afterwards; when an open pairing does run out of legal continuations, it is discarded, its resources refunded and a large strand penalty fired, rather than the episode quietly corrupting.',
         },
         {
           step: 'An Observation That Is a Set, Not a Vector',
@@ -168,17 +326,17 @@ export const projects: Project[] = [
         {
           step: 'A Transformer That Scores the Whole Candidate Set',
           detail:
-            'The Q-network is a ViT-style encoder: airport identities are embedded, the remaining numerics are projected to a 192-dimensional model width, a learned context token in the ViT CLS role carries the global features, and a four-layer pre-norm transformer encoder lets every candidate attend to every other one. That is the right inductive bias for the question actually being asked — is this the best next leg given what else is on offer and how full my duty already is — which a per-candidate MLP structurally cannot ask. A dueling head then scores each token pointer-style as a shared state value plus a mean-centered advantage, with masked actions driven to negative infinity so they can never be selected or bootstrapped from.',
+            'The Q-network is a ViT-style encoder: airport identities are embedded, the remaining numerics are projected to a 192-dimensional model width, a learned context token in the ViT CLS role carries the global features, and a four-layer pre-norm transformer encoder lets every candidate attend to every other one. That is the right inductive bias for the question actually being asked (is this the best next leg given what else is on offer and how full my duty already is), which a per-candidate MLP structurally cannot ask. A dueling head then scores each token pointer-style as a shared state value plus a mean-centered advantage, with masked actions driven to negative infinity so they can never be selected or bootstrapped from.',
         },
         {
           step: 'A Reward With Four Terms and an Off Switch on Each',
           detail:
-            'Coverage pays +1.0 per leg flown and charges -4.0 for every leg still uncovered at the end. Cost charges excess time away from base, each pairing opened, and each deadhead hour. Robustness pays for short connections, where the crew follows the aircraft, and penalizes fragile critical ones — or switches to the source paper\'s squared non-critical-connection formulation with compensation when the delay-prediction flag is on. Preferences pay a scaled bonus for flying a leg the base\'s crews prefer. Every weight and every enable flag sits in one YAML file, so an ablation is a config edit rather than a code branch, and the discount is 1.0 within an episode because a pairing built on day 3 is worth exactly what it is worth on day 30.',
+            'Coverage pays +1.0 per leg flown and charges -4.0 for every leg still uncovered at the end. Cost charges excess time away from base, each pairing opened, and each deadhead hour. Robustness pays for short connections, where the crew follows the aircraft, and penalizes fragile critical ones, or switches to the source paper\'s squared non-critical-connection formulation with compensation when the delay-prediction flag is on. Preferences pay a scaled bonus for flying a leg the base\'s crews prefer. Every weight and every enable flag sits in one YAML file, so an ablation is a config edit rather than a code branch, and the discount is 1.0 within an episode because a pairing built on day 3 is worth exactly what it is worth on day 30.',
         },
         {
           step: 'Training for Generalization, Not for One Month',
           detail:
-            'Double DQN with a target network, prioritized experience replay, Huber loss, gradient clipping and mixed precision — but the load-bearing design choice is the data, not the optimizer. Each episode samples a fresh instance from 40 seeded perturbations of the base month (departure jitter, leg subsampling, availability and credit resampling, regenerated preferences), and evaluation runs the greedy policy every 20 episodes against a disjoint split of 8 variants whose seeds are never trained on. The reported number is the held-out mean, the checkpoint kept is the best by held-out coverage, and the train-versus-held-out gap is logged as a metric in its own right so overfitting shows up as a curve rather than as a surprise at the end.',
+            'Double DQN with a target network, prioritized experience replay, Huber loss, gradient clipping and mixed precision. But the load-bearing design choice is the data, not the optimizer. Each episode samples a fresh instance from 40 seeded perturbations of the base month (departure jitter, leg subsampling, availability and credit resampling, regenerated preferences), and evaluation runs the greedy policy every 20 episodes against a disjoint split of 8 variants whose seeds are never trained on. The reported number is the held-out mean, the checkpoint kept is the best by held-out coverage, and the train-versus-held-out gap is logged as a metric in its own right so overfitting shows up as a curve rather than as a surprise at the end.',
         },
         {
           step: 'Reusing the Value Network as a Search Heuristic',
@@ -188,7 +346,7 @@ export const projects: Project[] = [
         {
           step: 'Diagnosing the Ceiling, and Proving the Rules',
           detail:
-            'Coverage plateaus near 0.63 to 0.66, so the terminal states were dissected rather than explained away. About 52% of the uncovered legs depart non-base airports and were orphaned once their feeder legs got routed elsewhere, about 20% depart a base whose availability has been exhausted, about 25% are blocked by the stranding guard on a thinned-out network, and credit caps never bind at all — which ranks the levers as deadheads first, availability slack second, inference-time search third and a longer exploration schedule fourth. Underneath all of it sits an 84-test suite whose load-bearing member is the feasibility invariant: because all legality lives in the mask, any rule bug surfaces as a random rollout constructing an illegal pairing, which the independent verifier catches.',
+            'Coverage plateaus near 0.63 to 0.66, so the terminal states were dissected rather than explained away. About 52% of the uncovered legs depart non-base airports and were orphaned once their feeder legs got routed elsewhere, about 20% depart a base whose availability has been exhausted, about 25% are blocked by the stranding guard on a thinned-out network, and credit caps never bind at all, which ranks the levers as deadheads first, availability slack second, inference-time search third and a longer exploration schedule fourth. Underneath all of it sits an 84-test suite whose load-bearing member is the feasibility invariant: because all legality lives in the mask, any rule bug surfaces as a random rollout constructing an illegal pairing, which the independent verifier catches.',
         },
       ],
       architecture: `
@@ -202,7 +360,7 @@ export const projects: Project[] = [
   │   40 training variants . 8 held-out, seeds never trained on      │
   └────────────────────────────────┬─────────────────────────────────┘
                                    │  one episode samples one variant
-                                   ▼
+                                   ↓
   ── ENVIRONMENT  -  FEASIBLE BY CONSTRUCTION ────────────────────────
 
   ┌──────────────────────────────────────────────────────────────────┐
@@ -212,7 +370,7 @@ export const projects: Project[] = [
   │   no legal continuation -> discard, refund, -8.0, carry on       │
   └────────────────────────────────┬─────────────────────────────────┘
                                    │  every candidate leg, before it is offered
-                                   ▼
+                                   ↓
   ┌──────────────────────────────────────────────────────────────────┐
   │ env/masking.py           an illegal move never exists            │
   │   connection window . duty flying time . legs per duty           │
@@ -221,7 +379,7 @@ export const projects: Project[] = [
   │   backward-DP "can I still get home?" reachability guard         │
   └────────────────────────────────┬─────────────────────────────────┘
                                    │  tokens [K,30] . mask [K] . global [10]
-                                   ▼
+                                   ↓
   ┌──────────────────────────────────────────────────────────────────┐
   │ models/vit_dqn.py        set encoder over the candidates         │
   │   airport embeddings + numeric projection -> d_model 192         │
@@ -230,7 +388,7 @@ export const projects: Project[] = [
   │   dueling pointer head -> one Q per action, masked to -inf       │
   └────────────────────────────────┬─────────────────────────────────┘
                                    │  argmax Q at eval, epsilon-greedy while training
-                                   ▼
+                                   ↓
   ┌──────────────────────────────────────────────────────────────────┐
   │ env/reward.py            multi-objective, gamma = 1              │
   │   coverage   +1.0 per leg covered, -4.0 per leg left open        │
@@ -239,7 +397,7 @@ export const projects: Project[] = [
   │   preference +0.3 scaled by the leg score for that base          │
   └────────────────────────────────┬─────────────────────────────────┘
                                    │  (s, a, r, s') transitions
-                                   ▼
+                                   ↓
   ── LEARNING ────────────────────────────────────────────────────────
 
   ┌──────────────────────────────────────────────────────────────────┐
@@ -250,7 +408,7 @@ export const projects: Project[] = [
   │   keep the best-by-eval-coverage checkpoint as best.pt           │
   └────────────────────────────────┬─────────────────────────────────┘
                                    │
-                                   ▼
+                                   ↓
   ── INFERENCE  -  THE SAME NETWORK AS A SEARCH HEURISTIC ────────────
 
   best.pt
@@ -260,7 +418,7 @@ export const projects: Project[] = [
     '-- anytime A*  priority queue on f = g + h, seeded with a greedy
                     dive, so the answer is never worse than greedy
                                    │
-                                   ▼
+                                   ↓
   demo.py -> events.jsonl -> viz/build_site.py -> GitHub Pages replay
 `,
       results: [
@@ -275,16 +433,166 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'course-rag-pipeline',
-    title: 'Course Material Q&A Assistant — Agentic RAG System',
+    id: 'airbnb-superhost-rdd',
+    title: 'Airbnb Superhost Badge: Causal Impact Study (Regression Discontinuity)',
     short_description:
-      'Production-deployed agentic RAG system for UCLA MSBA students to query course materials — lecture slides, transcripts, and PDFs — using natural language. Live at tirth-courserag.duckdns.org.',
+      'A regression discontinuity re-test of whether Airbnb\'s Superhost badge still moves host outcomes now that Guest Favorite has taken over discovery. None of six outcomes jumps at the 4.8 cutoff.',
     motivation:
-      'The UCLA MSBA program runs 4 simultaneous courses, each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic system that classifies every query, self-verifies deadline answers, supports human-approved file uploads, and can explain exactly which source chunks drove any answer — deployed at effectively zero infrastructure cost on Oracle Cloud Free Tier.',
+      'Published research from 2023 found the Superhost badge causally lifted bookings and revenue at the 4.8-rating cutoff. Then Airbnb launched Guest Favorite and removed the Superhost search filter, so the discovery mechanism behind that finding was gone. I wanted to run the same design on current data and report the answer it gave, not the one that would make a nicer story.',
+    card_achievements: [
+      'Re-tested a 2023 published finding on a changed platform: this replication finds no significant effect at the same cutoff.',
+      'Built a 125,685-host panel from 34 U.S. metros and isolated the badge with a ±0.05 bandwidth around the 4.8 cutoff.',
+      'Estimated six outcomes at once so the null result doesn\'t rest on one hand-picked dependent variable.',
+    ],
+    achievements: [
+      'Re-tested a published causal finding against a changed platform: Mishra, Huang & Kalwani (2023) found a significant positive Superhost effect at the same 4.8 cutoff, and this replication on post-Guest-Favorite data finds none: a null result reported as the finding rather than buried.',
+      'Built the host-level panel the design needs from raw Inside Airbnb data across 34 U.S. metro areas (~3 GB of listings, reviews and calendar files), unioning cities, scoring every listing\'s review text with VADER, aggregating calendar prices and availability, and rolling listings up to 125,685 hosts.',
+      'Got the running variable right where it is easy to get it wrong: Superhost is a host-level badge but the data is listing-level, so host_rating is each host\'s review_scores_rating averaged weighted by listing review count: an unweighted mean lets one brand-new, barely-reviewed listing drag a host across the threshold.',
+      'Isolated the badge with a ±0.05 bandwidth around the cutoff (4.75–4.85), holding two of Airbnb\'s other Superhost criteria roughly fixed with a ≥90% response-rate filter and a review-count floor, so crossing 4.80 is close to the only systematic difference between the groups: 4,308 treated hosts against 2,378 controls, 6,686 in the analysis sample.',
+      'Handled the badge-versus-rating timing mismatch explicitly (Airbnb re-evaluates Superhost quarterly while the scraped rating is near-live) by requiring a host\'s badge to agree with the side of the cutoff their rating falls on, dropping ambiguous hosts rather than silently mis-assigning them to treatment.',
+      'Estimated the discontinuity as an OLS jump term on the centered running variable with HC1 heteroskedasticity-robust standard errors, across six outcomes at once (positive, negative, neutral and compound review sentiment, review volume, and the review-scores value sub-rating) so the conclusion does not rest on a single hand-picked dependent variable.',
+      'Found no significant jump on any of the six: effects range from −2.49 reviews to +0.0029 sentiment with p-values from 0.156 to 0.929, and the plotted fits on either side of 4.8 are visually continuous, consistent with the badge\'s demand-side signalling role having faded once Guest Favorite took over discovery.',
+      'Wrote up the design\'s limits alongside its result: this estimates the demand-side effect only and says nothing about the supply-side incentive to maintain quality; there is no McCrary manipulation test or covariate-balance check; the sample is one cross-section rather than hosts tracked across the threshold over time; and Guest Favorite status is not observable in the data.',
+    ],
+    tech_stack: ['Python', 'Causal Inference', 'Regression Discontinuity', 'statsmodels', 'Econometrics', 'pandas', 'NumPy', 'VADER NLP', 'seaborn', 'Matplotlib'],
+    technical_details:
+      'A sharp regression discontinuity design on Airbnb\'s 4.8 Superhost rating cutoff, estimated on a 125,685-host panel built from Inside Airbnb listings, reviews and calendar data across 34 U.S. metros. Listing review text is scored with VADER and rolled up to the host by review-count-weighted averaging, which also defines the running variable. Within a ±0.05 bandwidth and response-rate / review-count inclusion filters, each of six outcomes is regressed on the centered rating and a treatment dummy with HC1 robust standard errors, and the discontinuity is plotted with separate fits on either side of the cutoff.',
+    status: 'complete',
+    link: '/projects/airbnb-superhost-rdd',
+    detail: {
+      problem_statement:
+        'Airbnb awards the Superhost badge quarterly to hosts who clear four bars over a trailing year: a rating of at least 4.8, a response rate of at least 90%, a cancellation rate under 1%, and enough completed stays. Historically the badge did two jobs: it pushed hosts to maintain quality, and it signalled trust to guests, who could filter search results by it. A 2023 study used that 4.8 cutoff as a regression discontinuity and found a significant positive effect on bookings and revenue. The platform has since changed: Guest Favorite launched in November 2023 as a listing-level badge covering roughly two million homes, and around January 2024 the Superhost filter was removed from on-site search and replaced by a Guest Favorite one. The badge survives; the discovery mechanism behind half of its value does not. The question is whether the causal effect survived with it. It cannot be answered by comparing Superhosts to everyone else, because the hosts who clear the bar were already better hosts; any gap would be selection, not the badge. What makes the cutoff useful is that it is arbitrary at the margin: a host at 4.79 and a host at 4.81 are, on average, indistinguishable in underlying quality, and the badge is essentially the only systematic difference between them. Comparing those two narrow groups is the whole design.',
+      approach: [
+        {
+          step: 'Why a Discontinuity, and Not a Comparison',
+          detail:
+            'The naive estimate (average outcomes for Superhosts minus average outcomes for everyone else) measures host quality far more than it measures the badge, because the badge is awarded for quality in the first place. A regression discontinuity sidesteps that by shrinking the comparison to a narrow window around a threshold nobody can precisely control: hosts land at 4.79 or 4.81 for reasons that have nothing to do with which side they would have chosen. Inside that window the badge is as good as randomly assigned, so a jump in outcomes exactly at 4.80 is attributable to the badge rather than to the hosts. That local identification is the trade the design makes: a credible estimate of the effect at the cutoff, and no claim at all about hosts at 4.2 or 5.0.',
+        },
+        {
+          step: 'Building a Host-Level Panel From 34 City Extracts',
+          detail:
+            'Inside Airbnb publishes per-city files rather than one dataset, so the pipeline unions listings across 34 U.S. metro areas: New York, Los Angeles, Chicago, Boston, Seattle, Broward County and 28 others, roughly 3 GB raw. Each listing\'s review text is scored with VADER into positive, negative, neutral and compound sentiment; the calendar extract is collapsed into an average nightly price and an availability ratio over the scraped window. Only the final analysis notebook and its saved outputs live in the repository, since regenerating the intermediate table means re-running the full multi-gigabyte pipeline.',
+        },
+        {
+          step: 'Aggregating to the Host, and the Weighting That Matters',
+          detail:
+            'Superhost is a host-level designation while the data is listing-level, so every listing is rolled up into one row per host_id, producing 125,685 U.S. hosts. The load-bearing detail is how the running variable is built: host_rating is the host\'s listings\' review_scores_rating averaged weighted by each listing\'s number of reviews, not a plain mean. Weighted, a host with one heavily-reviewed 4.85 property and one new 4.5 listing stays where their guests actually put them; unweighted, the new listing swings them across the cutoff and into the wrong group. Sentiment scores are aggregated the same way, and review counts are summed.',
+        },
+        {
+          step: 'Defining Treatment and Control Around 4.80',
+          detail:
+            'Treatment is hosts with a rating in [4.80, 4.85] who actually hold the badge: 4,308 hosts; control is hosts in [4.75, 4.80) who do not: 2,378. Two inclusion filters apply to both sides: an average response rate of at least 90%, which is Airbnb\'s own bar, and at least three reviews as an activity floor. Both exist so that Airbnb\'s other Superhost criteria are held roughly constant and crossing 4.80 is close to the only thing that differs. Conditioning on the badge agreeing with the rating side, rather than on the rating alone, matters because Airbnb re-evaluates Superhost quarterly while the scraped rating is closer to live: hosts whose badge and rating disagree are dropped rather than mis-assigned. The final sample is 6,686 hosts out of 125,685.',
+        },
+        {
+          step: 'The Specification, Stated With Its Assumptions',
+          detail:
+            'For each outcome the model is an OLS regression of that outcome on the rating centered at 4.8 plus a treatment dummy, fit with HC1 heteroskedasticity-robust standard errors. Centering makes the treatment coefficient read as the jump exactly at the cutoff. The specification runs one common slope across the bandwidth rather than separate slopes on each side, which is a simplification of the fuller sharp-RDD form; hosts with a fully blocked calendar have their average calendar price imputed from the static listing price rather than being dropped; and the response-rate and review-count filters are proxies for Airbnb\'s real criteria, not reproductions of them. Each of those is a stated design choice rather than an unexamined default.',
+        },
+        {
+          step: 'Six Outcomes, Because One Would Be a Choice',
+          detail:
+            'Running a single dependent variable invites picking the one that cooperates, so the same specification is estimated on six: positive, negative, neutral and compound review sentiment, total reviews across a host\'s listings, and the review-scores value sub-rating. Together they cover guest experience, engagement volume and perceived value. Each model is plotted as well as tabulated (scatter plus separate fits on either side of the dashed 4.8 line) because a discontinuity is something you should be able to see, and its absence is something a reader should be able to check rather than take on trust.',
+        },
+        {
+          step: 'Reading a Null Result Honestly',
+          detail:
+            'No outcome jumps: the largest effect is +0.0029 on neutral sentiment, review volume moves by −2.49 with a p-value of 0.929, and nothing clears the 5% level. The right reading is narrow. This is the badge\'s demand-side effect at the margin in a post-Guest-Favorite cross-section, and it is consistent with the search-filter removal having drained the discovery channel the earlier finding partly rested on. It says nothing about the supply-side incentive (hosts may still work to keep the badge whether or not guests respond to it) and the design carries real caveats: no manipulation or covariate-balance test, no bandwidth-sensitivity check, one snapshot rather than hosts followed across the threshold over time, and Guest Favorite status not observable in the data to control for directly.',
+        },
+      ],
+      architecture: `
+  ── DATA ────────────────────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Inside Airbnb            34 U.S. metro areas, ~3 GB raw          │
+  │   listings . reviews . calendar, one set of files per city       │
+  │   NYC, LA, Chicago, Boston, Seattle, Broward, 28 more            │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  union all 34 cities
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Listing-level enrichment                                         │
+  │   VADER sentiment over each listing's review text                │
+  │     pos / neg / neu / compound, averaged per listing             │
+  │   calendar rollup: avg nightly price, availability ratio         │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  roll listings up to their host
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Host-level table          125,685 U.S. hosts                     │
+  │   host_rating = mean review_scores_rating across a host's        │
+  │                 listings, WEIGHTED by each listing's             │
+  │                 review count  <- the running variable            │
+  └──────────────────────────────────────────────────────────────────┘
+
+  ── DESIGN  -  THE 4.8 CUTOFF ───────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Running variable   host_rating,   cutoff c = 4.8                 │
+  │   bandwidth +/- 0.05         treatment D = 1 if rating >= c      │
+  │   a host is kept only if the badge AGREES with their side,       │
+  │   so a stale quarterly badge cannot mis-label a row              │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  hold the other criteria fixed
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Inclusion filters                                                │
+  │   host_response_rate  >=  90%    (Airbnb's own bar)              │
+  │   total_reviews       >=  3      (activity floor)                │
+  └────────────────────────────────┬─────────────────────────────────┘
+                ┌──────────────────┴──────────────────┐
+                ↓                                     ↓
+  ┌───────────────────────────┐         ┌───────────────────────────┐
+  │ CONTROL                   │         │ TREATMENT                 │
+  │ rating 4.75 - 4.80        │         │ rating 4.80 - 4.85        │
+  │ host_is_superhost = f     │         │ host_is_superhost = t     │
+  │ 2,378 hosts               │         │ 4,308 hosts               │
+  └───────────────────────────┘         └───────────────────────────┘
+                └──────────────────┬──────────────────┘
+                                   │  6,686 hosts in the sample
+                                   ↓
+
+  ── ESTIMATION ──────────────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ statsmodels OLS, HC1 heteroskedasticity-robust errors            │
+  │                                                                  │
+  │     y  =  b0  +  b1 (rating - 4.8)  +  b2 D  +  e                │
+  │                                           ^                      │
+  │                      b2 is the jump at the cutoff, i.e.          │
+  │                      the causal effect of the badge              │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  one model per outcome
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Outcomes      pos / neg / neu / compound sentiment,              │
+  │               total reviews, review_scores_value                 │
+  │                                                                  │
+  │ Verdict       0 of 6 significant at the 5% level                 │
+  │               p ranges from 0.156 to 0.929                       │
+  └──────────────────────────────────────────────────────────────────┘
+`,
+      results: [
+        { metric: 'Significant Effects', value: '0 of 6', description: 'No outcome jumps at the 4.8 cutoff' },
+        { metric: 'p-value Range', value: '0.156 – 0.929', description: 'Across all six outcomes, HC1 robust' },
+        { metric: 'Analysis Sample', value: '6,686 hosts', description: '4,308 treated, 2,378 control' },
+        { metric: 'Panel Built', value: '125,685 hosts', description: 'From 34 U.S. metros, ~3 GB raw' },
+        { metric: 'Bandwidth', value: '± 0.05', description: 'Ratings 4.75 – 4.85 around the cutoff' },
+        { metric: 'Review Volume', value: '−2.49', description: 'Reviews per host at the cutoff, p = 0.93' },
+      ],
+      github_url: 'https://github.com/TirthPatel3223/airbnb-superhost-rdd',
+    },
+  },
+  {
+    id: 'course-rag-pipeline',
+    title: 'Course Material Q&A Assistant: Agentic RAG System',
+    short_description:
+      'Production-deployed agentic RAG system for UCLA MSBA students to query course materials (lecture slides, transcripts, and PDFs) using natural language. Live at tirth-courserag.duckdns.org.',
+    motivation:
+      'The UCLA MSBA program runs 4 simultaneous courses, each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic system that classifies every query, self-verifies deadline answers, supports human-approved file uploads, and can explain exactly which source chunks drove any answer, deployed at effectively zero infrastructure cost on Oracle Cloud Free Tier.',
     achievements: [
       'Built a 13-node LangGraph agent with conditional routing across 5 query types: deadline, summary, upload, general Q&A, and source explanation',
       'Implemented self-verifying deadline extraction: LLM extracts date → re-queries ChromaDB with rephrased search → cross-references results → surfaces conflicts with confidence indicator',
-      'Designed human-in-the-loop upload approval using LangGraph interrupt-before + SQLite checkpointer: LLM proposes a Drive folder path, user approves/edits before embedding — preventing vector store pollution',
+      'Designed human-in-the-loop upload approval using LangGraph interrupt-before + SQLite checkpointer: LLM proposes a Drive folder path, user approves/edits before embedding, preventing vector store pollution',
       'Built deadline-boosted retrieval: chunks tagged with contains_deadline metadata at ingestion, merged and re-ranked with general results to surface deadline content even when semantic score is not highest',
       'Added OpenAI Vision fallback for scanned PDFs: 25-sec timeout per page, max 2 concurrent calls, early bail-out after 5 consecutive failures',
       'Deployed on Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM) using Docker + Caddy + DuckDNS at ~$1–4/month total',
@@ -296,27 +604,27 @@ export const projects: Project[] = [
     link: '/projects/course-rag-pipeline',
     detail: {
       problem_statement:
-        'UCLA MSBA students juggle 4 simultaneous courses — each with lecture slides, transcripts, homework deadlines, and project deliverables scattered across a shared Google Drive. Manual search is slow and error-prone, especially for deadline-critical queries ("when is HW3 due?"). The challenge: build a production-grade agentic system that can answer natural-language questions over course PDFs, verify its own deadline answers to prevent hallucination, let students upload new files safely without polluting the vector store, and explain exactly which source chunks it used — all at zero ongoing infrastructure cost.',
+        'UCLA MSBA students juggle 4 simultaneous courses, each with lecture slides, transcripts, homework deadlines, and project deliverables scattered across a shared Google Drive. Manual search is slow and error-prone, especially for deadline-critical queries ("when is HW3 due?"). The challenge: build a production-grade agentic system that can answer natural-language questions over course PDFs, verify its own deadline answers to prevent hallucination, let students upload new files safely without polluting the vector store, and explain exactly which source chunks it used, all at zero ongoing infrastructure cost.',
       approach: [
         {
           step: 'LangGraph Agentic Orchestration',
           detail:
-            'Designed a 13-node LangGraph graph with a priority-based router that first checks for pending clarifications, then tries regex pattern matching (e.g., "why did you", "where did that come from"), and only falls back to LLM classification if patterns fail — saving ~200 tokens per source-explanation follow-up. The router classifies each query into one of five types and routes to the appropriate branch.',
+            'Designed a 13-node LangGraph graph with a priority-based router that first checks for pending clarifications, then tries regex pattern matching (e.g., "why did you", "where did that come from"), and only falls back to LLM classification if patterns fail, saving ~200 tokens per source-explanation follow-up. The router classifies each query into one of five types and routes to the appropriate branch.',
         },
         {
           step: 'Self-Verifying Deadline Extraction',
           detail:
-            'Deadline queries carry the highest accuracy requirement — a wrong date is worse than no answer. After extracting a deadline with the LLM, the system immediately re-queries ChromaDB with a rephrased version of the search and cross-references the extracted date against the new results. If two chunks give different dates for the same assignment, the response surfaces both and flags the discrepancy with a confidence indicator.',
+            'Deadline queries carry the highest accuracy requirement: a wrong date is worse than no answer. After extracting a deadline with the LLM, the system immediately re-queries ChromaDB with a rephrased version of the search and cross-references the extracted date against the new results. If two chunks give different dates for the same assignment, the response surfaces both and flags the discrepancy with a confidence indicator.',
         },
         {
           step: 'Deadline-Boosted Retrieval',
           detail:
-            'Chunks containing deadline keywords (due, deadline, submit, homework, exam, etc.) are tagged with a contains_deadline metadata flag during ingestion. The ChromaService.query_with_deadline_boost() method merges results from a deadline-filtered query with results from a general query, deduplicates, and re-ranks — ensuring deadline-containing chunks appear at the top even when the semantic similarity score is not highest (deadline keywords often appear as side notes with lower embedding similarity).',
+            'Chunks containing deadline keywords (due, deadline, submit, homework, exam, etc.) are tagged with a contains_deadline metadata flag during ingestion. The ChromaService.query_with_deadline_boost() method merges results from a deadline-filtered query with results from a general query, deduplicates, and re-ranks, ensuring deadline-containing chunks appear at the top even when the semantic similarity score is not highest (deadline keywords often appear as side notes with lower embedding similarity).',
         },
         {
           step: 'Human-in-the-Loop Upload Approval',
           detail:
-            'When a user uploads a file, the LangGraph graph pauses at a human_approval_gate node using LangGraph\'s interrupt_before mechanism with a SQLite checkpointer. The UI shows an approval dialog with the LLM\'s proposed Drive folder path and its reasoning. The user can approve, modify the path, or reject. Only approved uploads are chunked, embedded with OpenAI text-embedding-3-small, and stored in ChromaDB — preventing mis-categorised files from polluting the vector store.',
+            'When a user uploads a file, the LangGraph graph pauses at a human_approval_gate node using LangGraph\'s interrupt_before mechanism with a SQLite checkpointer. The UI shows an approval dialog with the LLM\'s proposed Drive folder path and its reasoning. The user can approve, modify the path, or reject. Only approved uploads are chunked, embedded with OpenAI text-embedding-3-small, and stored in ChromaDB, preventing mis-categorised files from polluting the vector store.',
         },
         {
           step: 'Vision Fallback for Scanned PDFs',
@@ -326,7 +634,7 @@ export const projects: Project[] = [
         {
           step: 'Deployment & Infrastructure',
           detail:
-            'Fully containerised with Docker Compose on an Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM). Caddy handles reverse proxying and automatic HTTPS via Let\'s Encrypt. DuckDNS provides the free dynamic domain (with a cron job pinging every 30 minutes to prevent expiry). Total infrastructure cost: ~$1–4/month — essentially just LLM API usage. Solved production issues including Oracle iptables blocking ports 80/443 (fixed via iptables -I to insert ACCEPT before the blanket REJECT rule) and Google OAuth credentials not accessible inside the running container (fixed via docker cp).',
+            'Fully containerised with Docker Compose on an Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM). Caddy handles reverse proxying and automatic HTTPS via Let\'s Encrypt. DuckDNS provides the free dynamic domain (with a cron job pinging every 30 minutes to prevent expiry). Total infrastructure cost: ~$1–4/month, essentially just LLM API usage. Solved production issues including Oracle iptables blocking ports 80/443 (fixed via iptables -I to insert ACCEPT before the blanket REJECT rule) and Google OAuth credentials not accessible inside the running container (fixed via docker cp).',
         },
       ],
       architecture: `
@@ -384,9 +692,9 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
   },
   {
     id: 'weather-dining-pipeline',
-    title: 'Weather-Driven Restaurant Sentiment — Big Data ETL & NLP Pipeline',
+    title: 'Weather-Driven Restaurant Sentiment: Big Data ETL & NLP Pipeline',
     short_description:
-      'End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 2M+ records.',
+      'End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau, processing 2M+ records.',
     motivation:
       'Curious whether weather drives restaurant ratings and business patterns, I built a production-grade data pipeline ingesting the full Yelp Academic Dataset and OpenWeatherMap API, performing distributed ETL at scale, NLP sentiment scoring, and surfacing insights through an executive Tableau dashboard.',
     achievements: [
@@ -402,7 +710,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
     link: '/projects/weather-dining-pipeline',
     detail: {
       problem_statement:
-        'Does weather actually affect how people dine out and rate restaurants? To answer this at scale, I built a full data engineering pipeline ingesting the Yelp Academic Dataset (JSON/CSV) and live weather data from OpenWeatherMap, transforming and joining them in PySpark, warehousing in Snowflake, and orchestrating the pipeline with Airflow — culminating in a Tableau dashboard that reveals actionable weather–revenue correlations for restaurant operators.',
+        'Does weather actually affect how people dine out and rate restaurants? To answer this at scale, I built a full data engineering pipeline ingesting the Yelp Academic Dataset (JSON/CSV) and live weather data from OpenWeatherMap, transforming and joining them in PySpark, warehousing in Snowflake, and orchestrating the pipeline with Airflow, culminating in a Tableau dashboard that reveals actionable weather-revenue correlations for restaurant operators.',
       approach: [
         {
           step: 'Data Ingestion',
@@ -483,7 +791,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
   },
   {
     id: 'deep-cube-solver',
-    title: 'Maltese Gear Cube Solver — Deep Reinforcement Learning & Search',
+    title: 'Maltese Gear Cube Solver: Deep Reinforcement Learning & Search',
     short_description:
       'Deep reinforcement learning agent that solves the Maltese Gear Cube using a CUDA-accelerated neural heuristic.',
     motivation:
@@ -500,7 +808,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
     link: '/projects/deep-cube-solver',
     detail: {
       problem_statement:
-        'The Maltese Gear Cube is a higher-order mechanical puzzle with an estimated state space of ~10¹⁹ configurations — featuring non-standard gear-linked move sets that invalidate the symmetry assumptions of solvers designed for the standard 3×3 Rubik\'s Cube. Classical search algorithms (BFS, IDA*) are computationally intractable at this scale. The core challenge: can a neural network learn a generalizable distance-to-solved heuristic without any hand-crafted domain knowledge, and can that heuristic guide an efficient search to optimality?',
+        'The Maltese Gear Cube is a higher-order mechanical puzzle with an estimated state space of ~10¹⁹ configurations, featuring non-standard gear-linked move sets that invalidate the symmetry assumptions of solvers designed for the standard 3×3 Rubik\'s Cube. Classical search algorithms (BFS, IDA*) are computationally intractable at this scale. The core challenge: can a neural network learn a generalizable distance-to-solved heuristic without any hand-crafted domain knowledge, and can that heuristic guide an efficient search to optimality?',
       approach: [
         {
           step: 'State Representation',
@@ -520,7 +828,7 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
         {
           step: 'Symmetry-Based Data Augmentation',
           detail:
-            'Exploited the Maltese Gear Cube\'s rotational symmetry group to generate 8 equivalent representations of each training state, effectively multiplying usable training data 8× at zero additional solve cost — reducing training time by 40%.',
+            'Exploited the Maltese Gear Cube\'s rotational symmetry group to generate 8 equivalent representations of each training state, effectively multiplying usable training data 8× at zero additional solve cost, reducing training time by 40%.',
         },
         {
           step: 'Batched Weighted A* Search',
@@ -538,12 +846,12 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
 
   Solved State
        │
-       ▼
+       ↓
   Random Scrambler ──→ 50M (state, distance) pairs
   k ∈ Uniform[1..26]      labeled by scramble depth
        │
        │  8× Symmetry Augmentation
-       ▼
+       ↓
   ┌───────────────────────────────────────┐
   │         Value Network (PyTorch)       │
   │   FC: 630 → 1024 → 512 → 256 → 1    │
@@ -556,14 +864,14 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
 
   Scrambled Cube (25 moves)
        │
-       ▼
+       ↓
   ┌───────────────────────────────────────┐
   │       Batched Weighted A*             │
   │   f(n) = g(n) + λ · V_θ(n)          │
   │   Beam width: 128  ·  GPU batched    │
   └──────────────────┬────────────────────┘
                      │
-                     ▼
+                     ↓
               Solved State ✓
           (optimal / near-optimal)`,
       results: [

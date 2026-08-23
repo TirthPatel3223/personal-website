@@ -18,7 +18,7 @@ const fadeUp: Variants = {
 const HIGHLIGHTS = [
   {
     label: "Deadline Queries",
-    desc: 'Ask "When is HW3 due?" — answer is extracted, re-verified, and cited',
+    desc: 'Ask "When is HW3 due?" and the answer is extracted, re-verified, and cited',
   },
   {
     label: "File Upload",
@@ -96,7 +96,7 @@ export default function CourseRAGPreviewCard() {
         <div className="glass rounded-2xl px-5 py-4 flex items-start gap-3 site-accent-border">
           <KeyRound className="w-4 h-4 site-accent-text shrink-0 mt-0.5" />
           <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-            <span className="font-semibold site-accent-text">Demo credentials — </span>
+            <span className="font-semibold site-accent-text">Demo credentials: </span>
             use{" "}
             <span className="font-mono font-semibold" style={{ color: "var(--title)" }}>viewer</span>
             {" "}/ {" "}
@@ -130,7 +130,7 @@ export default function CourseRAGPreviewCard() {
               <Bot className="w-12 h-12 site-accent-text opacity-40" />
               <div className="text-center">
                 <p className="font-semibold mb-1" style={{ color: "var(--title)" }}>
-                  Course RAG — Live Demo
+                  Course RAG: Live Demo
                 </p>
                 <p className="text-sm" style={{ color: "var(--muted)" }}>
                   Click to load the interactive RAG system
@@ -192,7 +192,7 @@ export default function CourseRAGPreviewCard() {
               width="100%"
               height="663"
               frameBorder="0"
-              title="Course Material Q&A Assistant — Live Demo"
+              title="Course Material Q&A Assistant: Live Demo"
               className="block w-full"
             />
           )}

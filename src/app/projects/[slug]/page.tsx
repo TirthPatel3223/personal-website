@@ -16,6 +16,9 @@ import MapblazerArchDiagram from '@/components/MapblazerArchDiagram';
 import MapblazerDashboardCard from '@/components/MapblazerDashboardCard';
 import CrewPairingDemoCard from '@/components/CrewPairingDemoCard';
 import CrewPairingResultsChart from '@/components/CrewPairingResultsChart';
+import AirbnbRDDResults from '@/components/AirbnbRDDResults';
+import AirbnbFindingCallout from '@/components/AirbnbFindingCallout';
+import RouteOptItineraryCard from '@/components/RouteOptItineraryCard';
 
 export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.id }));
@@ -41,32 +44,42 @@ export default async function ProjectPage({
   const isRAG = project.id === 'course-rag-pipeline';
   const isMapblazer = project.id === 'mapblazer-wait-time-prediction';
   const isCrewPairing = project.id === 'airline-crew-pairing-rl';
+  const isAirbnb = project.id === 'airbnb-superhost-rdd';
+  const isRouteOpt = project.id === 'mapblazer-route-optimization';
 
   /* Accent colours per-project */
   const accentText   = isDataTech ? 'text-[#4e9bb9]'
     : isMapblazer ? 'mapblazer-accent-text'
+    : isRouteOpt ? 'routeopt-accent-text'
     : isCrewPairing ? 'crewpair-accent-text'
+    : isAirbnb ? 'airbnb-accent-text'
     : isRAG ? 'site-accent-text'
     : 'cube-accent-text';
   const accentBorder = isDataTech ? 'border-[#1f77b4]/30'
     : isMapblazer ? 'mapblazer-accent-border'
+    : isRouteOpt ? 'routeopt-accent-border'
     : isCrewPairing ? 'crewpair-accent-border'
+    : isAirbnb ? 'airbnb-accent-border'
     : isRAG ? 'site-accent-border'
     : 'cube-accent-border';
   const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'
     : isMapblazer ? 'mapblazer-accent-bg'
+    : isRouteOpt ? 'routeopt-accent-bg'
     : isCrewPairing ? 'crewpair-accent-bg'
+    : isAirbnb ? 'airbnb-accent-bg'
     : isRAG ? 'site-accent-bg'
     : 'cube-accent-bg';
   const accentHover  = isDataTech ? 'hover:border-[#4e9bb9]/50'
     : isMapblazer ? 'hover-mapblazer-accent-border'
+    : isRouteOpt ? 'hover-routeopt-accent-border'
     : isCrewPairing ? 'hover-crewpair-accent-border'
+    : isAirbnb ? 'hover-airbnb-accent-border'
     : isRAG ? 'hover-site-accent-border'
     : 'hover:border-teal-500/40';
 
   const mainContent = (
     <main
-      className={`min-h-screen selection:bg-teal-500/20${isCubeSolver ? ' cube-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}${isCrewPairing ? ' crewpair-body-bg' : ''}`}
+      className={`min-h-screen selection:bg-teal-500/20${isCubeSolver ? ' cube-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}${isRouteOpt ? ' routeopt-body-bg' : ''}${isCrewPairing ? ' crewpair-body-bg' : ''}${isAirbnb ? ' airbnb-body-bg' : ''}`}
       style={{
         color: 'var(--foreground)',
         position: 'relative',
@@ -77,7 +90,7 @@ export default async function ProjectPage({
 
       {/* ── HERO BANNER ─────────────────────────────────────────────── */}
       <div
-        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}${isMapblazer ? ' mapblazer-hero-bg' : ''}${isCrewPairing ? ' crewpair-hero-bg' : ''}`}
+        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}${isMapblazer ? ' mapblazer-hero-bg' : ''}${isRouteOpt ? ' routeopt-hero-bg' : ''}${isCrewPairing ? ' crewpair-hero-bg' : ''}${isAirbnb ? ' airbnb-hero-bg' : ''}`}
         style={{ borderBottom: '1px solid var(--border)' }}
       >
         {/* Mapblazer hero background image (sits beneath the scrim gradients) */}
@@ -95,8 +108,12 @@ export default async function ProjectPage({
               ? 'from-[#0a192f]/90 via-transparent to-transparent'
               : isMapblazer
               ? 'mapblazer-dark-gradient from-[#100a02]/85 via-[#100a02]/40 to-transparent'
+              : isRouteOpt
+              ? 'routeopt-dark-gradient from-[#04120c]/85 via-[#04120c]/40 to-transparent'
               : isCrewPairing
               ? 'crewpair-dark-gradient from-[#080918]/85 via-[#080918]/40 to-transparent'
+              : isAirbnb
+              ? 'airbnb-dark-gradient from-[#18080d]/85 via-[#18080d]/40 to-transparent'
               : isCubeSolver
               ? 'cube-dark-gradient from-teal-950/70 via-teal-950/30 to-transparent'
               : 'from-teal-950/40 via-transparent to-transparent'
@@ -106,7 +123,9 @@ export default async function ProjectPage({
           className={`absolute top-0 left-1/3 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none ${
             isDataTech ? 'bg-[#1f77b4]/12'
             : isMapblazer ? 'bg-[#f49611]/12'
+            : isRouteOpt ? 'bg-[#10b981]/14'
             : isCrewPairing ? 'bg-[#6366f1]/14'
+            : isAirbnb ? 'bg-[#FF385C]/14'
             : 'bg-teal-500/8'
           }`}
         />
@@ -176,7 +195,7 @@ export default async function ProjectPage({
           <>
             {/* Problem Statement */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing}>Problem Statement</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing} isAirbnb={isAirbnb} isRouteOpt={isRouteOpt}>Problem Statement</SectionLabel>
               <div className={`glass rounded-2xl p-8 border ${accentBorder}`}>
                 <p className="leading-relaxed text-lg" style={{ color: 'var(--foreground)' }}>
                   {detail.problem_statement}
@@ -189,7 +208,7 @@ export default async function ProjectPage({
 
             {/* Results / Impact */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing}>Results &amp; Impact</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing} isAirbnb={isAirbnb} isRouteOpt={isRouteOpt}>Results &amp; Impact</SectionLabel>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
                 {detail.results.map((r, i) => (
                   <div
@@ -209,6 +228,9 @@ export default async function ProjectPage({
                 ))}
               </div>
 
+              {/* Airbnb: the headline finding, spelled out under the metric grid */}
+              {isAirbnb && <AirbnbFindingCallout />}
+
               <div className={`glass border ${accentBorder} rounded-2xl p-6 space-y-3`}>
                 {project.achievements.map((ach, i) => (
                   <div key={i} className="flex items-start gap-3">
@@ -225,6 +247,7 @@ export default async function ProjectPage({
             {isDataTech && <TableauPreviewCard />}
             {isMapblazer && <MapblazerDashboardCard />}
             {isCrewPairing && <CrewPairingDemoCard />}
+            {isRouteOpt && <RouteOptItineraryCard />}
 
             {/* Mapblazer model comparison — reads against the dashboard above it */}
             {isMapblazer && <MapblazerResultsChart />}
@@ -232,9 +255,12 @@ export default async function ProjectPage({
             {/* Crew-pairing policy table — reads against the replay above it */}
             {isCrewPairing && <CrewPairingResultsChart />}
 
+            {/* Airbnb RDD plots + coefficient table — the evidence behind the null */}
+            {isAirbnb && <AirbnbRDDResults />}
+
             {/* Approach / Methodology */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing}>Approach &amp; Methodology</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing} isAirbnb={isAirbnb} isRouteOpt={isRouteOpt}>Approach &amp; Methodology</SectionLabel>
               <div className="space-y-4">
                 {detail.approach.map((item, i) => (
                   <div
@@ -265,7 +291,7 @@ export default async function ProjectPage({
 
             {/* Architecture Diagram */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing}>Architecture</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isCrewPairing={isCrewPairing} isAirbnb={isAirbnb} isRouteOpt={isRouteOpt}>Architecture</SectionLabel>
               <div className={`glass border ${accentBorder} rounded-2xl overflow-hidden`}>
                 <div
                   className="flex items-center gap-2 px-5 py-3"
@@ -286,7 +312,7 @@ export default async function ProjectPage({
                   <MapblazerArchDiagram />
                 ) : (
                   <pre
-                    className={`${isRAG ? 'site-accent-text' : isMapblazer ? 'mapblazer-accent-text' : isCrewPairing ? 'crewpair-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
+                    className={`${isRAG ? 'site-accent-text' : isMapblazer ? 'mapblazer-accent-text' : isRouteOpt ? 'routeopt-accent-text' : isCrewPairing ? 'crewpair-accent-text' : isAirbnb ? 'airbnb-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
                     style={{ fontVariantLigatures: 'none', fontFeatureSettings: '"liga" 0, "calt" 0' }}
                   >
                     {detail.architecture}
@@ -397,19 +423,27 @@ function SectionLabel({
   isDataTech,
   isMapblazer,
   isCrewPairing,
+  isAirbnb,
+  isRouteOpt,
 }: {
   children: React.ReactNode;
   isDataTech?: boolean;
   isMapblazer?: boolean;
   isCrewPairing?: boolean;
+  isAirbnb?: boolean;
+  isRouteOpt?: boolean;
 }) {
-  const hasGradient = isDataTech || isMapblazer || isCrewPairing;
+  const hasGradient = isDataTech || isMapblazer || isCrewPairing || isAirbnb || isRouteOpt;
   const gradientClass = isDataTech
     ? 'from-[#1f77b4] to-[#4e9bb9]'
     : isMapblazer
     ? 'from-[#f97316] to-[#fbbf24]'
+    : isRouteOpt
+    ? 'from-[#036446] to-[#0b8055] dark:from-[#34d399] dark:to-[#6ee7b7]'
     : isCrewPairing
     ? 'from-[#6366f1] to-[#a78bfa]'
+    : isAirbnb
+    ? 'from-[#a10d33] to-[#d1214e] dark:from-[#FF385C] dark:to-[#FF9A8B]'
     : '';
 
   return (
@@ -421,7 +455,7 @@ function SectionLabel({
             : ''
         }`}
         style={
-          isMapblazer || isCrewPairing
+          isMapblazer || isCrewPairing || isAirbnb || isRouteOpt
             ? { color: 'transparent' }
             : hasGradient
             ? undefined

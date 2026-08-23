@@ -65,6 +65,7 @@
         "PostgreSQL",
         "Supabase",
         "FastAPI",
+        "Pydantic",
         "ETL / ELT"
       ],
       "Analytics & Visualization": [
@@ -75,18 +76,26 @@
         "VADER NLP",
         "Sentiment Analysis",
         "KPI Design",
-        "Executive Dashboards"
+        "Executive Dashboards",
+        "statsmodels",
+        "seaborn"
       ],
       "Statistics & Optimization": [
         "Probability & Statistics",
         "Regression",
         "Gurobi",
         "Linear Programming",
+        "Mixed-Integer Programming",
         "Operations Research",
         "Mathematical Modeling",
         "Market Sizing Models",
         "Combinatorial Optimization",
-        "Constraint Modeling"
+        "Constraint Modeling",
+        "Lazy Constraint Generation",
+        "Routing & Scheduling",
+        "Causal Inference",
+        "Regression Discontinuity",
+        "Econometrics"
       ],
       "Tools & Platforms": [
         "Git",
@@ -126,7 +135,7 @@
         "Developed a probabilistic market-sizing mathematical model from scratch using Indian Census 2011 data (100+ tables, 200K+ rows each), combining birth-order probability analysis and age-gap distributions with linear regression to estimate 55M target customers with 5% YoY growth - a 45% improvement over the previous estimate, used in all investor pitch decks. The model works by using two census tables: one mapping mother's age to child age-gap from a previous child (second/third births), and another recording whether each birth is a first, second, or higher-order child. Multiplying these probabilities gives the likelihood a given child falls in the 3-6 year target age range, then linear regression projects future growth. When the next census is released the model's 2011-based predictions can be validated against actual data.",
         "Built a supply-chain optimization model using operations research principles (solved via Gurobi and Excel Solver) that maximises profit by balancing manufacturing costs, shipping costs, and selling price - with penalty terms for over-concentrating shipments into one state (elastic-net style) and state-level demand caps derived from the market-sizing model's per-state estimates.",
         "Conducted full competitor analysis - SWOT across three product categories (child safety seats, two-wheeler accessories, and general child restraints) plus direct pricing analysis sourced by calling manufacturers to obtain their production costs - establishing the margin structure of the category and informing Seat of Joy's positioning and launch pricing strategy.",
-        "Led a team of 3 to develop the complete business and marketing pitch deck for Shark Tank India Auditions; the deck covered market-size analysis (backed by the mathematical model), competitive landscape, pricing strategy, and go-to-market plan - represented the startup at the auditions and answered all investor questions on the data-backed analysis.",
+        "Acted as the founding team's internal consultant for Shark Tank India Auditions: led a team of 3 to synthesize the market-sizing model, supply-chain analysis, and competitive/pricing work into a single client-ready pitch deck, managed founder alignment on the story pre-audition, then presented live to a panel of investor stakeholders and defended every claim under adversarial, numbers-first Q&A - a full consulting-style cycle of analysis, stakeholder alignment, and defended delivery.",
         "Performed ongoing strategic marketing work: competitor analytics, pricing strategy, market launch strategies, and market analysis - supporting fundraising and product launch planning."
       ],
       "skills_used": [
@@ -140,14 +149,15 @@
         "Strategic Marketing",
         "Pitch Deck Development",
         "Mathematical Modeling",
-        "Data Analysis"
+        "Data Analysis",
+        "Stakeholder Management"
       ]
     }
   ],
   "projects": [
     {
       "id": "mapblazer-wait-time-prediction",
-      "title": "Theme Park Wait-Time Forecasting — Production MLOps Pipeline",
+      "title": "Theme Park Wait-Time Forecasting: Production MLOps Pipeline",
       "page_url": "/projects/mapblazer-wait-time-prediction",
       "short_description": "A production ML pipeline that forecasts theme park ride wait times seven days ahead at 30-minute resolution, retrained unattended every week on Databricks and served through Supabase and a live public dashboard for $0/month. Powers the Mapblazer routing engine.",
       "motivation": "Mapblazer optimizes a guest's theme park itinerary from their must-ride list, live wait times, and walking distances. But a route built on the \"current\" 9 AM wait times falls apart by the time the guest reaches their 1 PM attraction, because crowds shift all day and one bad estimate cascades into a ruined plan. The routing solver needed to see the future, not the present. I built the forecasting system that predicts wait times across the whole week so the optimizer can anticipate crowd flow instead of chasing it.",
@@ -203,11 +213,62 @@
       "live_url": "https://tirthpatel3223.github.io/Mapblazer_Wait_Time_Prediction/"
     },
     {
+      "id": "mapblazer-route-optimization",
+      "title": "Theme Park Route Optimization: Time-Dependent MILP Solver",
+      "page_url": "/projects/mapblazer-route-optimization",
+      "short_description": "An exact Gurobi mixed-integer program that plans a whole theme park day at once: which rides to do, in what order, and at what time, with every queue priced by the 30-minute slot the plan actually arrives in. This is the routing engine behind Mapblazer, and it consumes the forecasts produced by Tirth's companion wait-time prediction pipeline.",
+      "motivation": "A park day is not a shortest-path problem. A ride costs whatever its queue costs, the queue changes hour by hour, and the order you pick changes the costs that decide the order. Tirth wanted to solve that feedback loop exactly instead of greedily, and to write an objective that could express the one judgment a real planner makes: whether idling for a cheaper slot is worth the wait it costs.",
+      "problem_statement": "Given a guest's must-do and nice-to-have rides, a start time and a time budget, decide which attractions to visit, in what order, and at what time. That is a Time-Dependent Orienteering Problem with mandatory nodes. It differs from the textbook Travelling Salesman Problem in three ways that matter: you cannot do every ride so the subset is part of the answer, the cost of a node is its queue which varies with arrival time, and some rides are non-negotiable while others are merely worth points. The result is a circular dependency, since order sets arrival times, arrival times set queues, and queues decide the best order, which is exactly where greedy shortest-queue-next rules fail. The design question was whether the whole day could be stated as one linear model and solved to optimality, with time-dependence, breaks, opening hours and repeat rides all inside the model rather than patched on afterwards.",
+      "approach_steps": [
+        "Naming the Problem Before Modelling It (orienteering, not TSP: in/out degree tied to a selection variable)",
+        "An Objective That Charges for the Whole Day (makespan, not queue time alone)",
+        "Making Sure a Ride Is Never Traded for an Early Finish (the time-penalty scaling bound)",
+        "Time-Dependent Queues, Kept Linear (slot indicators and a constant wait table)",
+        "Breaks, Opening Hours and Second Rides (linearised disjunctions, virtual twin nodes)",
+        "Connectivity Without the Exponential Family (lazy subtour cuts from a MIPSOL callback)",
+        "Knowing When to Stop Searching (the 10-second limit, set by benchmark)",
+        "Joining to the Forecast Without Lying About Gaps (normalised name matching, reported missing rides)"
+      ],
+      "achievements": [
+        "Modelled the park day as a time-dependent orienteering problem with mandatory nodes and solved it exactly in Gurobi rather than with the nearest-shortest-queue heuristic the problem invites: arrival time sets the queue, the queue sets the next arrival, and that feedback is precisely what greedy ordering cannot see.",
+        "Rewrote the objective from penalising queue time to charging the makespan of the whole loop, which fixed a concrete failure: the earlier version left walking and idling free and duly spent the entire time budget, finishing at closing time on every instance. The same seven-ride Disneyland day now finishes 130 minutes earlier, with less walking.",
+        "Scaled the two objective terms so a ride is never sacrificed to finish sooner: since an extra ride can lengthen the day by at most the whole budget, charging under min(priority)/T per minute makes the ride reward provably dominant, and the default half-of-that factor leaves a full 480-minute day costing half of one optional ride.",
+        "Kept the time-dependence linear by pinning arrival to a slot with two big-M inequalities and reading the queue as a constant table times a binary, so a genuinely time-varying cost stays inside a MILP instead of forcing a nonlinear model.",
+        "Replaced the exponential subtour-elimination family, 2^|R| constraints and roughly a trillion at forty rides, with lazy generation from a MIPSOL callback that walks the successor map in a single O(|N|) pass and cuts only the cycles it actually finds; the result is still exact, because a candidate surviving with no violated cut is provably one tour.",
+        "Expressed lunch breaks as a linearised finish-before-or-start-after disjunction and repeat rides as virtual twin nodes tied back to the original, so a pure routing model can schedule the same attraction twice and refuse to let any ride straddle a break.",
+        "Benchmarked the search budget instead of guessing it: the incumbent plateaus early, so the 10-second default lands within 0.4% of a 60-second search on both 12- and 16-ride days, and the finding that per-constraint big-M tightening made no measurable difference was recorded rather than quietly dropped.",
+        "Joined the solver to the live forecast service on normalised ride names, since the two datasets disagree on curly apostrophes, trademark symbols and capitalisation, and made uncovered rides a reported field on the response rather than a silent zero-wait assumption that would flatter every plan containing one."
+      ],
+      "key_metrics": {
+        "Day Shortened": "130 minutes earlier on the same seven-ride Disneyland day, after switching from a queue-time penalty to a makespan charge",
+        "Solve Budget": "10-second default time limit, chosen from a benchmark rather than by taste",
+        "Gap to a 60s Search": "within 0.4%, measured on both a 12-ride and a 16-ride day",
+        "Optimality": "provably optimal up to about 10 rides; beyond that the status is reported as time_limit and the route is best-found",
+        "Model Growth": "O(n^2 + n*|S|) with n rides and |S| slots; a 480-minute day gives 17 slots",
+        "Park Coverage": "5 California parks, 116 rides with durations, operating hours and walk-time matrices",
+        "Forecast Grid": "30-minute resolution over a 7-day horizon across 109 attractions"
+      },
+      "tech_stack": [
+        "Python",
+        "Gurobi",
+        "Mixed-Integer Programming",
+        "Operations Research",
+        "Combinatorial Optimization",
+        "FastAPI",
+        "Pydantic",
+        "pytest"
+      ],
+      "technical_details": "A time-dependent orienteering problem with mandatory nodes, solved exactly as a Gurobi MILP over arc, visit, slot, arrival, departure and wait variables, with connectivity enforced by lazily generated subtour cuts from a MIPSOL callback. The objective maximises priority-weighted rides less a scaled charge on the day's makespan; breaks and operating hours are linearised disjunctions and repeatable rides become virtual twin nodes. Queue costs come from the companion Prophet forecasting service at 30-minute resolution over a 7-day horizon, joined on normalised ride names, and the fixed plan is replayed minute by minute into a ranked itinerary served by both a command-line planner and a FastAPI service (list parks, list a park's rides, fetch a day's wait forecast, and POST a solve request).",
+      "status": "complete",
+      "github_url": "https://github.com/TirthPatel3223/Mapblazer_Route_Optimization_Algorithm",
+      "notes": "The companion project to mapblazer-wait-time-prediction: that pipeline produces the forecasts, this solver consumes them. Requires a Gurobi licence, since the free pip build's 2,000-variable cap is exceeded by a real park day; the free academic licence lifts it. Limitations stated in the repo: walk times are a precomputed matrix from approximate coordinates rather than real footpaths, ride durations are literature values, the solver uses the forecast point estimate and not its 80% bounds, a ride with no forecast is planned as zero wait and reported as such, single-park days only, and a queue is charged for the slot the plan arrives in rather than re-priced as the guest shuffles forward. The worked Disneyland itinerary from the README is rendered on the project page as a sample-day card; there is no live demo. Disneyland's 'Pirates of the Carbbean' is misspelled in both the upstream attractions table and this project's data, deliberately, because it is the working join key."
+    },
+    {
       "id": "airline-crew-pairing-rl",
-      "title": "Airline Crew Pairing — Transformer Deep-RL Scheduler",
+      "title": "Airline Crew Pairing: Transformer Deep-RL Scheduler",
       "page_url": "/projects/airline-crew-pairing-rl",
       "short_description": "A ViT-style Deep Q-Network that builds a month of legal airline crew pairings one flight leg at a time on the GERAD/Quesnel benchmark instances. Every scheduling rule lives in the action mask, so the agent is feasible by construction, and one policy generalizes to schedules it has never seen. Published as an interactive replay you can scrub decision by decision.",
-      "motivation": "Crew cost is second only to fuel for most airlines, and the classical answer — column generation over a set-partitioning integer program — has to be rebuilt for each schedule and optimizes cost with robustness bolted on afterwards. Tirth wanted to know whether a learned construction policy could obey a real rulebook exactly, generalize to a month it had never seen, and trade a little coverage for solutions that do not shatter when one flight runs late.",
+      "motivation": "Crew cost is second only to fuel for most airlines, and the classical answer, column generation over a set-partitioning integer program, has to be rebuilt for each schedule and optimizes cost with robustness bolted on afterwards. Tirth wanted to know whether a learned construction policy could obey a real rulebook exactly, generalize to a month it had never seen, and trade a little coverage for solutions that do not shatter when one flight runs late.",
       "problem_statement": "A crew pairing is a legal multi-day tour of duty: a sequence of flights that leaves a crew base, splits into workdays separated by overnight layovers, and returns to the same base, obeying duty-hour limits, rest rules, legs per duty, time away from base, per-base credit caps and crew availability. Covering an airline month with a cheap set of those tours is the first and most expensive stage of crew scheduling. This project learns a construction policy instead of solving a set-partitioning integer program: the agent walks the connection network, appends legs to an open pairing and closes it back at base, trained on a distribution of perturbed schedules so a changed month does not mean re-solving from scratch. Three things had to hold: the schedule must be legal rather than approximately legal, it must hold up on a month whose seed was never trained on, and the numbers must be measured against the benchmark own reference solution produced by a classical cost optimizer.",
       "approach_steps": [
         "Choosing the Decision, Not Just the Model (sequential pairing-construction MDP)",
@@ -221,14 +282,14 @@
       ],
       "achievements": [
         "Framed crew pairing as a sequential construction MDP (START a pairing, APPEND legs, CLOSE it back at base) over a 31-day, 1,013-leg GERAD benchmark network, roughly 935 decisions per episode.",
-        "Moved every scheduling rule into the action mask — connection windows, duty flying time, legs per duty, duty span, duties per pairing, time away from base, per-base credit caps, daily crew availability and a backward-DP can-still-get-home check — so the agent is feasible by construction and legality needs no penalty term or repair pass.",
+        "Moved every scheduling rule into the action mask: connection windows, duty flying time, legs per duty, duty span, duties per pairing, time away from base, per-base credit caps, daily crew availability and a backward-DP can-still-get-home check, so the agent is feasible by construction and legality needs no penalty term or repair pass.",
         "Zero feasibility violations, verified by an independent re-checker over random rollouts for both crew classes with delay modelling on and off.",
         "Trained one policy across 40 perturbed variants and evaluated it on 8 held-out variants whose seeds were never trained on: 0.658 mean coverage for cabin and 0.629 for cockpit against 0.47 for a random masked policy, with a train-versus-held-out coverage gap of 0.00 to 0.05 at plateau.",
         "Closed roughly 10 coverage points of the gap left by single-instance training, which transferred to the same held-out split at only 0.528.",
         "Produced far more delay-resilient solutions than the benchmark reference: 85 critical sub-15-minute connections against the reference 310, and about 53 robust short connections against its 10. The reference covers about 1.6x as many legs by deadheading throughout, but even per covered leg its fragile-connection rate is about 2.3x the learned policy rate.",
         "Built a ViT-style transformer encoder over a variable-length candidate action set with a dueling pointer head, so one network handles a 56-way opening step and a 4-way continuation step unchanged.",
-        "Reused the trained Q-network at inference as a search heuristic — beam search plus an anytime best-first seeded with a greedy dive so it can never score below greedy — for about +4 coverage points at roughly 3x the wall clock and no retraining.",
-        "Diagnosed the coverage ceiling with a terminal-state autopsy: about 52% of uncovered legs orphaned at non-base airports, about 20% blocked by exhausted base availability, about 25% cut off by the stranding guard, and credit caps never binding — then ranked the improvement levers by that evidence.",
+        "Reused the trained Q-network at inference as a search heuristic: beam search plus an anytime best-first seeded with a greedy dive so it can never score below greedy, for about +4 coverage points at roughly 3x the wall clock and no retraining.",
+        "Diagnosed the coverage ceiling with a terminal-state autopsy: about 52% of uncovered legs orphaned at non-base airports, about 20% blocked by exhausted base availability, about 25% cut off by the stranding guard, and credit caps never binding; then ranked the improvement levers by that evidence.",
         "Made every modelling choice auditable: four YAML config files with a source citation and a HIGH/MEDIUM/LOW confidence tag per value, an assumption register, 84 tests, a live FastAPI training dashboard, and a published zero-backend replay site."
       ],
       "key_metrics": {
@@ -260,8 +321,59 @@
       "notes": "The demo site is embedded directly on the project page as an iframe. Everything it shows is a recording baked into a static page: it makes no API calls and runs no model in the browser. The deadhead retraining runs are an extension in progress and are deliberately not part of the headline numbers. The cockpit/cabin split is a modelling construct over one anonymous GERAD crew group, not a calibration to any real airline. The benchmark instance data is not redistributed in the repository."
     },
     {
+      "id": "airbnb-superhost-rdd",
+      "title": "Airbnb Superhost Badge: Causal Impact Study (Regression Discontinuity)",
+      "page_url": "/projects/airbnb-superhost-rdd",
+      "short_description": "A regression discontinuity re-test of whether Airbnb's Superhost badge still causes better host outcomes now that the newer Guest Favorite badge has taken over discovery. Tirth built a 125,685-host panel from 34 U.S. metros, compared hosts on either side of the 4.8 rating cutoff, and found that the effect prior research reported has gone: none of six outcomes jumps at the threshold. A team project for the MSBA Competitive Analytics course (Team 17).",
+      "motivation": "Published research from 2023 (Mishra, Huang & Kalwani) found the Superhost badge causally lifted bookings and revenue at the 4.8-rating cutoff. Then the platform changed underneath that result: Airbnb launched Guest Favorite in November 2023 and removed the Superhost filter from on-site search shortly after, so the discovery mechanism that partly explained the original finding was gone. The badge is still awarded and hosts still chase it, which makes 'does it still do anything?' a live question. It is also the kind of question a business asks constantly and answers badly, because you cannot simply compare Superhosts to non-Superhosts: the hosts who earn the badge were already better.",
+      "problem_statement": "Airbnb awards the Superhost badge quarterly to hosts clearing four bars over a trailing year: a rating of at least 4.8, a response rate of at least 90%, a cancellation rate under 1%, and enough completed stays. The badge historically did two jobs: a supply-side quality incentive and a demand-side trust signal guests could filter search by. Guest Favorite launched in November 2023 and the Superhost search filter was removed around January 2024, so the badge survives but its discovery mechanism does not. A naive Superhost-versus-everyone-else comparison measures host quality rather than the badge, because the badge is awarded for quality. RDD fixes that by comparing hosts just above and just below 4.8, who are on average indistinguishable in underlying quality, so a jump in outcomes exactly at the cutoff is attributable to the badge.",
+      "approach_steps": [
+        "Why a Discontinuity, and Not a Comparison (local identification at the cutoff)",
+        "Building a Host-Level Panel From 34 City Extracts (Inside Airbnb, ~3 GB, VADER sentiment, calendar rollup)",
+        "Aggregating to the Host, and the Weighting That Matters (review-count-weighted host_rating)",
+        "Defining Treatment and Control Around 4.80 (bandwidth, response-rate and review-count filters, badge/rating agreement)",
+        "The Specification, Stated With Its Assumptions (OLS jump term, HC1 robust errors, one common slope)",
+        "Six Outcomes, Because One Would Be a Choice",
+        "Reading a Null Result Honestly (demand-side only, caveats stated)"
+      ],
+      "achievements": [
+        "Re-tested a published causal finding against a changed platform: the 2023 study found a significant positive Superhost effect at the same 4.8 cutoff, and this replication on post-Guest-Favorite data finds none: a null result reported as the finding rather than buried.",
+        "Built the host-level panel from raw Inside Airbnb data across 34 U.S. metro areas (~3 GB of listings, reviews and calendar files), unioning cities, scoring every listing's review text with VADER, aggregating calendar prices and availability, and rolling listings up to 125,685 hosts.",
+        "Got the running variable right: Superhost is host-level but the data is listing-level, so host_rating is each host's review_scores_rating averaged weighted by listing review count: an unweighted mean lets one brand-new, barely-reviewed listing drag a host across the threshold.",
+        "Isolated the badge with a +/- 0.05 bandwidth (4.75-4.85), holding two of Airbnb's other Superhost criteria roughly fixed with a >= 90% response-rate filter and a review-count floor: 4,308 treated hosts, 2,378 controls, 6,686 in the analysis sample.",
+        "Handled the badge-versus-rating timing mismatch (quarterly badge evaluation vs. near-live scraped rating) by requiring a host's badge to agree with the side of the cutoff their rating falls on, dropping ambiguous hosts rather than mis-assigning them.",
+        "Estimated the discontinuity as an OLS jump term on the centered running variable with HC1 heteroskedasticity-robust standard errors, across six outcomes at once, so the conclusion does not rest on a single hand-picked dependent variable.",
+        "Found no significant jump on any of the six: effects range from -2.49 reviews to +0.0029 sentiment with p-values from 0.156 to 0.929, and the plotted fits on either side of 4.8 are visually continuous.",
+        "Wrote up the design's limits alongside its result: demand-side effect only, no McCrary manipulation test or covariate-balance check, one cross-section rather than hosts tracked over time, and Guest Favorite status not observable in the data."
+      ],
+      "key_metrics": {
+        "Significant Effects": "0 of 6 outcomes jump at the 4.8 cutoff",
+        "p-value Range": "0.156 to 0.929, HC1 robust, across all six outcomes",
+        "Analysis Sample": "6,686 hosts (4,308 treated, 2,378 control)",
+        "Panel Built": "125,685 U.S. hosts from 34 metros, ~3 GB raw",
+        "Bandwidth": "+/- 0.05, ratings 4.75 to 4.85 around the cutoff",
+        "Review Volume Effect": "-2.4903 reviews per host at the cutoff, p = 0.9286"
+      },
+      "tech_stack": [
+        "Python",
+        "Causal Inference",
+        "Regression Discontinuity",
+        "statsmodels",
+        "Econometrics",
+        "pandas",
+        "NumPy",
+        "VADER NLP",
+        "seaborn",
+        "Matplotlib"
+      ],
+      "technical_details": "A sharp regression discontinuity design on Airbnb's 4.8 Superhost rating cutoff, estimated on a 125,685-host panel built from Inside Airbnb listings, reviews and calendar data across 34 U.S. metros. Listing review text is scored with VADER and rolled up to the host by review-count-weighted averaging, which also defines the running variable. Within a +/- 0.05 bandwidth and response-rate / review-count inclusion filters, each of six outcomes (positive/negative/neutral/compound sentiment, total reviews, review_scores_value) is regressed on the centered rating and a treatment dummy with HC1 robust standard errors, and the discontinuity is plotted with separate fits on either side of the cutoff.",
+      "status": "complete",
+      "github_url": "https://github.com/TirthPatel3223/airbnb-superhost-rdd",
+      "notes": "Team project for MSBA Competitive Analytics (Team 17: Kahnthinisha, Nivesh, Sai Subramanian, Shivathmika, Tirth). The repo holds the analysis notebook and the final presentation; the raw ~3 GB Inside Airbnb data and the intermediate pipeline scripts are not included, so the notebook is not reproducible from the repo alone; its saved cell outputs are the record. The six-panel RDD regression figure from the notebook is embedded on the project page. The headline is a null result and should be described as one: it is the badge's demand-side effect at the margin in a single post-Guest-Favorite cross-section, and says nothing about the supply-side incentive."
+    },
+    {
       "id": "course-rag-pipeline",
-      "title": "Course Material Q&A Assistant — Agentic RAG System",
+      "title": "Course Material Q&A Assistant: Agentic RAG System",
       "page_url": "/projects/course-rag-pipeline",
       "short_description": "Production-deployed agentic RAG system for UCLA MSBA students to query course materials - lecture slides, transcripts, and PDFs - using natural language. Live at tirth-courserag.duckdns.org.",
       "motivation": "The UCLA MSBA program runs 4 simultaneous courses, each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic system that classifies every query, self-verifies deadline answers, supports human-approved file uploads, and can explain exactly which source chunks drove any answer - deployed at effectively zero infrastructure cost on Oracle Cloud Free Tier.",
@@ -309,7 +421,7 @@
     },
     {
       "id": "weather-dining-pipeline",
-      "title": "Weather-Driven Restaurant Sentiment — Big Data ETL & NLP Pipeline",
+      "title": "Weather-Driven Restaurant Sentiment: Big Data ETL & NLP Pipeline",
       "page_url": "/projects/weather-dining-pipeline",
       "short_description": "End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau - processing 2M+ records.",
       "motivation": "Curious whether weather drives restaurant ratings and business patterns, I built a production-grade data pipeline ingesting the full Yelp Academic Dataset and OpenWeatherMap API, performing distributed ETL at scale, NLP sentiment scoring, and surfacing insights through an executive Tableau dashboard.",
@@ -350,7 +462,7 @@
     },
     {
       "id": "deep-cube-solver",
-      "title": "Maltese Gear Cube Solver — Deep Reinforcement Learning & Search",
+      "title": "Maltese Gear Cube Solver: Deep Reinforcement Learning & Search",
       "page_url": "/projects/deep-cube-solver",
       "short_description": "Deep reinforcement learning agent that solves the Maltese Gear Cube using a CUDA-accelerated neural heuristic.",
       "motivation": "To apply the DeepCubeA algorithm to a novel, higher-complexity puzzle and validate whether deep RL can generalize to unseen combinatorial state spaces.",

@@ -12,9 +12,9 @@ const skills: Record<string, string[]> = {
   'Machine Learning': ['XGBoost', 'Prophet', 'scikit-learn', 'PyTorch', 'TensorFlow', 'Deep Learning', 'Deep RL', 'CUDA', 'Time-Series Forecasting', 'Feature Engineering', 'Transformers', 'Deep Q-Networks', 'Reward Design'],
   'LLMs & Generative AI': ['LangGraph', 'Agentic RAG', 'ChromaDB', 'Vector Search', 'Claude & OpenAI APIs', 'Embeddings', 'Hugging Face', 'Prompt Engineering'],
   'MLOps & Productionization': ['Databricks', 'Databricks Asset Bundles', 'Automated Retraining', 'Champion/Challenger Promotion', 'Data Quality Gates', 'GitHub Actions', 'CI/CD', 'Docker', 'AWS EC2', 'TensorBoard', 'Experiment Tracking'],
-  'Data Engineering': ['PySpark', 'Delta Lake', 'Snowflake', 'Airflow', 'Medallion Architecture', 'PostgreSQL', 'Supabase', 'FastAPI', 'ETL / ELT'],
-  'Analytics & Visualization': ['Tableau', 'pandas', 'NumPy', 'Matplotlib', 'VADER NLP', 'Sentiment Analysis', 'KPI Design', 'Executive Dashboards'],
-  'Statistics & Optimization': ['Probability & Statistics', 'Regression', 'Gurobi', 'Linear Programming', 'Operations Research', 'Mathematical Modeling', 'Market Sizing Models', 'Combinatorial Optimization', 'Constraint Modeling'],
+  'Data Engineering': ['PySpark', 'Delta Lake', 'Snowflake', 'Airflow', 'Medallion Architecture', 'PostgreSQL', 'Supabase', 'FastAPI', 'Pydantic', 'ETL / ELT'],
+  'Analytics & Visualization': ['Tableau', 'pandas', 'NumPy', 'Matplotlib', 'VADER NLP', 'Sentiment Analysis', 'KPI Design', 'Executive Dashboards', 'statsmodels', 'seaborn'],
+  'Statistics & Optimization': ['Probability & Statistics', 'Regression', 'Gurobi', 'Linear Programming', 'Mixed-Integer Programming', 'Operations Research', 'Mathematical Modeling', 'Market Sizing Models', 'Combinatorial Optimization', 'Constraint Modeling', 'Lazy Constraint Generation', 'Routing & Scheduling', 'Causal Inference', 'Regression Discontinuity', 'Econometrics'],
   'Tools & Platforms': ['Git', 'Jupyter', 'Next.js', 'Oracle Cloud', 'Excel', 'systemd', 'pytest', 'YAML-Driven Configuration'],
 };
 
@@ -202,21 +202,21 @@ export default function Home() {
           <div className="space-y-6 text-lg leading-relaxed" style={{ color: 'var(--foreground)' }}>
             {[
               <>
-                I grew up fascinated by how systems work — which led me to pursue a B.Tech in Engineering at{' '}
+                I grew up fascinated by how systems work, which led me to pursue a B.Tech in Engineering at{' '}
                 <span className="font-medium" style={{ color: 'var(--accent)' }}>IIT Madras</span>, one of India&apos;s
                 premier technical institutions. There, I built a deep foundation in mathematics, statistics, and
-                algorithms — and developed a taste for turning complex, messy data into decisions that actually matter.
+                algorithms, and developed a taste for turning complex, messy data into decisions that actually matter.
               </>,
               <>
                 During my undergrad, I joined{' '}
-                <span className="font-medium" style={{ color: 'var(--accent)' }}>Seat of Joy</span> — a child safety
-                startup incubated at IIT Madras — as a Business &amp; Strategy Analyst. I built a probabilistic
+                <span className="font-medium" style={{ color: 'var(--accent)' }}>Seat of Joy</span>, a child safety
+                startup incubated at IIT Madras, as a Business &amp; Strategy Analyst. I built a probabilistic
                 market-sizing model from Indian Census data (100+ tables, 200K+ rows each) that estimated 55M target
                 customers with 5% YoY growth, developed a supply-chain optimization model using operations research
                 principles, led full competitor and pricing analysis across the category, and represented the startup
                 at{' '}
-                <span className="font-medium" style={{ color: 'var(--accent)' }}>Shark Tank India Auditions</span>{' '}
-                — pitching data-backed market and business strategy to investors.
+                <span className="font-medium" style={{ color: 'var(--accent)' }}>Shark Tank India Auditions</span>,
+                pitching data-backed market and business strategy to investors.
               </>,
               <>
                 I&apos;m now pursuing my{' '}
@@ -224,7 +224,7 @@ export default function Home() {
                   Master of Science in Business Analytics (MSBA) at UCLA Anderson
                 </span>
                 , deepening my expertise in machine learning, data engineering, and optimization. I&apos;m drawn to
-                problems where rigorous analysis drives real-world impact — from production agentic RAG systems to
+                problems where rigorous analysis drives real-world impact, from production agentic RAG systems to
                 large-scale data pipelines to deep reinforcement learning.
               </>,
             ].map((content, i) => (
@@ -304,7 +304,7 @@ export default function Home() {
                       <span className="font-normal text-xs opacity-60">(Incubated at IIT Madras)</span>
                     </p>
                     <p className="text-xs mt-1.5 max-w-sm leading-relaxed opacity-70" style={{ color: 'var(--foreground)' }}>
-                      Child safety startup developing a full-body protective seat for two-wheelers — addressing the 2 children lost daily in India to two-wheeler accidents.
+                      Child safety startup developing a full-body protective seat for two-wheelers, addressing the 2 children lost daily in India to two-wheeler accidents.
                     </p>
                   </div>
                   <div className="text-right shrink-0">
@@ -328,7 +328,7 @@ export default function Home() {
                   {[
                     {
                       heading: 'Probabilistic Market-Sizing Model (Census Data)',
-                      body: 'Sifted through 100+ Indian Census 2011 tables (200K+ rows each) to extract birth-order frequency matrices and inter-birth age-gap distributions. Built a joint-probability model that combined conditional age-gap probabilities with birth-order likelihoods to estimate, for any target year, how many Indian families have a child aged 3–6. Layered linear regression on historical cohorts to project YoY growth. Delivered an estimate of 55M addressable customers with 5% annual growth — 45% more accurate than the startup\'s prior figures — and became the anchoring market-size number in every investor deck.',
+                      body: 'Sifted through 100+ Indian Census 2011 tables (200K+ rows each) to extract birth-order frequency matrices and inter-birth age-gap distributions. Built a joint-probability model that combined conditional age-gap probabilities with birth-order likelihoods to estimate, for any target year, how many Indian families have a child aged 3–6. Layered linear regression on historical cohorts to project YoY growth. Delivered an estimate of 55M addressable customers with 5% annual growth (45% more accurate than the startup\'s prior figures) and became the anchoring market-size number in every investor deck.',
                     },
                     {
                       heading: 'Supply-Chain Optimization Model (Operations Research)',
@@ -336,11 +336,11 @@ export default function Home() {
                     },
                     {
                       heading: 'Competitive Intelligence & Pricing Strategy',
-                      body: 'Conducted a full-stack competitive analysis across three child-safety product categories — built detailed SWOT profiles, cold-called manufacturers to source actual production costs, and computed competitor margins from first principles. Used margin benchmarking to derive a defensible pricing band, quantify competitive moat, and inform go-to-market sequencing. All findings fed directly into investor pitch materials and the product launch strategy.',
+                      body: 'Conducted a full-stack competitive analysis across three child-safety product categories: built detailed SWOT profiles, cold-called manufacturers to source actual production costs, and computed competitor margins from first principles. Used margin benchmarking to derive a defensible pricing band, quantify competitive moat, and inform go-to-market sequencing. All findings fed directly into investor pitch materials and the product launch strategy.',
                     },
                     {
-                      heading: 'Shark Tank India Auditions — Investor Pitch & Presentation',
-                      body: 'Led a team of 3 to build the business & marketing pitch deck for Shark Tank India Auditions. Synthesised the market-sizing model, supply-chain analysis, competitive intelligence, and pricing strategy into a data-backed narrative covering total addressable market, competitive landscape, unit economics, and launch plan. Presented live to investor judges, fielding quantitative Q&A — every claim anchored to the models and analyses above — successfully representing Seat of Joy at the auditions.',
+                      heading: 'Shark Tank India Auditions: Stakeholder Advisory & Investor Presentation',
+                      body: 'Acted as the founding team\'s internal consultant, synthesising the market-sizing model, supply-chain analysis, competitive intelligence, and pricing strategy into a single client-ready narrative: total addressable market, competitive landscape, unit economics, and launch plan. Led a team of 3 through that synthesis, managed the founders\' alignment on the story pre-audition, then presented live to a panel of investor stakeholders and fielded adversarial, numbers-first Q&A with every claim traced back to an underlying model, a full consulting-style cycle of analysis, client alignment, and defended delivery.',
                     },
                   ].map(({ heading, body }, i) => (
                     <li key={i} className="flex gap-3 items-start">
@@ -462,7 +462,7 @@ export default function Home() {
               Get In Touch
             </h2>
             <p className="text-lg mb-12 max-w-xl mx-auto mt-6" style={{ color: 'var(--muted)' }}>
-              Whether you&apos;re recruiting, collaborating, or just want to talk data — my inbox is always open.
+              Whether you&apos;re recruiting, collaborating, or just want to talk data, my inbox is always open.
             </p>
           </motion.div>
 

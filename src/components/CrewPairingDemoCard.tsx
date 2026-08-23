@@ -115,7 +115,7 @@ export default function CrewPairingDemoCard() {
               month, with every connection already drawn; press{' '}
               <span className="crewpair-accent-text font-semibold">Play</span> at the bottom of the
               frame to rewind to the first decision and watch the policy rebuild the schedule leg by
-              leg. Nothing here runs a model in your browser — the searches were run offline and baked
+              leg. Nothing here runs a model in your browser; the searches were run offline and baked
               into the page.
             </p>
 
@@ -142,7 +142,7 @@ export default function CrewPairingDemoCard() {
                   className="ml-3 text-xs font-mono truncate"
                   style={{ color: 'var(--muted)', opacity: 0.6 }}
                 >
-                  tirthpatel3223.github.io · Deep RL Crew Pairing — interactive demo
+                  tirthpatel3223.github.io · Deep RL Crew Pairing: interactive demo
                 </span>
               </div>
 

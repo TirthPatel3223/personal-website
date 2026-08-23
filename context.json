@@ -1,22 +1,119 @@
 {
+  "_note": "Context for the portfolio chatbot. The projects array mirrors src/data/projects.ts, which is what the website actually renders. If a project is edited there, regenerate this file so the two cannot drift.",
   "personal_info": {
-    "name": "Tirth",
-    "title": "Data Analyst and Machine Learning",
+    "name": "Tirth Patel",
+    "title": "Data Scientist & ML Engineer",
+    "current_status": "Master of Science in Business Analytics (MSBA) candidate at UCLA Anderson",
     "contact": {
-      "email": "tirth@example.com",
-      "linkedin": "https://linkedin.com/in/tirth",
-      "github": "https://github.com/tirth"
+      "email": "tirthpatel3223@gmail.com",
+      "linkedin": "https://www.linkedin.com/in/tirthpatel3223",
+      "github": "https://github.com/TirthPatel3223"
     },
-    "summary": "I am a passionate software engineer focused on building intelligent web applications, AI integrations, and scalable architectures. I love solving complex problems and turning ideas into impactful digital experiences.",
+    "summary": "Tirth Patel is a Data Scientist and ML Engineer currently pursuing a Master of Science in Business Analytics (MSBA) at UCLA Anderson. He holds a B.Tech in Engineering from IIT Madras, where he built a foundation in mathematics, statistics, and algorithms. His work centres on turning complex, messy data into decisions that matter: production agentic RAG systems, large-scale data pipelines, deep reinforcement learning, and operations-research style optimization. He is drawn to problems where rigorous analysis drives real-world impact, and to shipping models that keep running unattended rather than stopping at a notebook result.",
     "skills": {
-      "Languages": ["Python", "SQL", "R", "JavaScript", "TypeScript"],
-      "ML / AI": ["PyTorch", "TensorFlow", "Deep Learning", "CUDA", "scikit-learn", "LangGraph", "Hugging Face", "LLMs & RAG"],
-      "Data Engineering": ["PySpark", "Snowflake", "Airflow", "FastAPI", "ChromaDB"],
-      "Analytics & Visualization": ["Tableau", "Pandas", "NumPy", "Matplotlib", "VADER NLP"],
-      "Optimization & Modeling": ["Gurobi", "Linear Regression", "Probability & Statistics", "Operations Research", "Mathematical Modeling"],
-      "Tools": ["Git", "Docker", "Next.js", "Oracle Cloud", "Jupyter"]
+      "Languages": [
+        "Python",
+        "SQL",
+        "R",
+        "JavaScript",
+        "TypeScript"
+      ],
+      "Machine Learning": [
+        "XGBoost",
+        "Prophet",
+        "scikit-learn",
+        "PyTorch",
+        "TensorFlow",
+        "Deep Learning",
+        "Deep RL",
+        "CUDA",
+        "Time-Series Forecasting",
+        "Feature Engineering",
+        "Transformers",
+        "Deep Q-Networks",
+        "Reward Design"
+      ],
+      "LLMs & Generative AI": [
+        "LangGraph",
+        "Agentic RAG",
+        "ChromaDB",
+        "Vector Search",
+        "Claude & OpenAI APIs",
+        "Embeddings",
+        "Hugging Face",
+        "Prompt Engineering"
+      ],
+      "MLOps & Productionization": [
+        "Databricks",
+        "Databricks Asset Bundles",
+        "Automated Retraining",
+        "Champion/Challenger Promotion",
+        "Data Quality Gates",
+        "GitHub Actions",
+        "CI/CD",
+        "Docker",
+        "AWS EC2",
+        "TensorBoard",
+        "Experiment Tracking"
+      ],
+      "Data Engineering": [
+        "PySpark",
+        "Delta Lake",
+        "Snowflake",
+        "Airflow",
+        "Medallion Architecture",
+        "PostgreSQL",
+        "Supabase",
+        "FastAPI",
+        "ETL / ELT"
+      ],
+      "Analytics & Visualization": [
+        "Tableau",
+        "pandas",
+        "NumPy",
+        "Matplotlib",
+        "VADER NLP",
+        "Sentiment Analysis",
+        "KPI Design",
+        "Executive Dashboards"
+      ],
+      "Statistics & Optimization": [
+        "Probability & Statistics",
+        "Regression",
+        "Gurobi",
+        "Linear Programming",
+        "Operations Research",
+        "Mathematical Modeling",
+        "Market Sizing Models",
+        "Combinatorial Optimization",
+        "Constraint Modeling"
+      ],
+      "Tools & Platforms": [
+        "Git",
+        "Jupyter",
+        "Next.js",
+        "Oracle Cloud",
+        "Excel",
+        "systemd",
+        "pytest",
+        "YAML-Driven Configuration"
+      ]
     }
   },
+  "education": [
+    {
+      "degree": "Master of Science in Business Analytics (MSBA)",
+      "institution": "UCLA Anderson School of Management",
+      "status": "In progress",
+      "focus": "Machine learning, data engineering, and optimization"
+    },
+    {
+      "degree": "B.Tech in Engineering",
+      "institution": "Indian Institute of Technology (IIT) Madras",
+      "status": "Completed",
+      "focus": "Mathematics, statistics, and algorithms"
+    }
+  ],
   "work_experience": [
     {
       "company": "Seat of Joy",
@@ -24,176 +121,279 @@
       "role": "Business & Strategy Analyst",
       "duration": "2022 - 2024",
       "context": "Worked during undergraduate degree",
-      "about": "Seat of Joy is an Indian startup incubated at IIT Madras that developed a safety seat for children specifically designed for two-wheelers — in India, 2 children die every day due to two-wheeler accidents and no existing product provided full-body protection during an accident. Seat of Joy fills that gap.",
+      "about": "Seat of Joy is an Indian startup incubated at IIT Madras that developed a safety seat for children specifically designed for two-wheelers - in India, 2 children die every day due to two-wheeler accidents and no existing product provided full-body protection during an accident. Seat of Joy fills that gap.",
       "achievements": [
-        "Developed a probabilistic market-sizing mathematical model from scratch using Indian Census 2011 data (100+ tables, 200K+ rows each), combining birth-order probability analysis and age-gap distributions with linear regression to estimate 55M target customers with 5% YoY growth — a 45% improvement over the previous estimate, used in all investor pitch decks. The model works by using two census tables: one mapping mother's age to child age-gap from a previous child (second/third births), and another recording whether each birth is a first, second, or higher-order child. Multiplying these probabilities gives the likelihood a given child falls in the 3–6 year target age range, then linear regression projects future growth. When the next census is released the model's 2011-based predictions can be validated against actual data.",
-        "Built a supply-chain optimization model using operations research principles (solved via Gurobi and Excel Solver) that maximises profit by balancing manufacturing costs, shipping costs, and selling price — with penalty terms for over-concentrating shipments into one state (elastic-net style) and state-level demand caps derived from the market-sizing model's per-state estimates.",
-        "Conducted full competitor analysis — SWOT across three product categories (child safety seats, two-wheeler accessories, and general child restraints) plus direct pricing analysis sourced by calling manufacturers to obtain their production costs — establishing the margin structure of the category and informing Seat of Joy's positioning and launch pricing strategy.",
-        "Led a team of 3 to develop the complete business and marketing pitch deck for Shark Tank India Auditions; the deck covered market-size analysis (backed by the mathematical model), competitive landscape, pricing strategy, and go-to-market plan — represented the startup at the auditions and answered all investor questions on the data-backed analysis.",
-        "Performed ongoing strategic marketing work: competitor analytics, pricing strategy, market launch strategies, and market analysis — supporting fundraising and product launch planning."
+        "Developed a probabilistic market-sizing mathematical model from scratch using Indian Census 2011 data (100+ tables, 200K+ rows each), combining birth-order probability analysis and age-gap distributions with linear regression to estimate 55M target customers with 5% YoY growth - a 45% improvement over the previous estimate, used in all investor pitch decks. The model works by using two census tables: one mapping mother's age to child age-gap from a previous child (second/third births), and another recording whether each birth is a first, second, or higher-order child. Multiplying these probabilities gives the likelihood a given child falls in the 3-6 year target age range, then linear regression projects future growth. When the next census is released the model's 2011-based predictions can be validated against actual data.",
+        "Built a supply-chain optimization model using operations research principles (solved via Gurobi and Excel Solver) that maximises profit by balancing manufacturing costs, shipping costs, and selling price - with penalty terms for over-concentrating shipments into one state (elastic-net style) and state-level demand caps derived from the market-sizing model's per-state estimates.",
+        "Conducted full competitor analysis - SWOT across three product categories (child safety seats, two-wheeler accessories, and general child restraints) plus direct pricing analysis sourced by calling manufacturers to obtain their production costs - establishing the margin structure of the category and informing Seat of Joy's positioning and launch pricing strategy.",
+        "Led a team of 3 to develop the complete business and marketing pitch deck for Shark Tank India Auditions; the deck covered market-size analysis (backed by the mathematical model), competitive landscape, pricing strategy, and go-to-market plan - represented the startup at the auditions and answered all investor questions on the data-backed analysis.",
+        "Performed ongoing strategic marketing work: competitor analytics, pricing strategy, market launch strategies, and market analysis - supporting fundraising and product launch planning."
       ],
-      "skills_used": ["Python", "Excel", "Gurobi", "Linear Regression", "Probability & Statistics", "Operations Research", "Competitive Analysis", "Strategic Marketing", "Pitch Deck Development", "Mathematical Modeling", "Data Analysis"]
+      "skills_used": [
+        "Python",
+        "Excel",
+        "Gurobi",
+        "Linear Regression",
+        "Probability & Statistics",
+        "Operations Research",
+        "Competitive Analysis",
+        "Strategic Marketing",
+        "Pitch Deck Development",
+        "Mathematical Modeling",
+        "Data Analysis"
+      ]
     }
   ],
   "projects": [
     {
-      "id": "ai-portfolio",
-      "title": "AI-Powered Portfolio",
-      "short_description": "A smart portfolio website featuring an embedded LLM chatbot.",
-      "motivation": "I wanted a portfolio that didn't just passively list my top projects, but could actively talk to recruiters and answer their specific questions about my background using advanced AI.",
-      "achievements": [
-        "Implemented a custom RAG (Retrieval-Augmented Generation) pipeline using pure JSON datastores, bypassing complex Vector DB limitations.",
-        "Created an automatic multi-LLM fallback architecture, ensuring 99.9% uptime (falling back from OpenAI to Claude and Gemini)."
+      "id": "mapblazer-wait-time-prediction",
+      "title": "Theme Park Wait-Time Forecasting — Production MLOps Pipeline",
+      "page_url": "/projects/mapblazer-wait-time-prediction",
+      "short_description": "A production ML pipeline that forecasts theme park ride wait times seven days ahead at 30-minute resolution, retrained unattended every week on Databricks and served through Supabase and a live public dashboard for $0/month. Powers the Mapblazer routing engine.",
+      "motivation": "Mapblazer optimizes a guest's theme park itinerary from their must-ride list, live wait times, and walking distances. But a route built on the \"current\" 9 AM wait times falls apart by the time the guest reaches their 1 PM attraction, because crowds shift all day and one bad estimate cascades into a ruined plan. The routing solver needed to see the future, not the present. I built the forecasting system that predicts wait times across the whole week so the optimizer can anticipate crowd flow instead of chasing it.",
+      "problem_statement": "Mapblazer builds a guest's optimal ride itinerary from their must-visit attractions, live wait times, and walking distances. The flaw was that the optimizer routed on \"current\" wait times: a plan built at 9:00 AM is already wrong by the time the guest reaches their 1:00 PM attraction, and each stale estimate cascades into the next. What the solver actually needs is not a prediction endpoint but the entire cost surface, every attraction at every possible arrival time a week out, which makes this a batch forecasting problem rather than a model-serving one. Producing that surface reliably means answering the operational questions alongside the modelling ones: where the data comes from each hour, what retrains the model as crowd patterns drift, what happens when a run fails at 6am on a Sunday, and how anyone can tell whether the forecast being served right now is fresh or three weeks stale. The system runs unattended against three hard constraints: Databricks Free Edition jobs have no outbound internet, the upstream wait-time database sits on an EC2 instance that is not ours, and the whole thing had to cost nothing to operate.",
+      "approach_steps": [
+        "Ingestion: A Push Agent on the Source Host",
+        "Bronze to Silver: The Cleaning That Decides the Numbers",
+        "Features From Local Wall Time",
+        "Four Model Families, One Chronological Split",
+        "KPIs That Do Not Hide Behind an Average",
+        "Champion and Challenger Promotion",
+        "Quality Gates and the _current / _last Discipline",
+        "Failing Without Going Dark",
+        "Serving: Atomic Swap and a Dashboard With No JavaScript"
       ],
-      "technical_details": "Built with Next.js App Router, Tailwind CSS, Vercel AI SDK, and OpenAI GPT-4o-mini API.",
-      "link": "/projects/ai-portfolio"
+      "achievements": [
+        "Shipped a fully unattended weekly forecasting system covering 109 attractions across 5 California theme parks, forecast 7 days ahead at 30-minute resolution, running end to end on Databricks with no manual step and $0/month in infrastructure.",
+        "Cut holdout MAE 26.3% below the per-ride mean baseline (7.01 vs 9.51 minutes) and lifted the within-10-minute containment rate from 64.5% to 76.6%, with severe misses over 15 minutes down 42.1%, measured on a 78,110-observation chronological holdout.",
+        "Designed a three-runtime architecture around a hard platform constraint: Databricks Free Edition jobs have no outbound internet, so ingestion pushes in from an EC2 systemd agent and serving is pulled out by GitHub Actions, leaving every network hop initiated from outside the job.",
+        "Chose a push-based ingestion agent over a pull-based CI runner so the source Postgres never leaves the loopback interface: no inbound firewall rule, no wildcard listen_addresses, and no database credentials crossing the internet.",
+        "Made ingestion idempotent and stateless by deriving the watermark from the bronze table itself rather than a local cursor file, so a run killed at any point re-reads the same range and the insert-only MERGE absorbs the overlap, leaving nothing to reconcile by hand.",
+        "Trained and benchmarked four model families every run (a per-ride Prophet fleet, a global XGBoost with ride identity as a native categorical, a per-ride XGBoost fleet, and a per-ride historical mean as the floor) on a strict chronological 80/20 split rather than random folds, which leak the future on a time series.",
+        "Gated promotion on evidence: a newly trained model ships only if it beats the incumbent's recorded MAE by at least 1%, and otherwise the incumbent is reloaded from disk and re-scored, so the forecast window is refreshed either way and rollback is a one-line edit to a serving pointer.",
+        "Built a _current/_last table discipline so a bad run can never take down a working dashboard: every run writes only _current, twelve quality gates run against _current, and only a fully passing run promotes via atomic DEEP CLONE, with the serving pointer written last.",
+        "Wrote a timezone tripwire into the quality gates, requiring the local hour with the highest mean wait to fall between 11:00 and 20:00, a condition an inverted UTC conversion mathematically cannot satisfy, so the class of bug that silently deletes the evening peak fails the run instead of shipping.",
+        "Published serving atomically through a PostgREST RPC that swaps staging and serving tables by rename inside a single Postgres transaction, so readers always see one consistent KPI/forecast pair, and rendered the public dashboard as a single static HTML file with inline SVG and zero JavaScript."
+      ],
+      "key_metrics": {
+        "Champion MAE": "7.01 min (Prophet fleet, vs. a 9.51 min baseline)",
+        "Accuracy Gain": "26.3% (MAE reduction vs. per-ride mean baseline)",
+        "Within 10 min": "76.6% (Up from 64.5% at baseline)",
+        "Severe Misses": "42.1% fewer (Errors over 15 min: 23.5% to 13.6%)",
+        "Retrain Cadence": "Weekly (Unattended, Sunday 06:00 UTC)",
+        "Infra Cost": "$0/mo (Databricks Free, Supabase, GH Pages)"
+      },
+      "tech_stack": [
+        "Python",
+        "Databricks",
+        "PySpark",
+        "Delta Lake",
+        "Prophet",
+        "XGBoost",
+        "Supabase",
+        "PostgreSQL",
+        "GitHub Actions",
+        "AWS EC2",
+        "pandas",
+        "SQL"
+      ],
+      "technical_details": "A Databricks Asset Bundle deploying one serverless job (bronze to silver to train to KPIs to gold, then quality gates and atomic promotion), a hardened systemd ingestion agent on the source EC2 host, four model families (Prophet fleet, global XGBoost, per-ride XGBoost, per-ride mean baseline) on a chronological split, a 1%-improvement champion/challenger promotion gate with file-based model artifacts behind a serving pointer, and a GitHub Actions publish path into Supabase PostgREST plus a zero-JavaScript static dashboard on GitHub Pages.",
+      "status": "complete",
+      "github_url": "https://github.com/TirthPatel3223/Mapblazer_Wait_Time_Prediction",
+      "live_url": "https://tirthpatel3223.github.io/Mapblazer_Wait_Time_Prediction/"
     },
     {
-      "id": "e-commerce-dashboard",
-      "title": "E-Commerce Analytics Dashboard",
-      "short_description": "A real-time data visualization dashboard for store owners.",
-      "motivation": "To help small business owners quickly grasp their daily metrics without sifting through complex spreadsheets.",
-      "achievements": [
-        "Rendered large datasets natively using WebGL for high framerates.",
-        "Integrated secure authentication and role-based access control."
+      "id": "airline-crew-pairing-rl",
+      "title": "Airline Crew Pairing — Transformer Deep-RL Scheduler",
+      "page_url": "/projects/airline-crew-pairing-rl",
+      "short_description": "A ViT-style Deep Q-Network that builds a month of legal airline crew pairings one flight leg at a time on the GERAD/Quesnel benchmark instances. Every scheduling rule lives in the action mask, so the agent is feasible by construction, and one policy generalizes to schedules it has never seen. Published as an interactive replay you can scrub decision by decision.",
+      "motivation": "Crew cost is second only to fuel for most airlines, and the classical answer — column generation over a set-partitioning integer program — has to be rebuilt for each schedule and optimizes cost with robustness bolted on afterwards. Tirth wanted to know whether a learned construction policy could obey a real rulebook exactly, generalize to a month it had never seen, and trade a little coverage for solutions that do not shatter when one flight runs late.",
+      "problem_statement": "A crew pairing is a legal multi-day tour of duty: a sequence of flights that leaves a crew base, splits into workdays separated by overnight layovers, and returns to the same base, obeying duty-hour limits, rest rules, legs per duty, time away from base, per-base credit caps and crew availability. Covering an airline month with a cheap set of those tours is the first and most expensive stage of crew scheduling. This project learns a construction policy instead of solving a set-partitioning integer program: the agent walks the connection network, appends legs to an open pairing and closes it back at base, trained on a distribution of perturbed schedules so a changed month does not mean re-solving from scratch. Three things had to hold: the schedule must be legal rather than approximately legal, it must hold up on a month whose seed was never trained on, and the numbers must be measured against the benchmark own reference solution produced by a classical cost optimizer.",
+      "approach_steps": [
+        "Choosing the Decision, Not Just the Model (sequential pairing-construction MDP)",
+        "Feasibility Lives in the Action Mask",
+        "An Observation That Is a Set, Not a Vector",
+        "A Transformer That Scores the Whole Candidate Set",
+        "A Reward With Four Terms and an Off Switch on Each",
+        "Training for Generalization, Not for One Month",
+        "Reusing the Value Network as a Search Heuristic",
+        "Diagnosing the Ceiling, and Proving the Rules"
       ],
-      "technical_details": "React, TypeScript, Redux, Chart.js, and Firebase.",
-      "link": "/projects/e-commerce-dashboard"
+      "achievements": [
+        "Framed crew pairing as a sequential construction MDP (START a pairing, APPEND legs, CLOSE it back at base) over a 31-day, 1,013-leg GERAD benchmark network, roughly 935 decisions per episode.",
+        "Moved every scheduling rule into the action mask — connection windows, duty flying time, legs per duty, duty span, duties per pairing, time away from base, per-base credit caps, daily crew availability and a backward-DP can-still-get-home check — so the agent is feasible by construction and legality needs no penalty term or repair pass.",
+        "Zero feasibility violations, verified by an independent re-checker over random rollouts for both crew classes with delay modelling on and off.",
+        "Trained one policy across 40 perturbed variants and evaluated it on 8 held-out variants whose seeds were never trained on: 0.658 mean coverage for cabin and 0.629 for cockpit against 0.47 for a random masked policy, with a train-versus-held-out coverage gap of 0.00 to 0.05 at plateau.",
+        "Closed roughly 10 coverage points of the gap left by single-instance training, which transferred to the same held-out split at only 0.528.",
+        "Produced far more delay-resilient solutions than the benchmark reference: 85 critical sub-15-minute connections against the reference 310, and about 53 robust short connections against its 10. The reference covers about 1.6x as many legs by deadheading throughout, but even per covered leg its fragile-connection rate is about 2.3x the learned policy rate.",
+        "Built a ViT-style transformer encoder over a variable-length candidate action set with a dueling pointer head, so one network handles a 56-way opening step and a 4-way continuation step unchanged.",
+        "Reused the trained Q-network at inference as a search heuristic — beam search plus an anytime best-first seeded with a greedy dive so it can never score below greedy — for about +4 coverage points at roughly 3x the wall clock and no retraining.",
+        "Diagnosed the coverage ceiling with a terminal-state autopsy: about 52% of uncovered legs orphaned at non-base airports, about 20% blocked by exhausted base availability, about 25% cut off by the stranding guard, and credit caps never binding — then ranked the improvement levers by that evidence.",
+        "Made every modelling choice auditable: four YAML config files with a source citation and a HIGH/MEDIUM/LOW confidence tag per value, an assumption register, 84 tests, a live FastAPI training dashboard, and a published zero-backend replay site."
+      ],
+      "key_metrics": {
+        "Held-out Coverage": "0.658 cabin / 0.629 cockpit, on 8 unseen instances",
+        "Feasibility Violations": "0, by an independent re-checker over random rollouts",
+        "Fragile Connections": "85, against the GERAD reference solution 310",
+        "Generalization Gap": "0.00 to 0.05, train vs. held-out coverage at plateau",
+        "Search Lift": "+4 coverage points, beam 8x4 over greedy, no retraining",
+        "Planning Horizon": "31 days, 1,013 legs, 26 airports, 3 crew bases",
+        "Tests": "84 passing, including the feasibility invariant"
+      },
+      "tech_stack": [
+        "PyTorch",
+        "Transformers",
+        "Deep RL",
+        "Double DQN",
+        "CUDA",
+        "NumPy",
+        "FastAPI",
+        "pytest",
+        "TensorBoard",
+        "Python",
+        "Operations Research"
+      ],
+      "technical_details": "A ViT-style Double/Dueling DQN with prioritized experience replay over a sequential pairing-construction MDP, all feasibility enforced in the action mask and verified by an independent re-checker; trained per crew class across 40 seeded perturbations of a GERAD/Quesnel monthly instance and evaluated on a disjoint 8-variant held-out split; a multi-objective reward over coverage, credit cost, schedule robustness and crew preferences; Q-guided beam and anytime best-first search at inference; a FastAPI live training dashboard and a zero-backend GitHub Pages replay site built from recorded solves. Adapted from Ding et al., Aerospace 2025, 12(5), 444.",
+      "status": "complete",
+      "github_url": "https://github.com/TirthPatel3223/Deep-Reinforcement-Learning-Approach-to-solving-the-Airline-Crew-Pairing-Problem",
+      "live_url": "https://tirthpatel3223.github.io/Deep-Reinforcement-Learning-Approach-to-solving-the-Airline-Crew-Pairing-Problem/",
+      "notes": "The demo site is embedded directly on the project page as an iframe. Everything it shows is a recording baked into a static page: it makes no API calls and runs no model in the browser. The deadhead retraining runs are an extension in progress and are deliberately not part of the headline numbers. The cockpit/cabin split is a modelling construct over one anonymous GERAD crew group, not a calibration to any real airline. The benchmark instance data is not redistributed in the repository."
     },
     {
       "id": "course-rag-pipeline",
-      "title": "Course RAG Pipeline",
-      "short_description": "Production-deployed agentic RAG system for UCLA MSBA students to query course materials — lecture slides, transcripts, and PDFs — using natural language.",
-      "live_url": "https://tirth-courserag.duckdns.org",
-      "motivation": "The UCLA MSBA program runs 4 simultaneous courses (MSA408, MSA409, MSA410, MSA413), each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic RAG system that classifies every query, self-verifies deadline answers to prevent hallucination, supports human-approved file uploads, and can explain exactly which source chunks drove any answer — all deployed at effectively zero infrastructure cost.",
-      "achievements": [
-        "Built a 13-node LangGraph agent with conditional routing across 5 query types: deadline, summary, upload, general Q&A, and source explanation.",
-        "Implemented self-verifying deadline extraction: after the LLM extracts a date, the system re-queries ChromaDB with a rephrased search, cross-references results, and surfaces conflicting dates with a confidence indicator — reducing hallucination risk on the most critical query type.",
-        "Designed human-in-the-loop file upload flow using LangGraph interrupt-before mechanism with a SQLite checkpointer: LLM proposes a Google Drive folder path with reasoning, user approves or edits before the file is embedded — preventing mis-categorised files from polluting the vector store.",
-        "Built deadline-boosted retrieval: chunks containing deadline keywords are tagged with a contains_deadline metadata flag at ingestion; the retriever merges a deadline-filtered query with a general query, deduplicates, and re-ranks — ensuring deadline chunks surface at top even when semantic similarity is not highest.",
-        "Implemented dual-provider LLM fallback: Claude Haiku as primary, GPT-4o-mini as fallback, with provider name surfaced in the UI for transparency.",
-        "Added OpenAI Vision fallback for scanned PDFs: when PyMuPDF extracts fewer than 30 characters from a page (image-based), the page is sent to GPT-4o-mini Vision with a verbatim-transcription prompt, 25-second per-page timeout, max 2 concurrent vision calls, and an early bail-out after 5 consecutive failures per file.",
-        "Deployed on Oracle Cloud Always Free ARM VPS (4 CPU, 24GB RAM) using Docker + Caddy + Let's Encrypt + DuckDNS at ~$1–4/month total (effectively just LLM API usage).",
-        "Solved 9 distinct production issues during deployment: Oracle iptables blocking ports 80/443 (fixed via iptables -I to insert before REJECT), DuckDNS domain expiry (fixed via cron ping job), Google OAuth credentials not accessible in Docker container (fixed via docker cp), ChromaDB metadata filter returning zero results (added fallback retry without course filter), LangGraph human-in-the-loop needing state persistence (integrated langgraph-checkpoint-sqlite), and more."
+      "title": "Course Material Q&A Assistant — Agentic RAG System",
+      "page_url": "/projects/course-rag-pipeline",
+      "short_description": "Production-deployed agentic RAG system for UCLA MSBA students to query course materials - lecture slides, transcripts, and PDFs - using natural language. Live at tirth-courserag.duckdns.org.",
+      "motivation": "The UCLA MSBA program runs 4 simultaneous courses, each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic system that classifies every query, self-verifies deadline answers, supports human-approved file uploads, and can explain exactly which source chunks drove any answer - deployed at effectively zero infrastructure cost on Oracle Cloud Free Tier.",
+      "problem_statement": "UCLA MSBA students juggle 4 simultaneous courses - each with lecture slides, transcripts, homework deadlines, and project deliverables scattered across a shared Google Drive. Manual search is slow and error-prone, especially for deadline-critical queries (\"when is HW3 due?\"). The challenge: build a production-grade agentic system that can answer natural-language questions over course PDFs, verify its own deadline answers to prevent hallucination, let students upload new files safely without polluting the vector store, and explain exactly which source chunks it used - all at zero ongoing infrastructure cost.",
+      "approach_steps": [
+        "LangGraph Agentic Orchestration",
+        "Self-Verifying Deadline Extraction",
+        "Deadline-Boosted Retrieval",
+        "Human-in-the-Loop Upload Approval",
+        "Vision Fallback for Scanned PDFs",
+        "Deployment & Infrastructure"
       ],
-      "tech_stack": ["LangGraph", "FastAPI", "ChromaDB", "Claude Haiku", "OpenAI GPT-4o-mini", "Google Drive API", "Docker", "Caddy", "SQLite", "WebSocket", "Python", "Oracle Cloud"],
-      "technical_details": "LangGraph (13-node graph, interrupt-before for human-in-the-loop), FastAPI + WebSocket, ChromaDB (self-hosted), Claude claude-3-5-haiku-20241022 + GPT-4o-mini (fallback), OpenAI text-embedding-3-small (1536-dim), Google Drive API (OAuth 2.0), PyMuPDF + OpenAI Vision for scanned PDFs, aiosqlite for session persistence, Docker + Docker Compose, Caddy reverse proxy, Oracle Cloud Always Free ARM VPS.",
-      "architecture": "13-node LangGraph graph: input_handler → router (5-way conditional) → [deadline: retriever → deadline_extractor → deadline_verifier] / [summary: retriever → summary_redirector] / [upload: upload_handler → location_classifier → human_approval_gate (INTERRUPT) → upload_executor] / [general: retriever → general_responder] / [source_explanation: source_explainer] → response_output → END. Agent state tracks 15 fields. Session history persisted in SQLite.",
-      "link": "/projects/course-rag-pipeline",
-      "status": "complete"
+      "achievements": [
+        "Built a 13-node LangGraph agent with conditional routing across 5 query types: deadline, summary, upload, general Q&A, and source explanation",
+        "Implemented self-verifying deadline extraction: LLM extracts date → re-queries ChromaDB with rephrased search → cross-references results → surfaces conflicts with confidence indicator",
+        "Designed human-in-the-loop upload approval using LangGraph interrupt-before + SQLite checkpointer: LLM proposes a Drive folder path, user approves/edits before embedding - preventing vector store pollution",
+        "Built deadline-boosted retrieval: chunks tagged with contains_deadline metadata at ingestion, merged and re-ranked with general results to surface deadline content even when semantic score is not highest",
+        "Added OpenAI Vision fallback for scanned PDFs: 25-sec timeout per page, max 2 concurrent calls, early bail-out after 5 consecutive failures",
+        "Deployed on Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM) using Docker + Caddy + DuckDNS at ~$1-4/month total",
+        "Solved 9 distinct production issues during deployment including Oracle iptables blocking (iptables -I fix), DuckDNS expiry (cron ping job), and OAuth credentials not accessible in Docker (docker cp fix)"
+      ],
+      "key_metrics": {
+        "LangGraph Nodes": "13 (Plus 1 interrupt point for human-in-the-loop)",
+        "Query Types": "5 (Deadline, summary, upload, general, source explanation)",
+        "Infra Cost": "~$1-4/mo (Oracle Cloud Free Tier + DuckDNS + Let's Encrypt)",
+        "Courses Indexed": "4 (MSA408, MSA409, MSA410, MSA413)",
+        "Production Bugs Solved": "9 (iptables, domain expiry, Docker creds, ChromaDB filters, and more)",
+        "Test Count": "33 (20 Phase 1 + 13 Phase 2 tests)"
+      },
+      "tech_stack": [
+        "LangGraph",
+        "FastAPI",
+        "ChromaDB",
+        "Claude Haiku",
+        "OpenAI",
+        "Google Drive API",
+        "Docker",
+        "Python",
+        "SQLite",
+        "WebSocket"
+      ],
+      "technical_details": "LangGraph, FastAPI, ChromaDB, Claude Haiku, GPT-4o-mini, OpenAI Embeddings, Google Drive API, PyMuPDF, Docker, Caddy, Oracle Cloud",
+      "status": "complete",
+      "live_url": "https://tirth-courserag.duckdns.org"
     },
     {
       "id": "weather-dining-pipeline",
-      "title": "Yelp & Weather Intelligence Pipeline",
-      "short_description": "End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau — processing 2M+ records.",
-      "motivation": "Built to discover whether weather statistically drives restaurant ratings and dining behavior at scale, using the full Yelp Academic Dataset and live weather API data.",
-      "tech_stack": ["PySpark", "Snowflake", "Apache Airflow", "Tableau", "VADER NLP", "Python", "OpenWeatherMap API"],
+      "title": "Weather-Driven Restaurant Sentiment — Big Data ETL & NLP Pipeline",
+      "page_url": "/projects/weather-dining-pipeline",
+      "short_description": "End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau - processing 2M+ records.",
+      "motivation": "Curious whether weather drives restaurant ratings and business patterns, I built a production-grade data pipeline ingesting the full Yelp Academic Dataset and OpenWeatherMap API, performing distributed ETL at scale, NLP sentiment scoring, and surfacing insights through an executive Tableau dashboard.",
+      "problem_statement": "Does weather actually affect how people dine out and rate restaurants? To answer this at scale, I built a full data engineering pipeline ingesting the Yelp Academic Dataset (JSON/CSV) and live weather data from OpenWeatherMap, transforming and joining them in PySpark, warehousing in Snowflake, and orchestrating the pipeline with Airflow - culminating in a Tableau dashboard that reveals actionable weather-revenue correlations for restaurant operators.",
+      "approach_steps": [
+        "Data Ingestion",
+        "PySpark ETL",
+        "Sentiment Analysis",
+        "Snowflake Data Warehouse",
+        "Airflow Orchestration",
+        "Tableau Visualization"
+      ],
       "achievements": [
-        "Discovered the 'Cold Weather Sentiment Paradox': Freezing weather drops volume (101/day) but yields the highest average sentiment index (0.71)",
+        "Discovered the \"Cold Weather Sentiment Paradox\": Freezing weather drops volume to 101/day but yields the highest average sentiment index (0.71)",
         "Identified Extreme Heat as the major deterrent to dining out, dropping review volume to ~30/day with the lowest sentiment (0.65)",
-        "Found that Rainy/Snowy weather causes a 50.7% drop in volume (143/day) but retains a resilient sentiment index identical to pleasant days (0.69)",
-        "Generated Regional Penalty Heatmaps isolating weather biases",
-        "Designed Snowflake star-schema data warehouse processing 2M+ records with sub-5-second query latency",
-        "Published interactive Tableau executive dashboard on Tableau Public"
+        "Found that Rainy/Snowy weather causes a 50.7% drop in volume (143/day vs 290/day) but retains a resilient sentiment index identical to pleasant days (0.69)",
+        "Generated Regional Penalty Heatmaps highlighting specific cities where weather unfairly skews ratings, isolating weather biases",
+        "Designed a Snowflake star-schema data warehouse with sub-5-second query latency processing 2M+ records"
       ],
       "key_metrics": {
-        "freezing_sentiment": "0.71",
-        "average_review_stars": "3.85",
-        "overall_sentiment": "0.58",
-        "records_processed": "2M+",
-        "query_latency": "< 5 seconds"
+        "Records Processed": "2M+ (Yelp reviews + weather data)",
+        "Peak Sentiment": "0.71 (Freezing weather paradox)",
+        "Query Latency": "< 5s (Snowflake star-schema DW)",
+        "Avg Review Stars": "3.85 stars (Across all weather types)",
+        "Volume Drop (Rain)": "50.7% (vs. pleasant-day baseline)"
       },
-      "github_url": "https://github.com/TirthPatel3223/Yelp-Weather-Pipeline",
-      "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/MSBA_405/Dashboard",
-      "link": "/projects/weather-dining-pipeline",
-      "status": "complete"
-    },
-    {
-      "id": "covid-impact-analysis",
-      "title": "COVID-19 Impact Analysis",
-      "short_description": "Interactive Tableau visualization analyzing COVID-19's impact on India — tracking vaccination rollout, weekly case surges, and death rate trajectories with demographic context.",
-      "motivation": "To quantify the pandemic's real-world effects on India through vaccination rates, case trajectories, and death rates — contextualised by demographic indicators like HDI, median age, and population density.",
-      "tech_stack": ["Tableau", "Data Visualization", "SQL"],
-      "achievements": [
-        "Visualized the dramatic impact of vaccination on death rates — weekly death rate dropped from 3.5 to near 0 after vaccination rollout began",
-        "Captured India's devastating second wave: weekly new cases peaked at 2.2M+ around February 2021",
-        "Tracked vaccination milestone of 140M+ total people vaccinated with clear inflection points",
-        "Built demographic context layer showing HDI (0.6), median age (28.2), and population density (450.4) for analytical framing",
-        "Created before/after vaccination comparison revealing vaccination as the critical intervention in reducing mortality"
-      ],
-      "key_metrics": {
-        "peak_weekly_cases": "2.2M+",
-        "total_vaccinated": "140M+",
-        "death_rate_before": "3.5",
-        "death_rate_after": "~0",
-        "population_infected": "1.389%",
-        "hdi": "0.6",
-        "median_age": "28.2",
-        "population_density": "450.4"
-      },
-      "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/CovidData_Visualization/India",
-      "link": "/projects/covid-impact-analysis",
-      "status": "complete"
-    },
-    {
-      "id": "msba-orders-analysis",
-      "title": "E-Commerce Seller & Logistics Analytics",
-      "short_description": "Multi-dashboard Tableau analytics dissecting seller performance, shipping logistics, and product characteristics across 89K+ e-commerce orders.",
-      "motivation": "To provide a comprehensive analytical view of e-commerce operations by building interconnected Tableau dashboards that dissect seller performance, shipping efficiency, and product characteristics.",
-      "tech_stack": ["Tableau", "Data Visualization", "SQL"],
-      "achievements": [
-        "Built 3 interconnected dashboards covering seller revenue, shipping logistics, and product analysis across 89,316 orders",
-        "Identified extreme revenue concentration — top sellers drive the majority of $2.44M total revenue with average order value of $340.9",
-        "Discovered shipping cost disparity — median shipping cost is 22.18% of price vs. average of 62.91%, revealing heavy-product outliers inflating costs",
-        "Achieved 90.34% on-time delivery rate with median order cycle time of 10 days across all product categories",
-        "Created interactive filters by city, seller ID, product category, and delivery date enabling granular segment analysis",
-        "Mapped São Paulo as the dominant market with 14K+ orders, followed by Rio de Janeiro and Belo Horizonte"
-      ],
-      "key_metrics": {
-        "total_orders": "89,316",
-        "total_revenue": "$2,441,873",
-        "average_order_value": "$340.9",
-        "on_time_delivery": "90.34%",
-        "median_cycle_time": "10 days",
-        "median_shipping_cost_ratio": "22.18%",
-        "avg_shipping_cost_ratio": "62.91%"
-      },
-      "tableau_dashboard_url": "https://public.tableau.com/app/profile/tirth.patel3716/viz/MSBA_orders_analysis/SellersAnalysis",
-      "link": "/projects/msba-orders-analysis",
-      "status": "complete"
-    },
-    {
-      "id": "themepark-wait-time-prediction",
-      "title": "Real-Time Queue Wait Time Predictor",
-      "short_description": "An end-to-end machine learning pipeline predicting real-time theme park ride wait times using Time Series and Gradient Boosting architectures to outperform historical baselines by over 53%.",
-      "motivation": "Mapblazer is a theme park routing app that optimizes a guest's itinerary based on their preferences. Historically, the routing algorithm relied on 'current' wait times fetched from park APIs. However, because wait times are highly dynamic, a route optimized for 9:00 AM becomes entirely inaccurate by the time a guest reaches their 1:00 PM attraction, causing cascading delays that ruin the itinerary. To solve this, the routing algorithm required accurate future predictions of wait times to anticipate crowd shifts throughout the day. Building these predictive models introduced major data challenges: our dataset spanned less than a full year, meaning standard tree-based models (like XGBoost) couldn't reliably extrapolate pure chronological datetime inputs. To overcome this, I engineered continuous datetime inputs into cyclical, time-agnostic features (like sine/cosine mappings of the hour and month) allowing XGBoost to map underlying daily crowd flow regardless of the specific date. Furthermore, since irregular US holidays drastically disrupt standard crowd cycles, I deployed Facebook Prophet—a dedicated time-series architecture—to explicitly capture holiday effects and benchmark against the XGBoost models.",
       "tech_stack": [
-        "Python",
-        "XGBoost",
-        "Facebook Prophet",
-        "Pandas",
-        "Matplotlib",
-        "Seaborn",
-        "Queue-Times API"
+        "PySpark",
+        "Snowflake",
+        "Airflow",
+        "Tableau",
+        "VADER NLP",
+        "Python"
+      ],
+      "technical_details": "PySpark, Snowflake, Apache Airflow, Tableau, VADER NLP, Python",
+      "status": "complete",
+      "github_url": "https://github.com/TirthPatel3223/Yelp-Weather-Pipeline"
+    },
+    {
+      "id": "deep-cube-solver",
+      "title": "Maltese Gear Cube Solver — Deep Reinforcement Learning & Search",
+      "page_url": "/projects/deep-cube-solver",
+      "short_description": "Deep reinforcement learning agent that solves the Maltese Gear Cube using a CUDA-accelerated neural heuristic.",
+      "motivation": "To apply the DeepCubeA algorithm to a novel, higher-complexity puzzle and validate whether deep RL can generalize to unseen combinatorial state spaces.",
+      "problem_statement": "The Maltese Gear Cube is a higher-order mechanical puzzle with an estimated state space of ~10¹⁹ configurations - featuring non-standard gear-linked move sets that invalidate the symmetry assumptions of solvers designed for the standard 3×3 Rubik's Cube. Classical search algorithms (BFS, IDA*) are computationally intractable at this scale. The core challenge: can a neural network learn a generalizable distance-to-solved heuristic without any hand-crafted domain knowledge, and can that heuristic guide an efficient search to optimality?",
+      "approach_steps": [
+        "State Representation",
+        "Backward Induction Data Generation",
+        "Neural Network Training",
+        "Symmetry-Based Data Augmentation",
+        "Batched Weighted A* Search",
+        "Evaluation"
       ],
       "achievements": [
-        "Architected an end-to-end Machine Learning pipeline comparing three distinct architectures (Facebook Prophet, XGBoost Local, and XGBoost Global) across 1.5M+ theme park wait time telemetry records.",
-        "Engineered advanced cyclical features encoding continuous temporal data into sine/cosine embeddings, ensuring the models mapped seamless chronological transitions without losing edge-case walk-on data.",
-        "Outperformed historical baseline prediction accuracy by an incredible 53.8% using a fine-tuned Prophet time-series model, slashing the overall Mean Absolute Error (MAE) from 7.08 minutes to just 3.27 minutes.",
-        "Effectively eliminated catastrophic prediction failures ('fat tails') by achieving a 90.38% Error Containment Rate (predictions landing strictly within ±10 minutes of reality), heavily outperforming the baseline's 74%.",
-        "Slashed 'Severe Misses' (errors > 10 minutes) by a staggering 62.9% utilizing the Prophet architecture, dropping the severe error rate from 25.9% to just 9.6% across the entire 50,000+ sample holdout dataset.",
-        "Developed a live API inference harness that synchronously hits the Queue-Times API, computes live temporal features, and generates predictions across all three architectures simultaneously to benchmark live model drift."
+        "Trained a value network on 50M+ self-generated cube states using PyTorch + CUDA",
+        "Implemented batched A* search guided by learned heuristic, solving cubes optimally",
+        "Achieved 100% solve rate on test set within optimal or near-optimal move counts",
+        "Reduced training time 40% through symmetry-based data augmentation"
       ],
       "key_metrics": {
-        "prophet_mae_improvement": "53.8% reduction vs baseline",
-        "severe_error_reduction": "62.9% decrease in predictions missing by >10 minutes",
-        "error_containment_rate": "90.38% of predictions fell within ±10 mins",
-        "prophet_mae": "3.27 minutes",
-        "xgboost_global_mae_improvement": "44.8% reduction vs baseline",
-        "historical_records_processed": "1.5M+"
+        "Solve Rate": "100%",
+        "Test Cubes": "1,000",
+        "Avg. Solution Length": "1.08× optimal",
+        "Training States": "50M+",
+        "Training Speedup": "40% faster",
+        "Max Scramble Depth Tested": "35 moves"
       },
-      "github_url": "https://github.com/TirthPatel3223/Mapblazer_Wait_Time_Prediction",
-      "status": "complete"
+      "tech_stack": [
+        "PyTorch",
+        "TensorFlow",
+        "CUDA",
+        "Deep Learning",
+        "Deep RL",
+        "Python",
+        "NumPy"
+      ],
+      "technical_details": "PyTorch, TensorFlow, CUDA, Deep Learning, Deep Reinforcement Learning, Python, NumPy",
+      "status": "complete",
+      "github_url": "https://github.com/tirth/deep-cube-solver"
     }
-  ]
+  ],
+  "about_this_website": {
+    "description": "This portfolio site is itself one of Tirth's builds: a Next.js App Router site with an embedded LLM chatbot (the assistant answering right now).",
+    "technical_details": "Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, and the Vercel AI SDK. The chatbot loads this JSON context into its system prompt and runs a three-model fallback chain: Claude Haiku 4.5 primary, then Gemini 2.0 Flash, then GPT-4o-mini.",
+    "note": "There is no separate project page for the website itself."
+  }
 }

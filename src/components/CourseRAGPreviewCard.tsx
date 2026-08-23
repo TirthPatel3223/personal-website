@@ -192,7 +192,7 @@ export default function CourseRAGPreviewCard() {
               width="100%"
               height="663"
               frameBorder="0"
-              title="Course RAG Pipeline — Live Demo"
+              title="Course Material Q&A Assistant — Live Demo"
               className="block w-full"
             />
           )}

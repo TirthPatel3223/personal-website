@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from './ThemeProvider';
+import { useChatPanel } from './ChatProvider';
 
 const NAV_LINKS = [
   { label: 'About', href: '#about' },
@@ -20,6 +21,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState('');
   const { theme, toggle } = useTheme();
+  const { open: openChat } = useChatPanel();
   const pathname = usePathname();
   const isHome = pathname === '/';
 
@@ -47,7 +49,7 @@ export default function Navbar() {
     <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
       <motion.header
         animate={{
-          maxWidth: scrolled ? '800px' : '1100px',
+          maxWidth: scrolled ? '1000px' : '1180px',
           marginTop: scrolled ? '16px' : '0px',
           borderRadius: scrolled ? '999px' : '0px',
           height: scrolled ? '56px' : '80px',
@@ -67,7 +69,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop links */}
-          <ul className="hidden md:flex items-center gap-8">
+          <ul className="hidden md:flex items-center gap-6">
             {NAV_LINKS.map(({ label, href }) => (
               <li key={href} className="relative">
                 <Link
@@ -91,6 +93,25 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
+
+            {/* Chat opener - last item, after Contact */}
+            <li>
+              <button
+                type="button"
+                onClick={openChat}
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium tracking-wide rounded-full px-3.5 py-1.5 transition-colors duration-200"
+                style={{
+                  color: 'var(--accent)',
+                  backgroundColor: 'var(--accent-dim)',
+                  border: '1px solid var(--glass-border)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--accent-dim-hover)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--accent-dim)'; }}
+              >
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                Ask me about Tirth
+              </button>
+            </li>
           </ul>
 
           {/* Right: theme toggle + hamburger */}
@@ -197,6 +218,21 @@ export default function Navbar() {
                   </Link>
                 </motion.li>
               ))}
+              <motion.li
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: NAV_LINKS.length * 0.04, duration: 0.2 }}
+              >
+                <button
+                  type="button"
+                  onClick={() => { setMenuOpen(false); openChat(); }}
+                  className="w-full flex items-center gap-2 text-sm font-medium py-2.5 px-4 rounded-xl transition-all duration-200"
+                  style={{ color: 'var(--accent)', backgroundColor: 'var(--accent-dim)' }}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Ask me about Tirth
+                </button>
+              </motion.li>
             </ul>
           </motion.div>
         )}

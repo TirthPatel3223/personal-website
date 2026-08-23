@@ -2,7 +2,6 @@
 
 import { motion, type Variants } from 'framer-motion';
 import Navbar from '@/components/Navbar';
-import Chat from '@/components/Chat';
 import ProjectCard from '@/components/ProjectCard';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { projects } from '@/data/projects';
@@ -10,11 +9,13 @@ import { Github, Linkedin, Mail, FileText, MapPin } from 'lucide-react';
 
 const skills: Record<string, string[]> = {
   Languages: ['Python', 'SQL', 'R', 'JavaScript', 'TypeScript'],
-  'ML / AI': ['PyTorch', 'TensorFlow', 'Deep Learning', 'CUDA', 'scikit-learn', 'LangGraph', 'Hugging Face', 'LLMs & RAG'],
-  'Data Engineering': ['PySpark', 'Snowflake', 'Airflow', 'FastAPI', 'ChromaDB'],
-  'Analytics & Visualization': ['Tableau', 'Pandas', 'NumPy', 'Matplotlib', 'VADER NLP'],
-  'Optimization & Modeling': ['Gurobi', 'Linear Regression', 'Probability & Statistics', 'Operations Research', 'Mathematical Modeling'],
-  Tools: ['Git', 'Docker', 'Next.js', 'Oracle Cloud', 'Jupyter'],
+  'Machine Learning': ['XGBoost', 'Prophet', 'scikit-learn', 'PyTorch', 'TensorFlow', 'Deep Learning', 'Deep RL', 'CUDA', 'Time-Series Forecasting', 'Feature Engineering', 'Transformers', 'Deep Q-Networks', 'Reward Design'],
+  'LLMs & Generative AI': ['LangGraph', 'Agentic RAG', 'ChromaDB', 'Vector Search', 'Claude & OpenAI APIs', 'Embeddings', 'Hugging Face', 'Prompt Engineering'],
+  'MLOps & Productionization': ['Databricks', 'Databricks Asset Bundles', 'Automated Retraining', 'Champion/Challenger Promotion', 'Data Quality Gates', 'GitHub Actions', 'CI/CD', 'Docker', 'AWS EC2', 'TensorBoard', 'Experiment Tracking'],
+  'Data Engineering': ['PySpark', 'Delta Lake', 'Snowflake', 'Airflow', 'Medallion Architecture', 'PostgreSQL', 'Supabase', 'FastAPI', 'ETL / ELT'],
+  'Analytics & Visualization': ['Tableau', 'pandas', 'NumPy', 'Matplotlib', 'VADER NLP', 'Sentiment Analysis', 'KPI Design', 'Executive Dashboards'],
+  'Statistics & Optimization': ['Probability & Statistics', 'Regression', 'Gurobi', 'Linear Programming', 'Operations Research', 'Mathematical Modeling', 'Market Sizing Models', 'Combinatorial Optimization', 'Constraint Modeling'],
+  'Tools & Platforms': ['Git', 'Jupyter', 'Next.js', 'Oracle Cloud', 'Excel', 'systemd', 'pytest', 'YAML-Driven Configuration'],
 };
 
 /* ─── Shared animation variants ────────────────────────────────────── */
@@ -534,9 +535,6 @@ export default function Home() {
           <p>© {new Date().getFullYear()} Tirth Patel. Built with Next.js &amp; Tailwind CSS.</p>
         </motion.footer>
       </div>
-
-      {/* Floating AI Chat */}
-      <Chat />
     </div>
   );
 }

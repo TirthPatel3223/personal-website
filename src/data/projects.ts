@@ -26,7 +26,7 @@ export interface Project {
   title: string;
   short_description: string;
   motivation: string;
-  /** Full technical achievement list — shown in full on the project detail page's
+  /** Full technical achievement list: shown in full on the project detail page's
    *  Results & Impact section, so it can stay long and dense. */
   achievements: string[];
   /** Short, homepage-card-only highlights (3 one-liners). Falls back to the first
@@ -209,7 +209,7 @@ export const projects: Project[] = [
     motivation:
       'A park day is not a shortest-path problem: a ride costs whatever its queue costs, the queue changes hour by hour, and the order you pick changes the costs that decide the order. I wanted to solve that feedback loop exactly rather than greedily, with an objective that says when idling for a cheaper slot is worth the wait it costs.',
     card_achievements: [
-      'Saves an average of 22 minutes of queue time per itinerary against the legacy LLM planner it replaced — up to a full hour on a 12-hour park day.',
+      'Saves an average of 22 minutes of queue time per itinerary against the legacy LLM planner it replaced, up to a full hour on a 12-hour park day.',
       'Cut itinerary generation from a 60-second LLM average to a 10-second exact solve: 83.3% faster, with per-query token costs eliminated entirely.',
       'Solves the day exactly as a time-dependent orienteering problem, each ride priced by the 30-minute slot the plan actually arrives in.',
     ],
@@ -336,7 +336,7 @@ export const projects: Project[] = [
                cli.py  markdown day             api.py  POST /solve
 `,
       results: [
-        { metric: 'Queue Time Saved', value: '22 min avg', description: 'Vs. the legacy LLM planner, per itinerary — up to a full hour on a 12-hour day' },
+        { metric: 'Queue Time Saved', value: '22 min avg', description: 'Vs. the legacy LLM planner, per itinerary, up to a full hour on a 12-hour day' },
         { metric: 'Response Time', value: '83.3% faster', description: '10 s solver budget vs. 60 s legacy LLM average' },
         { metric: 'Cost per Query', value: '$0.75 saved', description: 'Token costs eliminated entirely' },
         { metric: 'Day Shortened', value: '130 min', description: 'Makespan objective vs. queue-time only, same 7 rides' },
@@ -507,22 +507,23 @@ export const projects: Project[] = [
     id: 'airbnb-superhost-rdd',
     title: 'Airbnb Superhost Badge: Causal Impact Study (Regression Discontinuity)',
     short_description:
-      'A regression discontinuity re-test of whether Airbnb\'s Superhost badge still moves host outcomes now that Guest Favorite has taken over discovery. None of six outcomes jumps at the 4.8 cutoff.',
+      'A regression discontinuity re-test of whether Airbnb\'s Superhost badge still moves host outcomes now that Guest Favorite has taken over discovery. Five of six outcomes show no jump at the 4.8 cutoff; only review volume does.',
     motivation:
       'Published research from 2023 found the Superhost badge causally lifted bookings and revenue at the 4.8-rating cutoff. Then Airbnb launched Guest Favorite and removed the Superhost search filter, so the discovery mechanism behind that finding was gone. I wanted to run the same design on current data and report the answer it gave, not the one that would make a nicer story.',
     card_achievements: [
-      'Re-tested a 2023 published finding on a changed platform: this replication finds no significant effect at the same cutoff.',
+      'Re-tested a 2023 published finding on a changed platform: five of six outcomes show no significant effect at the same cutoff.',
       'Built a 125,685-host panel from 34 U.S. metros and isolated the badge with a ±0.05 bandwidth around the 4.8 cutoff.',
-      'Estimated six outcomes at once so the null result doesn\'t rest on one hand-picked dependent variable.',
+      'Estimated six outcomes at once, so neither the nulls nor the one significant result rests on a hand-picked dependent variable.',
     ],
     achievements: [
-      'Re-tested a published causal finding against a changed platform: Mishra, Huang & Kalwani (2023) found a significant positive Superhost effect at the same 4.8 cutoff, and this replication on post-Guest-Favorite data finds none: a null result reported as the finding rather than buried.',
+      'Re-tested a published causal finding against a changed platform: Mishra, Huang & Kalwani (2023) found a significant positive Superhost effect at the same 4.8 cutoff, and this replication on post-Guest-Favorite data recovers it on only one of six outcomes, reported together with the design caveat that undercuts it rather than presented as a clean win.',
       'Built the host-level panel the design needs from raw Inside Airbnb data across 34 U.S. metro areas (~3 GB of listings, reviews and calendar files), unioning cities, scoring every listing\'s review text with VADER, aggregating calendar prices and availability, and rolling listings up to 125,685 hosts.',
       'Got the running variable right where it is easy to get it wrong: Superhost is a host-level badge but the data is listing-level, so host_rating is each host\'s review_scores_rating averaged weighted by listing review count: an unweighted mean lets one brand-new, barely-reviewed listing drag a host across the threshold.',
-      'Isolated the badge with a ±0.05 bandwidth around the cutoff (4.75–4.85), holding two of Airbnb\'s other Superhost criteria roughly fixed with a ≥90% response-rate filter and a review-count floor, so crossing 4.80 is close to the only systematic difference between the groups: 4,308 treated hosts against 2,378 controls, 6,686 in the analysis sample.',
+      'Isolated the badge with a ±0.05 bandwidth around the cutoff (4.75–4.85), holding two of Airbnb\'s other Superhost criteria roughly fixed with a ≥90% response-rate filter and a review-count floor, so crossing 4.80 is close to the only systematic difference between the groups: 4,308 treated hosts against 2,003 controls, 6,311 in the analysis sample.',
       'Handled the badge-versus-rating timing mismatch explicitly (Airbnb re-evaluates Superhost quarterly while the scraped rating is near-live) by requiring a host\'s badge to agree with the side of the cutoff their rating falls on, dropping ambiguous hosts rather than silently mis-assigning them to treatment.',
       'Estimated the discontinuity as an OLS jump term on the centered running variable with HC1 heteroskedasticity-robust standard errors, across six outcomes at once (positive, negative, neutral and compound review sentiment, review volume, and the review-scores value sub-rating) so the conclusion does not rest on a single hand-picked dependent variable.',
-      'Found no significant jump on any of the six: effects range from −2.49 reviews to +0.0029 sentiment with p-values from 0.156 to 0.929, and the plotted fits on either side of 4.8 are visually continuous, consistent with the badge\'s demand-side signalling role having faded once Guest Favorite took over discovery.',
+      'Found no significant jump on five of the six outcomes: all four sentiment measures and the value-for-money sub-rating come back statistically indistinguishable from zero, with p-values from 0.2253 to 0.9744 and point estimates in the third decimal place of scales that run 0 to 1, consistent with the badge\'s demand-side signalling role having faded once Guest Favorite took over discovery.',
+      'Reported the one outcome that does clear the bar rather than quietly dropping it: hosts just above the cutoff carry about 79 more total reviews across their listings than hosts just below, p = 0.0201. Total reviews is a stock accumulated over a host\'s whole history, most of it earned before the current badge was awarded, so a step in it at the cutoff reads more like an imbalance in a pre-determined characteristic than a causal effect of the badge, which is exactly the kind of ambiguity a single cross-section cannot resolve.',
       'Wrote up the design\'s limits alongside its result: this estimates the demand-side effect only and says nothing about the supply-side incentive to maintain quality; there is no McCrary manipulation test or covariate-balance check; the sample is one cross-section rather than hosts tracked across the threshold over time; and Guest Favorite status is not observable in the data.',
     ],
     tech_stack: ['Python', 'Causal Inference', 'Regression Discontinuity', 'statsmodels', 'Econometrics', 'pandas', 'NumPy', 'VADER NLP', 'seaborn', 'Matplotlib'],
@@ -552,7 +553,7 @@ export const projects: Project[] = [
         {
           step: 'Defining Treatment and Control Around 4.80',
           detail:
-            'Treatment is hosts with a rating in [4.80, 4.85] who actually hold the badge: 4,308 hosts; control is hosts in [4.75, 4.80) who do not: 2,378. Two inclusion filters apply to both sides: an average response rate of at least 90%, which is Airbnb\'s own bar, and at least three reviews as an activity floor. Both exist so that Airbnb\'s other Superhost criteria are held roughly constant and crossing 4.80 is close to the only thing that differs. Conditioning on the badge agreeing with the rating side, rather than on the rating alone, matters because Airbnb re-evaluates Superhost quarterly while the scraped rating is closer to live: hosts whose badge and rating disagree are dropped rather than mis-assigned. The final sample is 6,686 hosts out of 125,685.',
+            'Treatment is hosts with a rating in [4.80, 4.85] who actually hold the badge: 4,308 hosts; control is hosts in [4.75, 4.80) who do not: 2,003. Two inclusion filters apply to both sides: an average response rate of at least 90%, which is Airbnb\'s own bar, and at least three reviews as an activity floor. Both exist so that Airbnb\'s other Superhost criteria are held roughly constant and crossing 4.80 is close to the only thing that differs. Conditioning on the badge agreeing with the rating side, rather than on the rating alone, matters because Airbnb re-evaluates Superhost quarterly while the scraped rating is closer to live: hosts whose badge and rating disagree are dropped rather than mis-assigned. The final sample is 6,311 hosts out of 125,685.',
         },
         {
           step: 'The Specification, Stated With Its Assumptions',
@@ -565,9 +566,9 @@ export const projects: Project[] = [
             'Running a single dependent variable invites picking the one that cooperates, so the same specification is estimated on six: positive, negative, neutral and compound review sentiment, total reviews across a host\'s listings, and the review-scores value sub-rating. Together they cover guest experience, engagement volume and perceived value. Each model is plotted as well as tabulated (scatter plus separate fits on either side of the dashed 4.8 line) because a discontinuity is something you should be able to see, and its absence is something a reader should be able to check rather than take on trust.',
         },
         {
-          step: 'Reading a Null Result Honestly',
+          step: 'Reading the Result Honestly',
           detail:
-            'No outcome jumps: the largest effect is +0.0029 on neutral sentiment, review volume moves by −2.49 with a p-value of 0.929, and nothing clears the 5% level. The right reading is narrow. This is the badge\'s demand-side effect at the margin in a post-Guest-Favorite cross-section, and it is consistent with the search-filter removal having drained the discovery channel the earlier finding partly rested on. It says nothing about the supply-side incentive (hosts may still work to keep the badge whether or not guests respond to it) and the design carries real caveats: no manipulation or covariate-balance test, no bandwidth-sensitivity check, one snapshot rather than hosts followed across the threshold over time, and Guest Favorite status not observable in the data to control for directly.',
+            'Five of the six do not move. All four sentiment measures and the value-for-money sub-rating come back indistinguishable from zero, with p-values from 0.2253 to 0.9744 and point estimates in the third decimal place. The sixth does move: hosts just above the cutoff carry about 79 more total reviews than hosts just below, p = 0.0201. The honest reading of that one is cautious rather than triumphant, because total reviews is a stock accumulated over a host\'s entire history and most of it predates the current badge, so a step in it at the cutoff looks more like the treated side simply being the more established side than like the badge generating new reviews. The pattern that survives is the one the sentiment and value results describe: no detectable demand-side response at the margin, consistent with the search-filter removal having drained the discovery channel the earlier finding partly rested on. It says nothing about the supply-side incentive (hosts may still work to keep the badge whether or not guests respond to it) and the design carries real caveats: no manipulation or covariate-balance test, no bandwidth-sensitivity check, one snapshot rather than hosts followed across the threshold over time, and Guest Favorite status not observable in the data to control for directly.',
         },
       ],
       architecture: `
@@ -616,10 +617,10 @@ export const projects: Project[] = [
   │ CONTROL                   │         │ TREATMENT                 │
   │ rating 4.75 - 4.80        │         │ rating 4.80 - 4.85        │
   │ host_is_superhost = f     │         │ host_is_superhost = t     │
-  │ 2,378 hosts               │         │ 4,308 hosts               │
+  │ 2,003 hosts               │         │ 4,308 hosts               │
   └───────────────────────────┘         └───────────────────────────┘
                 └──────────────────┬──────────────────┘
-                                   │  6,686 hosts in the sample
+                                   │  6,311 hosts in the sample
                                    ↓
 
   ── ESTIMATION ──────────────────────────────────────────────────────
@@ -638,17 +639,18 @@ export const projects: Project[] = [
   │ Outcomes      pos / neg / neu / compound sentiment,              │
   │               total reviews, review_scores_value                 │
   │                                                                  │
-  │ Verdict       0 of 6 significant at the 5% level                 │
-  │               p ranges from 0.156 to 0.929                       │
+  │ Verdict       5 of 6 show no jump at the 5% level                │
+  │               p from 0.2253 to 0.9744 on those five              │
+  │               total reviews is the exception: +79.07, p = 0.02   │
   └──────────────────────────────────────────────────────────────────┘
 `,
       results: [
-        { metric: 'Significant Effects', value: '0 of 6', description: 'No outcome jumps at the 4.8 cutoff' },
-        { metric: 'p-value Range', value: '0.156 – 0.929', description: 'Across all six outcomes, HC1 robust' },
-        { metric: 'Analysis Sample', value: '6,686 hosts', description: '4,308 treated, 2,378 control' },
+        { metric: 'Significant Effects', value: '1 of 6', description: 'Only review volume jumps at the 4.8 cutoff' },
+        { metric: 'p-value Range', value: '0.225 – 0.974', description: 'Across the five null outcomes, HC1 robust' },
+        { metric: 'Analysis Sample', value: '6,311 hosts', description: '4,308 treated, 2,003 control' },
         { metric: 'Panel Built', value: '125,685 hosts', description: 'From 34 U.S. metros, ~3 GB raw' },
         { metric: 'Bandwidth', value: '± 0.05', description: 'Ratings 4.75 – 4.85 around the cutoff' },
-        { metric: 'Review Volume', value: '−2.49', description: 'Reviews per host at the cutoff, p = 0.93' },
+        { metric: 'Review Volume', value: '+79.07', description: 'Reviews per host at the cutoff, p = 0.02' },
       ],
       github_url: 'https://github.com/TirthPatel3223/airbnb-superhost-rdd',
     },

@@ -80,7 +80,7 @@ export default function TableauPreviewCard() {
               </span>
             </div>
 
-            {/* Loading overlay — fades away once iframe fires onLoad */}
+            {/* Loading overlay: fades away once iframe fires onLoad */}
             {loading && !error && (
               <div className="absolute inset-x-0 bottom-0 top-[37px] flex flex-col items-center justify-center gap-4 bg-[#0a192f] z-10 pointer-events-none">
                 <Loader2 className="w-8 h-8 text-[#4e9bb9] animate-spin" />

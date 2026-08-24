@@ -92,7 +92,7 @@ function RubiksCube({ scrollProgress }: { scrollProgress: number }) {
       cube.rotation.y = THREE.MathUtils.lerp(cube.rotation.y, Math.round(cube.rotation.y / (Math.PI/2)) * (Math.PI/2), 0.1);
     }
 
-    // Move sequence — cumulative values per layer
+    // Move sequence: cumulative values per layer
     if (sp <= 0.20) {
       top.rotation.y = segProgress(sp, 0.00, 0.20) * (Math.PI / 2); bot.rotation.y = 0; eq.rotation.y = 0;
     } else if (sp <= 0.40) {

@@ -136,7 +136,7 @@
       "company": "Seat of Joy",
       "incubation": "Incubated at IIT Madras",
       "role": "Business & Strategy Analyst",
-      "duration": "2022 - 2024",
+      "duration": "2023 - 2024",
       "context": "Worked during undergraduate degree",
       "about": "Seat of Joy is an Indian startup incubated at IIT Madras that developed a safety seat for children specifically designed for two-wheelers - in India, 2 children die every day due to two-wheeler accidents and no existing product provided full-body protection during an accident. Seat of Joy fills that gap.",
       "achievements": [
@@ -332,7 +332,7 @@
       "id": "airbnb-superhost-rdd",
       "title": "Airbnb Superhost Badge: Causal Impact Study (Regression Discontinuity)",
       "page_url": "/projects/airbnb-superhost-rdd",
-      "short_description": "A regression discontinuity re-test of whether Airbnb's Superhost badge still causes better host outcomes now that the newer Guest Favorite badge has taken over discovery. Tirth built a 125,685-host panel from 34 U.S. metros, compared hosts on either side of the 4.8 rating cutoff, and found that the effect prior research reported has gone: none of six outcomes jumps at the threshold. A team project for the MSBA Competitive Analytics course (Team 17).",
+      "short_description": "A regression discontinuity re-test of whether Airbnb's Superhost badge still causes better host outcomes now that the newer Guest Favorite badge has taken over discovery. Tirth built a 125,685-host panel from 34 U.S. metros, compared hosts on either side of the 4.8 rating cutoff, and found the effect prior research reported has largely gone: five of six outcomes show no jump at the threshold, and the sixth (review volume) is one the design cannot vouch for. A team project for the MSBA Competitive Analytics course (Team 17).",
       "motivation": "Published research from 2023 (Mishra, Huang & Kalwani) found the Superhost badge causally lifted bookings and revenue at the 4.8-rating cutoff. Then the platform changed underneath that result: Airbnb launched Guest Favorite in November 2023 and removed the Superhost filter from on-site search shortly after, so the discovery mechanism that partly explained the original finding was gone. The badge is still awarded and hosts still chase it, which makes 'does it still do anything?' a live question. It is also the kind of question a business asks constantly and answers badly, because you cannot simply compare Superhosts to non-Superhosts: the hosts who earn the badge were already better.",
       "problem_statement": "Airbnb awards the Superhost badge quarterly to hosts clearing four bars over a trailing year: a rating of at least 4.8, a response rate of at least 90%, a cancellation rate under 1%, and enough completed stays. The badge historically did two jobs: a supply-side quality incentive and a demand-side trust signal guests could filter search by. Guest Favorite launched in November 2023 and the Superhost search filter was removed around January 2024, so the badge survives but its discovery mechanism does not. A naive Superhost-versus-everyone-else comparison measures host quality rather than the badge, because the badge is awarded for quality. RDD fixes that by comparing hosts just above and just below 4.8, who are on average indistinguishable in underlying quality, so a jump in outcomes exactly at the cutoff is attributable to the badge.",
       "approach_steps": [
@@ -342,25 +342,26 @@
         "Defining Treatment and Control Around 4.80 (bandwidth, response-rate and review-count filters, badge/rating agreement)",
         "The Specification, Stated With Its Assumptions (OLS jump term, HC1 robust errors, one common slope)",
         "Six Outcomes, Because One Would Be a Choice",
-        "Reading a Null Result Honestly (demand-side only, caveats stated)"
+        "Reading the Result Honestly (five nulls, one significant outcome the design cannot vouch for, demand-side only, caveats stated)"
       ],
       "achievements": [
-        "Re-tested a published causal finding against a changed platform: the 2023 study found a significant positive Superhost effect at the same 4.8 cutoff, and this replication on post-Guest-Favorite data finds none: a null result reported as the finding rather than buried.",
+        "Re-tested a published causal finding against a changed platform: the 2023 study found a significant positive Superhost effect at the same 4.8 cutoff, and this replication on post-Guest-Favorite data recovers it on only one of six outcomes, reported together with the design caveat that undercuts it rather than presented as a clean win.",
         "Built the host-level panel from raw Inside Airbnb data across 34 U.S. metro areas (~3 GB of listings, reviews and calendar files), unioning cities, scoring every listing's review text with VADER, aggregating calendar prices and availability, and rolling listings up to 125,685 hosts.",
         "Got the running variable right: Superhost is host-level but the data is listing-level, so host_rating is each host's review_scores_rating averaged weighted by listing review count: an unweighted mean lets one brand-new, barely-reviewed listing drag a host across the threshold.",
-        "Isolated the badge with a +/- 0.05 bandwidth (4.75-4.85), holding two of Airbnb's other Superhost criteria roughly fixed with a >= 90% response-rate filter and a review-count floor: 4,308 treated hosts, 2,378 controls, 6,686 in the analysis sample.",
+        "Isolated the badge with a +/- 0.05 bandwidth (4.75-4.85), holding two of Airbnb's other Superhost criteria roughly fixed with a >= 90% response-rate filter and a review-count floor: 4,308 treated hosts, 2,003 controls, 6,311 in the analysis sample.",
         "Handled the badge-versus-rating timing mismatch (quarterly badge evaluation vs. near-live scraped rating) by requiring a host's badge to agree with the side of the cutoff their rating falls on, dropping ambiguous hosts rather than mis-assigning them.",
         "Estimated the discontinuity as an OLS jump term on the centered running variable with HC1 heteroskedasticity-robust standard errors, across six outcomes at once, so the conclusion does not rest on a single hand-picked dependent variable.",
-        "Found no significant jump on any of the six: effects range from -2.49 reviews to +0.0029 sentiment with p-values from 0.156 to 0.929, and the plotted fits on either side of 4.8 are visually continuous.",
+        "Found no significant jump on five of the six outcomes: all four sentiment measures and the value-for-money sub-rating come back indistinguishable from zero, with p-values from 0.2253 to 0.9744 and point estimates in the third decimal place, and the plotted fits on either side of 4.8 are visually continuous.",
+        "Reported the one outcome that does clear the bar rather than dropping it: hosts just above the cutoff carry about 79 more total reviews across their listings than hosts just below, p = 0.0201. Total reviews is a stock accumulated over a host's whole history, most of it earned before the current badge was awarded, so a step in it at the cutoff reads more like an imbalance in a pre-determined characteristic than a causal effect of the badge.",
         "Wrote up the design's limits alongside its result: demand-side effect only, no McCrary manipulation test or covariate-balance check, one cross-section rather than hosts tracked over time, and Guest Favorite status not observable in the data."
       ],
       "key_metrics": {
-        "Significant Effects": "0 of 6 outcomes jump at the 4.8 cutoff",
-        "p-value Range": "0.156 to 0.929, HC1 robust, across all six outcomes",
-        "Analysis Sample": "6,686 hosts (4,308 treated, 2,378 control)",
+        "Significant Effects": "1 of 6 outcomes jumps at the 4.8 cutoff (review volume only)",
+        "p-value Range": "0.2253 to 0.9744, HC1 robust, across the five null outcomes",
+        "Analysis Sample": "6,311 hosts (4,308 treated, 2,003 control)",
         "Panel Built": "125,685 U.S. hosts from 34 metros, ~3 GB raw",
         "Bandwidth": "+/- 0.05, ratings 4.75 to 4.85 around the cutoff",
-        "Review Volume Effect": "-2.4903 reviews per host at the cutoff, p = 0.9286"
+        "Review Volume Effect": "+79.0745 reviews per host at the cutoff, p = 0.0201"
       },
       "tech_stack": [
         "Python",
@@ -377,7 +378,7 @@
       "technical_details": "A sharp regression discontinuity design on Airbnb's 4.8 Superhost rating cutoff, estimated on a 125,685-host panel built from Inside Airbnb listings, reviews and calendar data across 34 U.S. metros. Listing review text is scored with VADER and rolled up to the host by review-count-weighted averaging, which also defines the running variable. Within a +/- 0.05 bandwidth and response-rate / review-count inclusion filters, each of six outcomes (positive/negative/neutral/compound sentiment, total reviews, review_scores_value) is regressed on the centered rating and a treatment dummy with HC1 robust standard errors, and the discontinuity is plotted with separate fits on either side of the cutoff.",
       "status": "complete",
       "github_url": "https://github.com/TirthPatel3223/airbnb-superhost-rdd",
-      "notes": "Team project for MSBA Competitive Analytics (Team 17: Kahnthinisha, Nivesh, Sai Subramanian, Shivathmika, Tirth). The repo holds the analysis notebook and the final presentation; the raw ~3 GB Inside Airbnb data and the intermediate pipeline scripts are not included, so the notebook is not reproducible from the repo alone; its saved cell outputs are the record. The six-panel RDD regression figure from the notebook is embedded on the project page. The headline is a null result and should be described as one: it is the badge's demand-side effect at the margin in a single post-Guest-Favorite cross-section, and says nothing about the supply-side incentive."
+      "notes": "Team project for MSBA Competitive Analytics (Team 17: Kahnthinisha, Nivesh, Sai Subramanian, Shivathmika, Tirth). The repo holds the analysis notebook and the final presentation; the raw ~3 GB Inside Airbnb data and the intermediate pipeline scripts are not included, so the notebook is not reproducible from the repo alone; its saved cell outputs are the record. The six-panel RDD regression figure from the notebook is embedded on the project page. The headline should be described as a mostly-null result: five of the six outcomes show no jump at the cutoff, and the sixth, total reviews across a host's listings, jumps by about 79 reviews at p = 0.0201 but is a stock accumulated before the badge was awarded, so it reads more like an imbalance in a pre-determined characteristic than a badge effect. What the study measures is the badge's demand-side effect at the margin in a single post-Guest-Favorite cross-section; it says nothing about the supply-side incentive."
     },
     {
       "id": "course-rag-pipeline",

@@ -98,7 +98,7 @@ export default function WeatherPipelineArchDiagram() {
           </g>
         ))}
 
-        {/* Annotations — stacked legend (kept on separate lines to avoid overlap) */}
+        {/* Annotations: stacked legend (kept on separate lines to avoid overlap) */}
         <text x={40} y={246} fontSize={10} fill="rgba(245,158,11,0.7)" fontFamily="ui-monospace, monospace">
           2M+ reviews · historical weather aligned by geo + timestamp
         </text>

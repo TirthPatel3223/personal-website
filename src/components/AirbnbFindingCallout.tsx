@@ -46,19 +46,24 @@ export default function AirbnbFindingCallout() {
       <div className="p-6 space-y-5">
         <p className="text-lg md:text-xl font-semibold leading-snug" style={{ color: 'var(--title)' }}>
           Crossing the 4.8 Superhost cutoff moved{' '}
-          <span className="airbnb-accent-text">none of the six outcomes</span> tested: no
-          significant jump in guest sentiment, in how many reviews a host receives, or in how guests
-          rate value for money.
+          <span className="airbnb-accent-text">five of the six outcomes</span> not at all: no
+          significant jump in guest sentiment, and none in how guests rate value for money. The one
+          outcome that does jump is review volume, and it is the one the design is least able to
+          vouch for.
         </p>
 
         <p className="text-sm leading-relaxed" style={{ color: 'var(--foreground)' }}>
           The six were {OUTCOMES.slice(0, 4).join(', ')}, {OUTCOMES[4]}, and {OUTCOMES[5]}. Every
-          one was estimated the same way (an OLS jump term at the cutoff with robust standard
-          errors), and every one came back statistically indistinguishable from zero, with p-values
-          ranging from 0.156 to 0.929. Not one cleared the 5% line.
+          one was estimated the same way, an OLS jump term at the cutoff with robust standard
+          errors. Five came back statistically indistinguishable from zero, with p-values from
+          0.2253 to 0.9744. The sixth, review volume, cleared the 5% line: hosts just above the
+          cutoff carry about 79 more total reviews than hosts just below, p = 0.0201. Total reviews
+          is a stock accumulated over a host&apos;s entire history rather than a flow generated
+          after the badge was awarded, so that step reads more like the treated side being the more
+          established side than like the badge doing the work.
         </p>
 
-        {/* Then / now — the comparison that carries the argument */}
+        {/* Then / now: the comparison that carries the argument */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-3 items-stretch">
           <div
             className="rounded-xl p-4"
@@ -94,7 +99,10 @@ export default function AirbnbFindingCallout() {
             <p className="text-sm leading-relaxed" style={{ color: 'var(--foreground)' }}>
               Airbnb launched Guest Favorite in November 2023 and dropped the Superhost filter from
               search around January 2024. Re-run on post-change data, the same design finds{' '}
-              <strong style={{ color: 'var(--title)' }}>no detectable effect at all</strong>.
+              <strong style={{ color: 'var(--title)' }}>
+                no detectable effect on guest sentiment or perceived value
+              </strong>
+              .
             </p>
           </div>
         </div>
@@ -106,15 +114,17 @@ export default function AirbnbFindingCallout() {
           </span>
           . The badge itself never went away; it is still awarded quarterly and still shown on
           listing pages, but the mechanism that made it move guest behaviour, being a filter guests
-          searched by, was handed to a different badge. What is left at the cutoff is a label with
-          no measurable pull.
+          searched by, was handed to a different badge. What is left at the cutoff is a label that
+          no longer visibly changes how guests respond.
         </p>
 
         <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
           Worth stating plainly: this is a before-and-after across two separate studies on different
           samples, not one design that observes the switch happening. It shows the earlier effect is
-          absent now; it does not by itself isolate Guest Favorite as the cause, and Guest Favorite
-          status is not observable in this dataset.
+          absent now on five of six outcomes; it does not by itself isolate Guest Favorite as the
+          cause, and Guest Favorite status is not observable in this dataset. The review-volume
+          result would need a manipulation test and a covariate-balance check, neither of which this
+          notebook runs, before it could be read as a badge effect.
         </p>
       </div>
     </motion.div>

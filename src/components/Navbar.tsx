@@ -186,7 +186,7 @@ export default function Navbar() {
         </nav>
       </motion.header>
 
-      {/* Mobile dropdown — rendered outside the pill so it can overflow */}
+      {/* Mobile dropdown: rendered outside the pill so it can overflow */}
       <AnimatePresence initial={false}>
         {menuOpen && (
           <motion.div

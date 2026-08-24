@@ -32,7 +32,7 @@ export default async function ProjectPage({
   const project = getProjectBySlug(slug);
 
   /* Retired slugs (the old covid / e-commerce pages) must answer 404, not a 200 with a
-     "not found" body — a soft 404 keeps dead URLs in the search index. */
+     "not found" body: a soft 404 keeps dead URLs in the search index. */
   if (!project) {
     notFound();
   }
@@ -162,7 +162,7 @@ export default async function ProjectPage({
             {project.short_description}
           </p>
 
-          {/* Tech tags — project-specific colours kept */}
+          {/* Tech tags: project-specific colours kept */}
           <div className="flex flex-wrap gap-2 mb-8">
             {project.tech_stack.map((tech) => (
               <span
@@ -205,7 +205,7 @@ export default async function ProjectPage({
               </div>
             </section>
 
-            {/* Course RAG Live Demo — sits between Problem Statement and Results */}
+            {/* Course RAG Live Demo: sits between Problem Statement and Results */}
             {isRAG && <CourseRAGPreviewCard />}
 
             {/* Results / Impact */}
@@ -245,19 +245,19 @@ export default async function ProjectPage({
               </div>
             </section>
 
-            {/* Dashboards — directly below Results & Impact */}
+            {/* Dashboards: directly below Results & Impact */}
             {isDataTech && <TableauPreviewCard />}
             {isMapblazer && <MapblazerDashboardCard />}
             {isCrewPairing && <CrewPairingDemoCard />}
             {isRouteOpt && <RouteOptItineraryCard />}
 
-            {/* Mapblazer model comparison — reads against the dashboard above it */}
+            {/* Mapblazer model comparison: reads against the dashboard above it */}
             {isMapblazer && <MapblazerResultsChart />}
 
-            {/* Crew-pairing policy table — reads against the replay above it */}
+            {/* Crew-pairing policy table: reads against the replay above it */}
             {isCrewPairing && <CrewPairingResultsChart />}
 
-            {/* Airbnb RDD plots + coefficient table — the evidence behind the null */}
+            {/* Airbnb RDD plots + coefficient table: the evidence behind the finding */}
             {isAirbnb && <AirbnbRDDResults />}
 
             {/* Approach / Methodology */}
@@ -419,8 +419,8 @@ export default async function ProjectPage({
 }
 
 /* No isRouteOpt / isCrewPairing flags here on purpose: those two pages run the
-   homepage heading treatment — solid --title text with the accent gradient
-   underline from .section-title — rather than a per-project gradient fill. */
+   homepage heading treatment (solid --title text with the accent gradient
+   underline from .section-title) rather than a per-project gradient fill. */
 function SectionLabel({
   children,
   isDataTech,

@@ -4,7 +4,7 @@ import { motion, type Variants } from 'framer-motion';
 import { PlayCircle, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-/* The published demo site (viz/site/) — static HTML, CSS, one JS file and pre-recorded
+/* The published demo site (viz/site/): static HTML, CSS, one JS file and pre-recorded
    JSON. No backend, no model in the browser, nothing talking to a training machine.
    Redeployed by .github/workflows/pages.yml whenever viz/site/ changes. */
 const DEMO_URL =
@@ -59,7 +59,7 @@ export default function CrewPairingDemoCard() {
        stacked column below 1000px, which buries its playback bar. The parent is
        centred (max-w-5xl mx-auto), so its centre is the viewport centre and a
        symmetric negative margin re-centres this wider block. 100vw includes the
-       scrollbar, hence the 48px gutter — without it the page scrolls sideways. */
+       scrollbar, hence the 48px gutter; without it the page scrolls sideways. */
     <section
       className="relative"
       style={{

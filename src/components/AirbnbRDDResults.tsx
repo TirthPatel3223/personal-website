@@ -13,43 +13,49 @@ const fadeUp: Variants = {
 };
 
 /* Straight from the notebook's printed output (cell 5): OLS of each outcome on
-   rating_centered + treatment, HC1 robust standard errors, n = 6,686 hosts. */
+   rating_centered + treatment, HC1 robust standard errors, n = 6,311 hosts. */
 const ROWS = [
   {
     outcome: 'avg_pos_sentiment',
     plain: 'Positive review sentiment',
     effect: '−0.0020',
-    p: '0.3635',
+    p: '0.3469',
+    sig: false,
   },
   {
     outcome: 'avg_neg_sentiment',
     plain: 'Negative review sentiment',
-    effect: '−0.0005',
-    p: '0.1561',
+    effect: '−0.0003',
+    p: '0.4157',
+    sig: false,
   },
   {
     outcome: 'avg_neu_sentiment',
     plain: 'Neutral review sentiment',
-    effect: '+0.0029',
-    p: '0.1820',
+    effect: '+0.0026',
+    p: '0.2253',
+    sig: false,
   },
   {
     outcome: 'avg_compound_sentiment',
     plain: 'Overall sentiment score',
-    effect: '+0.0026',
-    p: '0.5200',
+    effect: '−0.0001',
+    p: '0.9744',
+    sig: false,
   },
   {
     outcome: 'total_reviews_across_listings',
     plain: 'Review volume per host',
-    effect: '−2.4903',
-    p: '0.9286',
+    effect: '+79.0745',
+    p: '0.0201',
+    sig: true,
   },
   {
     outcome: 'review_scores_value',
     plain: 'Value-for-money sub-rating',
-    effect: '−0.0023',
-    p: '0.7100',
+    effect: '−0.0012',
+    p: '0.8436',
+    sig: false,
   },
 ];
 
@@ -94,9 +100,12 @@ export default function AirbnbRDDResults() {
               treated side.{' '}
               <strong style={{ color: 'var(--title)' }}>
                 What a badge effect would look like is a visible step between the two lines where
-                they meet the dashed line
+                they meet the dashed line.
               </strong>{' '}
-              In all six panels, they meet it at effectively the same height.
+              In all six panels they meet it at effectively the same height. That includes the
+              review volume panel: its jump is real in the regression, but a handful of hosts with
+              over twenty thousand reviews stretch that y-axis far enough that a step of seventy
+              nine reviews is invisible by eye.
             </p>
           </div>
 
@@ -113,7 +122,7 @@ export default function AirbnbRDDResults() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/airbnb_rdd_regressions.png"
-                alt="Six regression discontinuity plots (positive, negative, neutral and compound review sentiment, total reviews across listings, and the review-scores value sub-rating), each plotted against host rating between 4.74 and 4.86 with separate fitted lines on either side of the dashed 4.80 cutoff. No panel shows a visible jump at the cutoff."
+                alt="Six regression discontinuity plots (positive, negative, neutral and compound review sentiment, total reviews across listings, and the review-scores value sub-rating), each plotted against host rating between 4.74 and 4.86 with separate fitted lines on either side of the dashed 4.80 cutoff. No panel shows a visible jump at the cutoff, including the total-reviews panel, whose estimated 79-review step is far too small to see on an axis that runs past twenty thousand reviews."
                 width={1489}
                 height={1790}
                 loading="lazy"
@@ -134,7 +143,7 @@ export default function AirbnbRDDResults() {
           >
             <Table2 className="w-4 h-4 airbnb-accent-text" />
             <span className="text-xs font-mono" style={{ color: 'var(--muted)' }}>
-              OLS jump at c = 4.8 · HC1 robust standard errors · n = 6,686 hosts
+              OLS jump at c = 4.8 · HC1 robust standard errors · n = 6,311 hosts
             </span>
           </div>
 
@@ -206,10 +215,13 @@ export default function AirbnbRDDResults() {
                     </td>
                     <td className="text-right pl-3 py-3 align-top whitespace-nowrap">
                       <span
-                        className="text-xs font-bold uppercase tracking-wider"
-                        style={{ color: 'var(--muted)' }}
+                        className={
+                          'text-xs font-bold uppercase tracking-wider' +
+                          (r.sig ? ' airbnb-accent-text' : '')
+                        }
+                        style={r.sig ? undefined : { color: 'var(--muted)' }}
                       >
-                        No
+                        {r.sig ? 'Yes' : 'No'}
                       </span>
                     </td>
                   </tr>
@@ -220,11 +232,16 @@ export default function AirbnbRDDResults() {
 
           <div className="px-5 pb-5">
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
-              The smallest p-value in the table is 0.156, so nothing is close to the 5% line, and the
-              point estimates themselves are tiny: two-thousandths of a sentiment scale that runs
-              from 0 to 1, and about two and a half reviews on hosts averaging hundreds. The result
-              is not &ldquo;a small effect we lacked the power to detect&rdquo; so much as no
-              detectable step at all.
+              Five of the six p-values fall between 0.2253 and 0.9744, nowhere near the 5% line,
+              and those point estimates are tiny in absolute terms as well: a few ten-thousandths
+              of a sentiment scale that runs from 0 to 1. For those five the result is not
+              &ldquo;a small effect we lacked the power to detect&rdquo; so much as no detectable
+              step at all. Review volume is the exception, and it is worth reading slowly rather
+              than celebrating: <span className="font-mono">total_reviews_across_listings</span> is
+              a stock a host builds up over their whole history, most of it earned long before the
+              current badge was awarded, so a step of ~79 reviews at the cutoff is about as
+              consistent with the treated side simply being the more established side as it is with
+              the badge generating anything.
             </p>
           </div>
         </div>
@@ -232,12 +249,15 @@ export default function AirbnbRDDResults() {
         <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
           Read narrowly, this is the badge&apos;s{' '}
           <span className="airbnb-accent-text font-semibold">demand-side effect at the margin</span>,
-          in a single post-Guest-Favorite cross-section. It is consistent with the removal of the
-          Superhost search filter having drained the discovery channel that the 2023 finding partly
-          rested on. It is not evidence that the badge does nothing at all: the{' '}
+          in a single post-Guest-Favorite cross-section. The absence of any sentiment or perceived
+          value response is consistent with the removal of the Superhost search filter having
+          drained the discovery channel that the 2023 finding partly rested on. It is not evidence
+          that the badge does nothing at all: the{' '}
           <span className="airbnb-accent-text font-semibold">supply-side incentive</span> (hosts
           working to earn and keep it) is a different question that this design cannot answer, and
           no manipulation test, covariate-balance check or bandwidth-sensitivity check was run here.
+          Those missing checks are exactly what the review-volume jump would need before anyone
+          could call it an effect rather than an imbalance.
         </p>
       </motion.div>
     </section>

@@ -36,7 +36,7 @@ export default function CourseRAGPreviewCard() {
   const [error, setError] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Attach native load/error listeners — more reliable than React synthetic
+  // Attach native load/error listeners, more reliable than React synthetic
   // events for cross-origin iframes
   useEffect(() => {
     if (!active) return;
@@ -146,7 +146,7 @@ export default function CourseRAGPreviewCard() {
             </div>
           )}
 
-          {/* Loading overlay — shown only while iframe is fetching */}
+          {/* Loading overlay: shown only while iframe is fetching */}
           {active && loading && !error && (
             <div
               className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-center gap-4 z-10 pointer-events-none"
@@ -184,7 +184,7 @@ export default function CourseRAGPreviewCard() {
             </div>
           )}
 
-          {/* Iframe — only mounted after user clicks Load Demo */}
+          {/* Iframe: only mounted after user clicks Load Demo */}
           {active && (
             <iframe
               ref={iframeRef}

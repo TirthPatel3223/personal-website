@@ -265,7 +265,7 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          {/* Current role. No bullet list yet — the internship has only just started,
+          {/* Current role. No bullet list yet, the internship has only just started,
               so the card exists to place it on the timeline, nothing more. */}
           <motion.div
             custom={0}
@@ -379,7 +379,7 @@ export default function Home() {
                       className="text-sm rounded-full px-3.5 py-1.5"
                       style={{ background: 'var(--accent-dim)', color: 'var(--foreground)' }}
                     >
-                      2022 – 2024
+                      2023 – 2024
                     </span>
                     <p
                       className="flex items-center gap-1 text-sm mt-2 justify-end"

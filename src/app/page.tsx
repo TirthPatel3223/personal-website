@@ -394,6 +394,10 @@ export default function Home() {
                 <ul className="space-y-6 text-base leading-relaxed" style={{ color: 'var(--muted)' }}>
                   {[
                     {
+                      heading: 'Shark Tank India Auditions: Stakeholder Advisory & Investor Presentation',
+                      body: 'Acted as the founding team\'s internal consultant, synthesising the market-sizing model, supply-chain analysis, competitive intelligence, and pricing strategy into a single client-ready narrative: total addressable market, competitive landscape, unit economics, and launch plan. Led a team of 3 through that synthesis, managed the founders\' alignment on the story pre-audition, then presented live to a panel of investor stakeholders and fielded adversarial, numbers-first Q&A with every claim traced back to an underlying model, a full consulting-style cycle of analysis, client alignment, and defended delivery.',
+                    },
+                    {
                       heading: 'Probabilistic Market-Sizing Model (Census Data)',
                       body: 'Sifted through 100+ Indian Census 2011 tables (200K+ rows each) to extract birth-order frequency matrices and inter-birth age-gap distributions. Built a joint-probability model that combined conditional age-gap probabilities with birth-order likelihoods to estimate, for any target year, how many Indian families have a child aged 3–6. Layered linear regression on historical cohorts to project YoY growth. Delivered an estimate of 55M addressable customers with 5% annual growth (45% more accurate than the startup\'s prior figures) and became the anchoring market-size number in every investor deck.',
                     },
@@ -404,10 +408,6 @@ export default function Home() {
                     {
                       heading: 'Competitive Intelligence & Pricing Strategy',
                       body: 'Conducted a full-stack competitive analysis across three child-safety product categories: built detailed SWOT profiles, cold-called manufacturers to source actual production costs, and computed competitor margins from first principles. Used margin benchmarking to derive a defensible pricing band, quantify competitive moat, and inform go-to-market sequencing. All findings fed directly into investor pitch materials and the product launch strategy.',
-                    },
-                    {
-                      heading: 'Shark Tank India Auditions: Stakeholder Advisory & Investor Presentation',
-                      body: 'Acted as the founding team\'s internal consultant, synthesising the market-sizing model, supply-chain analysis, competitive intelligence, and pricing strategy into a single client-ready narrative: total addressable market, competitive landscape, unit economics, and launch plan. Led a team of 3 through that synthesis, managed the founders\' alignment on the story pre-audition, then presented live to a panel of investor stakeholders and fielded adversarial, numbers-first Q&A with every claim traced back to an underlying model, a full consulting-style cycle of analysis, client alignment, and defended delivery.',
                     },
                   ].map(({ heading, body }, i) => (
                     <li key={i} className="flex gap-3 items-start">

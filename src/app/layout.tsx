@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist_Mono, Poppins } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ChatProvider } from '@/components/ChatProvider';
 import Chat from '@/components/Chat';
@@ -17,7 +18,10 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tirthpatel.com';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: 'Tirth Patel | Data Scientist & ML Engineer',
   description:
     'Portfolio of Tirth Patel, Data Scientist & ML Engineer pursuing MSBA at UCLA Anderson. Specializing in PySpark, PyTorch, Snowflake, and end-to-end ML pipelines.',
@@ -68,6 +72,7 @@ export default function RootLayout({
             <Chat />
           </ChatProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

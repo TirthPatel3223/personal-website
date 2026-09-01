@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import CubeMacroExplorerCard from '@/components/CubeMacroExplorerCard';
 import { Project } from '@/data/projects';
 
 /* ── inline SVG helpers ─────────────────────────────────────────── */
@@ -339,6 +340,9 @@ export default function DeepCubeAPage({ project }: { project: Project }) {
               </p>
             </div>
           </section>
+
+          {/* Interactive macro explorer */}
+          <CubeMacroExplorerCard />
 
           {/* Approach */}
           <section>

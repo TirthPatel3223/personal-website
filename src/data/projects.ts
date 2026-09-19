@@ -202,148 +202,111 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'mapblazer-route-optimization',
-    title: 'Theme Park Route Optimization: Time-Dependent MILP Solver',
+    id: 'course-rag-pipeline',
+    title: 'Course Material Q&A Assistant: Agentic RAG System',
     short_description:
-      'An exact Gurobi MILP that plans a whole park day at once: which rides to do, in what order, and at what time, with every queue priced by the 30-minute slot you actually arrive in. The routing engine behind Mapblazer.',
+      'Production-deployed agentic RAG system for UCLA MSBA students to query course materials (lecture slides, transcripts, and PDFs) using natural language. Live at tirth-courserag.duckdns.org.',
     motivation:
-      'A park day is not a shortest-path problem: a ride costs whatever its queue costs, the queue changes hour by hour, and the order you pick changes the costs that decide the order. I wanted to solve that feedback loop exactly rather than greedily, with an objective that says when idling for a cheaper slot is worth the wait it costs.',
-    card_achievements: [
-      'Saves an average of 22 minutes of queue time per itinerary against the legacy LLM planner it replaced, up to a full hour on a 12-hour park day.',
-      'Cut itinerary generation from a 60-second LLM average to a 10-second exact solve: 83.3% faster, with per-query token costs eliminated entirely.',
-      'Solves the day exactly as a time-dependent orienteering problem, each ride priced by the 30-minute slot the plan actually arrives in.',
-    ],
+      'The UCLA MSBA program runs 4 simultaneous courses, each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic system that classifies every query, self-verifies deadline answers, supports human-approved file uploads, and can explain exactly which source chunks drove any answer, deployed at effectively zero infrastructure cost on Oracle Cloud Free Tier.',
     achievements: [
-      'Modelled the park day as a time-dependent orienteering problem with mandatory nodes and solved it exactly in Gurobi rather than with the nearest-shortest-queue heuristic the problem invites: arrival time sets the queue, the queue sets the next arrival, and that feedback is precisely what greedy ordering cannot see.',
-      'Replaced the prompt-based LLM planner MapBlazer originally shipped with, which had no mechanism to react once a queue moved after a plan was written and underperformed most sharply on exactly those cascading-wait-time days; the MILP saves an average of 22 minutes of queue time per itinerary against it, and the gap widens with the length of the visit, reaching a full hour saved on a 12-hour park day because the static LLM plan cannot see the afternoon bottlenecks a time-dependent solve routes around.',
-      'Cut response time 83.3% by replacing the LLM call with a 10-second solver budget (down from a 60-second LLM average) and removed per-query token costs entirely, saving $0.75 a query.',
-      'Rewrote the objective from penalising queue time to charging the makespan of the whole loop, which fixed a concrete failure: the earlier version left walking and idling free and duly spent the entire time budget, finishing at closing time on every instance. The same seven-ride Disneyland day now finishes 130 minutes earlier, with less walking.',
-      'Scaled the two objective terms so a ride is never sacrificed to finish sooner: since an extra ride can lengthen the day by at most the whole budget, charging under min(priority)/T per minute makes the ride reward provably dominant, and the default half-of-that factor leaves a full 480-minute day costing half of one optional ride.',
-      'Kept the time-dependence linear by pinning arrival to a slot with two big-M inequalities and reading the queue as a constant table times a binary, so a genuinely time-varying cost stays inside a MILP instead of forcing a nonlinear model.',
-      'Replaced the exponential subtour-elimination family, 2^|R| constraints and roughly a trillion at forty rides, with lazy generation from a MIPSOL callback that walks the successor map in a single O(|N|) pass and cuts only the cycles it actually finds; the result is still exact, because a candidate surviving with no violated cut is provably one tour.',
-      'Expressed lunch breaks as a linearised finish-before-or-start-after disjunction and repeat rides as virtual twin nodes tied back to the original, so a pure routing model can schedule the same attraction twice and refuse to let any ride straddle a break.',
-      'Benchmarked the search budget instead of guessing it: the incumbent plateaus early, so the 10-second default lands within 0.4% of a 60-second search on both 12- and 16-ride days, and the finding that per-constraint big-M tightening made no measurable difference was recorded rather than quietly dropped.',
-      'Joined the solver to the live forecast service on normalised ride names, since the two datasets disagree on curly apostrophes, trademark symbols and capitalisation, and made uncovered rides a reported field on the response rather than a silent zero-wait assumption that would flatter every plan containing one.',
+      'Built a 13-node LangGraph agent with conditional routing across 5 query types: deadline, summary, upload, general Q&A, and source explanation',
+      'Implemented self-verifying deadline extraction: LLM extracts date → re-queries ChromaDB with rephrased search → cross-references results → surfaces conflicts with confidence indicator',
+      'Designed human-in-the-loop upload approval using LangGraph interrupt-before + SQLite checkpointer: LLM proposes a Drive folder path, user approves/edits before embedding, preventing vector store pollution',
+      'Built deadline-boosted retrieval: chunks tagged with contains_deadline metadata at ingestion, merged and re-ranked with general results to surface deadline content even when semantic score is not highest',
+      'Added OpenAI Vision fallback for scanned PDFs: 25-sec timeout per page, max 2 concurrent calls, early bail-out after 5 consecutive failures',
+      'Deployed on Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM) using Docker + Caddy + DuckDNS at ~$1–4/month total',
+      'Solved 9 distinct production issues during deployment including Oracle iptables blocking (iptables -I fix), DuckDNS expiry (cron ping job), and OAuth credentials not accessible in Docker (docker cp fix)',
     ],
-    tech_stack: ['Python', 'Gurobi', 'Mixed-Integer Programming', 'Operations Research', 'Combinatorial Optimization', 'FastAPI', 'Pydantic', 'pytest'],
-    technical_details:
-      'A time-dependent orienteering problem with mandatory nodes, solved exactly as a Gurobi MILP over arc, visit, slot, arrival, departure and wait variables, with connectivity enforced by lazily generated subtour cuts from a MIPSOL callback. The objective maximises priority-weighted rides less a scaled charge on the day\'s makespan; breaks and operating hours are linearised disjunctions and repeatable rides become virtual twin nodes. Queue costs come from the companion Prophet forecasting service at 30-minute resolution over a 7-day horizon, joined on normalised ride names, and the fixed plan is replayed minute by minute into a ranked itinerary served by both a CLI and a FastAPI endpoint.',
+    tech_stack: ['LangGraph', 'FastAPI', 'ChromaDB', 'Claude Haiku', 'OpenAI', 'Google Drive API', 'Docker', 'Python', 'SQLite', 'WebSocket'],
+    technical_details: 'LangGraph, FastAPI, ChromaDB, Claude Haiku, GPT-4o-mini, OpenAI Embeddings, Google Drive API, PyMuPDF, Docker, Caddy, Oracle Cloud',
     status: 'complete',
-    link: '/projects/mapblazer-route-optimization',
+    link: '/projects/course-rag-pipeline',
     detail: {
       problem_statement:
-        'Given a guest\'s must-do and nice-to-have rides, a start time and a time budget, decide which attractions to visit, in what order, and at what time. That is a Time-Dependent Orienteering Problem with mandatory nodes, and each of its three departures from the textbook Travelling Salesman Problem matters. You cannot do every ride, so the subset is part of the answer rather than given. The cost of visiting a node is its queue, which is not a constant but a function of when you arrive. And some rides are non-negotiable while others are merely worth points. The consequence is a circular dependency: the order determines the arrival times, the arrival times determine the queues, and the queues determine which order is best. Greedy rules such as "always take the shortest queue next" fail on exactly this, because the cheapest ride now can be the one that should have been left until the afternoon. The design question was therefore not which heuristic to use, but whether the whole day could be stated as one linear model and solved to optimality, with the time-dependence and the operational realities of breaks, opening hours and repeat rides all inside the model rather than patched on afterwards.',
+        'UCLA MSBA students juggle 4 simultaneous courses, each with lecture slides, transcripts, homework deadlines, and project deliverables scattered across a shared Google Drive. Manual search is slow and error-prone, especially for deadline-critical queries ("when is HW3 due?"). The challenge: build a production-grade agentic system that can answer natural-language questions over course PDFs, verify its own deadline answers to prevent hallucination, let students upload new files safely without polluting the vector store, and explain exactly which source chunks it used, all at zero ongoing infrastructure cost.',
       approach: [
         {
-          step: 'Naming the Problem Before Modelling It',
+          step: 'LangGraph Agentic Orchestration',
           detail:
-            'The day is a single loop that leaves the park entrance and returns to it, so the depot is the entrance and the rides are nodes on a complete digraph. What separates this from a tour is that in- and out-degree are tied to a selection variable rather than fixed at one, which is the formal difference between orienteering and TSP: an unvisited ride simply carries no arcs and costs nothing, so choosing the subset and choosing the order happen in the same solve rather than in two passes that can disagree.',
+            'Designed a 13-node LangGraph graph with a priority-based router that first checks for pending clarifications, then tries regex pattern matching (e.g., "why did you", "where did that come from"), and only falls back to LLM classification if patterns fail, saving ~200 tokens per source-explanation follow-up. The router classifies each query into one of five types and routes to the appropriate branch.',
         },
         {
-          step: 'An Objective That Charges for the Whole Day',
+          step: 'Self-Verifying Deadline Extraction',
           detail:
-            'The model maximises priority-weighted rides minus a small charge on the arrival time back at the entrance, which is the makespan of the day. That single term covers queueing, walking, riding and idling at once. An earlier version penalised queue time alone, which left walking and idling free, and the optimiser exploited it exactly as written: it used the entire time budget and finished at closing time on every instance. Charging the makespan brought the same seven-ride Disneyland day in 130 minutes earlier with less walking, and it also gets the time-dependence right for free, because idling to reach a cheaper slot lengthens the makespan while the smaller queue shortens it. The solver therefore waits only when the queue it skips is bigger than the wait it costs, which is the correct trade and one a queue-only penalty cannot express.',
+            'Deadline queries carry the highest accuracy requirement: a wrong date is worse than no answer. After extracting a deadline with the LLM, the system immediately re-queries ChromaDB with a rephrased version of the search and cross-references the extracted date against the new results. If two chunks give different dates for the same assignment, the response surfaces both and flags the discrepancy with a confidence indicator.',
         },
         {
-          step: 'Making Sure a Ride Is Never Traded for an Early Finish',
+          step: 'Deadline-Boosted Retrieval',
           detail:
-            'Two terms in one objective need a defensible exchange rate, not a tuned constant. An extra ride can lengthen the day by at most the whole budget, so any per-minute charge below the smallest ride priority divided by the budget guarantees the ride reward wins. The default takes half of that bound for margin, which on a 480-minute day means a full-length day costs half of one optional ride and a twentieth of a mandatory one. The same weights are reused to score the reported routes, so the ranking the user sees agrees with what was actually optimised.',
+            'Chunks containing deadline keywords (due, deadline, submit, homework, exam, etc.) are tagged with a contains_deadline metadata flag during ingestion. The ChromaService.query_with_deadline_boost() method merges results from a deadline-filtered query with results from a general query, deduplicates, and re-ranks, ensuring deadline-containing chunks appear at the top even when the semantic similarity score is not highest (deadline keywords often appear as side notes with lower embedding similarity).',
         },
         {
-          step: 'Time-Dependent Queues, Kept Linear',
+          step: 'Human-in-the-Loop Upload Approval',
           detail:
-            'The visit is cut into 30-minute slots matching the forecast grid. Two big-M inequalities force the slot indicator to the slot the arrival actually falls in, one equation reads that slot\'s forecast out of the wait matrix, and the resulting wait feeds the departure time, which feeds the next arrival. Linearity survives because the forecast is a constant table: the product is a number times a binary, never a variable times a variable. That is the whole mechanism by which choosing when to ride changes the cost of everything downstream while the model stays a MILP.',
+            'When a user uploads a file, the LangGraph graph pauses at a human_approval_gate node using LangGraph\'s interrupt_before mechanism with a SQLite checkpointer. The UI shows an approval dialog with the LLM\'s proposed Drive folder path and its reasoning. The user can approve, modify the path, or reject. Only approved uploads are chunked, embedded with OpenAI text-embedding-3-small, and stored in ChromaDB, preventing mis-categorised files from polluting the vector store.',
         },
         {
-          step: 'Breaks, Opening Hours and Second Rides',
+          step: 'Vision Fallback for Scanned PDFs',
           detail:
-            'A lunch break is a disjunction, finish before it or start after it, linearised with a binary that selects which of the two inequalities binds while a second big-M term excuses rides that were never visited. Operating hours are the same pattern without the choice. A ride worth doing twice becomes a virtual twin node with its own arrival time, a lower priority, and a constraint tying it to the original, which is what lets a pure routing formulation schedule the same attraction twice without any special-case logic in the search.',
+            'PyMuPDF text extraction returns fewer than 30 characters for pages that are images (scanned slides, photographed documents). In this case, the PDFProcessor sends the page image to OpenAI Vision (GPT-4o-mini) with a strict verbatim-transcription prompt. To prevent API timeouts from hanging the pipeline: 25-second timeout per page, maximum 2 concurrent vision calls, and an early bail-out after 5 consecutive failures on a single file.',
         },
         {
-          step: 'Connectivity Without the Exponential Family',
+          step: 'Deployment & Infrastructure',
           detail:
-            'Degree constraints are local, so they admit a valid depot tour plus free-floating cycles among the ride nodes. The classical repair adds a cut for every subset, 2^|R| of them, about a trillion at forty rides, which cannot be written down. Instead the cuts are discovered rather than enumerated: the model is solved without any of them, and every time the solver reaches an integer-feasible candidate a callback reads the selected arcs, walks the successor map to find the components, and for each cycle that does not contain the depot adds exactly that subset\'s cut and rejects the candidate. Because flow conservation gives every visited node exactly one outgoing arc, the components are simple paths and cycles and the walk is a single linear pass. Nothing about exactness is given up: a candidate that survives with no violated cut is provably a single tour.',
-        },
-        {
-          step: 'Knowing When to Stop Searching',
-          detail:
-            'Finding a good route is fast; proving it optimal is not, because the root relaxation is already tight and the remaining work is closing one or two percent against a default tolerance that demands no rearrangement of the day saves even a fraction of a minute. Past roughly ten rides that proof does not finish. The incumbent, however, plateaus early, so the time limit was set from measurement rather than taste: on both a 12-ride and a 16-ride day, ten seconds lands within 0.4% of a sixty-second search. The status is reported honestly as a time limit rather than as optimality, and the finding that tightening the big-M constants per constraint made no measurable difference was written down rather than quietly abandoned.',
-        },
-        {
-          step: 'Joining to the Forecast Without Lying About Gaps',
-          detail:
-            'Queue costs come from the companion Prophet forecasting service, a 7-day horizon at 30-minute resolution across 109 attractions. The two systems key rides differently, so names are compared on letters and digits alone after trademark symbols are stripped, which is also why a misspelling that exists in both systems is left alone rather than corrected: it is the working join key. Rides the forecast does not cover are surfaced as a field on the response, because the fallback is to plan them as zero wait, and a plan that silently treats an unknown queue as no queue is worse than one that says it does not know.',
+            'Fully containerised with Docker Compose on an Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM). Caddy handles reverse proxying and automatic HTTPS via Let\'s Encrypt. DuckDNS provides the free dynamic domain (with a cron job pinging every 30 minutes to prevent expiry). Total infrastructure cost: ~$1–4/month, essentially just LLM API usage. Solved production issues including Oracle iptables blocking ports 80/443 (fixed via iptables -I to insert ACCEPT before the blanket REJECT rule) and Google OAuth credentials not accessible inside the running container (fixed via docker cp).',
         },
       ],
       architecture: `
-  ── INPUTS ──────────────────────────────────────────────────────────
+START
+  ↓
+input_handler       → loads chat history from SQLite
+  ↓
+router              → priority: pending clarification → regex → LLM
+  ↓
+[CONDITIONAL ROUTING by query_type]
 
-  ┌───────────────────────────────┐  ┌───────────────────────────────┐
-  │ Wait-Time Forecast API        │  │ data/parks.json               │
-  │   Prophet fleet . 7-day       │  │   5 parks . 116 rides         │
-  │   horizon . 30-minute slots   │  │   durations . operating hours │
-  │ predictions.py                │  │ data/walk_times.json          │
-  │   pages PostgREST, joins on   │  │   ride-to-ride walk minutes   │
-  │   letters-and-digits names    │  │   per park                    │
-  └───────────────┬───────────────┘  └───────────────┬───────────────┘
-                  │ W[ride, slot]                    │ c[i,j] . d[i]
-                  └─────────────────┬────────────────┘
-                                    ↓
+  deadline branch:
+    retriever         → ChromaDB deadline-boosted search (k=5)
+    deadline_extractor → LLM: {assignment, date, time, confidence}
+    deadline_verifier  → re-query + cross-reference → flag conflicts
+    response_output
 
-  ── MODEL  -  solver.py ─────────────────────────────────────────────
+  summary branch:
+    retriever         → ChromaDB search (k=10)
+    summary_redirector → return Drive links + page numbers
+    response_output
 
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ nodes  depot 0 . one node per selected ride . a twin per repeat  │
-  │ vars   x[i,j] arc . y[i] visit . z[i,s] slot . a[i] e[i] w[i]    │
-  │                                                                  │
-  │ max    sum p[i]*y[i]   -   gamma * a[0]                          │
-  │        reward every ride reached, charge the whole loop's time   │
-  └─────────────────────────────────┬────────────────────────────────┘
-                                    ↓
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ constraints                                                      │
-  │   degree tied to selection: in/out degree is y[i], not 1         │
-  │   time carried along the route by a big-M switch on x[i,j]       │
-  │   the arrival slot pins z[i,s], which prices w[i] = W[ride(i),s] │
-  │   breaks as a linearised finish-before or start-after choice     │
-  │   per-ride opening and closing hours                             │
-  └─────────────────────────────────┬────────────────────────────────┘
-                                    ↓
+  upload branch:
+    upload_handler    → extract file content preview
+    location_classifier → LLM proposes Drive folder path
+    human_approval_gate [INTERRUPT] ← user approves/edits/rejects
+    upload_executor   → Drive upload + chunk + embed + ChromaDB
+    response_output
 
-  ── SEARCH  -  Gurobi ───────────────────────────────────────────────
+  general branch:
+    retriever         → ChromaDB search (k=7)
+    general_responder → LLM answer with cited sources
+    response_output
 
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ branch and bound . TimeLimit 10s . solution pool for alternates  │
-  └─────────────────────────────────┬────────────────────────────────┘
-                                    │  every integer-feasible candidate
-                                    ↓
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ MIPSOL callback   _eliminate_subtours                            │
-  │   read the arcs, walk successor[], find components   O(|N|)      │
-  │   a cycle with no depot -> cbLazy exactly that subset's cut      │
-  │   reject the candidate; the cut stays in the model               │
-  └─────────────────────────────────┬────────────────────────────────┘
-                                    │  repeat until no cycle remains
-                                    ↓
+  source_explanation branch:
+    source_explainer  → scan session history → return raw chunks
+    response_output
 
-  ── OUTPUT ──────────────────────────────────────────────────────────
+END
 
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ replay the fixed plan minute by minute, idling included          │
-  │ ranked itineraries + metadata: status . wait source . gaps       │
-  └────────────────┬────────────────────────────────┬────────────────┘
-                   ↓                                ↓
-               cli.py  markdown day             api.py  POST /solve
-`,
+Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
+          EmbeddingService (text-embedding-3-small, 1536-dim)
+          ChromaService (metadata filter: course_id + quarter, fallback on zero results)
+          DriveService (Google Drive API, OAuth 2.0)
+          PDFProcessor (PyMuPDF + Vision fallback for scanned pages)`,
       results: [
-        { metric: 'Queue Time Saved', value: '22 min avg', description: 'Vs. the legacy LLM planner, per itinerary, up to a full hour on a 12-hour day' },
-        { metric: 'Response Time', value: '83.3% faster', description: '10 s solver budget vs. 60 s legacy LLM average' },
-        { metric: 'Cost per Query', value: '$0.75 saved', description: 'Token costs eliminated entirely' },
-        { metric: 'Day Shortened', value: '130 min', description: 'Makespan objective vs. queue-time only, same 7 rides' },
-        { metric: 'Gap to a 60s Search', value: '0.4%', description: 'Measured on 12- and 16-ride days' },
-        { metric: 'Optimality', value: 'Exact', description: 'Proven optimal to ~10 rides, best-found beyond' },
+        { metric: 'LangGraph Nodes', value: '13', description: 'Plus 1 interrupt point for human-in-the-loop' },
+        { metric: 'Query Types', value: '5', description: 'Deadline, summary, upload, general, source explanation' },
+        { metric: 'Infra Cost', value: '~$1–4/mo', description: 'Oracle Cloud Free Tier + DuckDNS + Let\'s Encrypt' },
+        { metric: 'Courses Indexed', value: '4', description: 'MSA408, MSA409, MSA410, MSA413' },
+        { metric: 'Production Bugs Solved', value: '9', description: 'iptables, domain expiry, Docker creds, ChromaDB filters, and more' },
+        { metric: 'Test Count', value: '33', description: '20 Phase 1 + 13 Phase 2 tests' },
       ],
-      github_url: 'https://github.com/TirthPatel3223/Mapblazer_Route_Optimization_Algorithm',
     },
   },
   {
@@ -656,111 +619,148 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'course-rag-pipeline',
-    title: 'Course Material Q&A Assistant: Agentic RAG System',
+    id: 'mapblazer-route-optimization',
+    title: 'Theme Park Route Optimization: Time-Dependent MILP Solver',
     short_description:
-      'Production-deployed agentic RAG system for UCLA MSBA students to query course materials (lecture slides, transcripts, and PDFs) using natural language. Live at tirth-courserag.duckdns.org.',
+      'An exact Gurobi MILP that plans a whole park day at once: which rides to do, in what order, and at what time, with every queue priced by the 30-minute slot you actually arrive in. The routing engine behind Mapblazer.',
     motivation:
-      'The UCLA MSBA program runs 4 simultaneous courses, each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic system that classifies every query, self-verifies deadline answers, supports human-approved file uploads, and can explain exactly which source chunks drove any answer, deployed at effectively zero infrastructure cost on Oracle Cloud Free Tier.',
-    achievements: [
-      'Built a 13-node LangGraph agent with conditional routing across 5 query types: deadline, summary, upload, general Q&A, and source explanation',
-      'Implemented self-verifying deadline extraction: LLM extracts date → re-queries ChromaDB with rephrased search → cross-references results → surfaces conflicts with confidence indicator',
-      'Designed human-in-the-loop upload approval using LangGraph interrupt-before + SQLite checkpointer: LLM proposes a Drive folder path, user approves/edits before embedding, preventing vector store pollution',
-      'Built deadline-boosted retrieval: chunks tagged with contains_deadline metadata at ingestion, merged and re-ranked with general results to surface deadline content even when semantic score is not highest',
-      'Added OpenAI Vision fallback for scanned PDFs: 25-sec timeout per page, max 2 concurrent calls, early bail-out after 5 consecutive failures',
-      'Deployed on Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM) using Docker + Caddy + DuckDNS at ~$1–4/month total',
-      'Solved 9 distinct production issues during deployment including Oracle iptables blocking (iptables -I fix), DuckDNS expiry (cron ping job), and OAuth credentials not accessible in Docker (docker cp fix)',
+      'A park day is not a shortest-path problem: a ride costs whatever its queue costs, the queue changes hour by hour, and the order you pick changes the costs that decide the order. I wanted to solve that feedback loop exactly rather than greedily, with an objective that says when idling for a cheaper slot is worth the wait it costs.',
+    card_achievements: [
+      'Saves an average of 22 minutes of queue time per itinerary against the legacy LLM planner it replaced, up to a full hour on a 12-hour park day.',
+      'Cut itinerary generation from a 60-second LLM average to a 10-second exact solve: 83.3% faster, with per-query token costs eliminated entirely.',
+      'Solves the day exactly as a time-dependent orienteering problem, each ride priced by the 30-minute slot the plan actually arrives in.',
     ],
-    tech_stack: ['LangGraph', 'FastAPI', 'ChromaDB', 'Claude Haiku', 'OpenAI', 'Google Drive API', 'Docker', 'Python', 'SQLite', 'WebSocket'],
-    technical_details: 'LangGraph, FastAPI, ChromaDB, Claude Haiku, GPT-4o-mini, OpenAI Embeddings, Google Drive API, PyMuPDF, Docker, Caddy, Oracle Cloud',
+    achievements: [
+      'Modelled the park day as a time-dependent orienteering problem with mandatory nodes and solved it exactly in Gurobi rather than with the nearest-shortest-queue heuristic the problem invites: arrival time sets the queue, the queue sets the next arrival, and that feedback is precisely what greedy ordering cannot see.',
+      'Replaced the prompt-based LLM planner MapBlazer originally shipped with, which had no mechanism to react once a queue moved after a plan was written and underperformed most sharply on exactly those cascading-wait-time days; the MILP saves an average of 22 minutes of queue time per itinerary against it, and the gap widens with the length of the visit, reaching a full hour saved on a 12-hour park day because the static LLM plan cannot see the afternoon bottlenecks a time-dependent solve routes around.',
+      'Cut response time 83.3% by replacing the LLM call with a 10-second solver budget (down from a 60-second LLM average) and removed per-query token costs entirely, saving $0.75 a query.',
+      'Rewrote the objective from penalising queue time to charging the makespan of the whole loop, which fixed a concrete failure: the earlier version left walking and idling free and duly spent the entire time budget, finishing at closing time on every instance. The same seven-ride Disneyland day now finishes 130 minutes earlier, with less walking.',
+      'Scaled the two objective terms so a ride is never sacrificed to finish sooner: since an extra ride can lengthen the day by at most the whole budget, charging under min(priority)/T per minute makes the ride reward provably dominant, and the default half-of-that factor leaves a full 480-minute day costing half of one optional ride.',
+      'Kept the time-dependence linear by pinning arrival to a slot with two big-M inequalities and reading the queue as a constant table times a binary, so a genuinely time-varying cost stays inside a MILP instead of forcing a nonlinear model.',
+      'Replaced the exponential subtour-elimination family, 2^|R| constraints and roughly a trillion at forty rides, with lazy generation from a MIPSOL callback that walks the successor map in a single O(|N|) pass and cuts only the cycles it actually finds; the result is still exact, because a candidate surviving with no violated cut is provably one tour.',
+      'Expressed lunch breaks as a linearised finish-before-or-start-after disjunction and repeat rides as virtual twin nodes tied back to the original, so a pure routing model can schedule the same attraction twice and refuse to let any ride straddle a break.',
+      'Benchmarked the search budget instead of guessing it: the incumbent plateaus early, so the 10-second default lands within 0.4% of a 60-second search on both 12- and 16-ride days, and the finding that per-constraint big-M tightening made no measurable difference was recorded rather than quietly dropped.',
+      'Joined the solver to the live forecast service on normalised ride names, since the two datasets disagree on curly apostrophes, trademark symbols and capitalisation, and made uncovered rides a reported field on the response rather than a silent zero-wait assumption that would flatter every plan containing one.',
+    ],
+    tech_stack: ['Python', 'Gurobi', 'Mixed-Integer Programming', 'Operations Research', 'Combinatorial Optimization', 'FastAPI', 'Pydantic', 'pytest'],
+    technical_details:
+      'A time-dependent orienteering problem with mandatory nodes, solved exactly as a Gurobi MILP over arc, visit, slot, arrival, departure and wait variables, with connectivity enforced by lazily generated subtour cuts from a MIPSOL callback. The objective maximises priority-weighted rides less a scaled charge on the day\'s makespan; breaks and operating hours are linearised disjunctions and repeatable rides become virtual twin nodes. Queue costs come from the companion Prophet forecasting service at 30-minute resolution over a 7-day horizon, joined on normalised ride names, and the fixed plan is replayed minute by minute into a ranked itinerary served by both a CLI and a FastAPI endpoint.',
     status: 'complete',
-    link: '/projects/course-rag-pipeline',
+    link: '/projects/mapblazer-route-optimization',
     detail: {
       problem_statement:
-        'UCLA MSBA students juggle 4 simultaneous courses, each with lecture slides, transcripts, homework deadlines, and project deliverables scattered across a shared Google Drive. Manual search is slow and error-prone, especially for deadline-critical queries ("when is HW3 due?"). The challenge: build a production-grade agentic system that can answer natural-language questions over course PDFs, verify its own deadline answers to prevent hallucination, let students upload new files safely without polluting the vector store, and explain exactly which source chunks it used, all at zero ongoing infrastructure cost.',
+        'Given a guest\'s must-do and nice-to-have rides, a start time and a time budget, decide which attractions to visit, in what order, and at what time. That is a Time-Dependent Orienteering Problem with mandatory nodes, and each of its three departures from the textbook Travelling Salesman Problem matters. You cannot do every ride, so the subset is part of the answer rather than given. The cost of visiting a node is its queue, which is not a constant but a function of when you arrive. And some rides are non-negotiable while others are merely worth points. The consequence is a circular dependency: the order determines the arrival times, the arrival times determine the queues, and the queues determine which order is best. Greedy rules such as "always take the shortest queue next" fail on exactly this, because the cheapest ride now can be the one that should have been left until the afternoon. The design question was therefore not which heuristic to use, but whether the whole day could be stated as one linear model and solved to optimality, with the time-dependence and the operational realities of breaks, opening hours and repeat rides all inside the model rather than patched on afterwards.',
       approach: [
         {
-          step: 'LangGraph Agentic Orchestration',
+          step: 'Naming the Problem Before Modelling It',
           detail:
-            'Designed a 13-node LangGraph graph with a priority-based router that first checks for pending clarifications, then tries regex pattern matching (e.g., "why did you", "where did that come from"), and only falls back to LLM classification if patterns fail, saving ~200 tokens per source-explanation follow-up. The router classifies each query into one of five types and routes to the appropriate branch.',
+            'The day is a single loop that leaves the park entrance and returns to it, so the depot is the entrance and the rides are nodes on a complete digraph. What separates this from a tour is that in- and out-degree are tied to a selection variable rather than fixed at one, which is the formal difference between orienteering and TSP: an unvisited ride simply carries no arcs and costs nothing, so choosing the subset and choosing the order happen in the same solve rather than in two passes that can disagree.',
         },
         {
-          step: 'Self-Verifying Deadline Extraction',
+          step: 'An Objective That Charges for the Whole Day',
           detail:
-            'Deadline queries carry the highest accuracy requirement: a wrong date is worse than no answer. After extracting a deadline with the LLM, the system immediately re-queries ChromaDB with a rephrased version of the search and cross-references the extracted date against the new results. If two chunks give different dates for the same assignment, the response surfaces both and flags the discrepancy with a confidence indicator.',
+            'The model maximises priority-weighted rides minus a small charge on the arrival time back at the entrance, which is the makespan of the day. That single term covers queueing, walking, riding and idling at once. An earlier version penalised queue time alone, which left walking and idling free, and the optimiser exploited it exactly as written: it used the entire time budget and finished at closing time on every instance. Charging the makespan brought the same seven-ride Disneyland day in 130 minutes earlier with less walking, and it also gets the time-dependence right for free, because idling to reach a cheaper slot lengthens the makespan while the smaller queue shortens it. The solver therefore waits only when the queue it skips is bigger than the wait it costs, which is the correct trade and one a queue-only penalty cannot express.',
         },
         {
-          step: 'Deadline-Boosted Retrieval',
+          step: 'Making Sure a Ride Is Never Traded for an Early Finish',
           detail:
-            'Chunks containing deadline keywords (due, deadline, submit, homework, exam, etc.) are tagged with a contains_deadline metadata flag during ingestion. The ChromaService.query_with_deadline_boost() method merges results from a deadline-filtered query with results from a general query, deduplicates, and re-ranks, ensuring deadline-containing chunks appear at the top even when the semantic similarity score is not highest (deadline keywords often appear as side notes with lower embedding similarity).',
+            'Two terms in one objective need a defensible exchange rate, not a tuned constant. An extra ride can lengthen the day by at most the whole budget, so any per-minute charge below the smallest ride priority divided by the budget guarantees the ride reward wins. The default takes half of that bound for margin, which on a 480-minute day means a full-length day costs half of one optional ride and a twentieth of a mandatory one. The same weights are reused to score the reported routes, so the ranking the user sees agrees with what was actually optimised.',
         },
         {
-          step: 'Human-in-the-Loop Upload Approval',
+          step: 'Time-Dependent Queues, Kept Linear',
           detail:
-            'When a user uploads a file, the LangGraph graph pauses at a human_approval_gate node using LangGraph\'s interrupt_before mechanism with a SQLite checkpointer. The UI shows an approval dialog with the LLM\'s proposed Drive folder path and its reasoning. The user can approve, modify the path, or reject. Only approved uploads are chunked, embedded with OpenAI text-embedding-3-small, and stored in ChromaDB, preventing mis-categorised files from polluting the vector store.',
+            'The visit is cut into 30-minute slots matching the forecast grid. Two big-M inequalities force the slot indicator to the slot the arrival actually falls in, one equation reads that slot\'s forecast out of the wait matrix, and the resulting wait feeds the departure time, which feeds the next arrival. Linearity survives because the forecast is a constant table: the product is a number times a binary, never a variable times a variable. That is the whole mechanism by which choosing when to ride changes the cost of everything downstream while the model stays a MILP.',
         },
         {
-          step: 'Vision Fallback for Scanned PDFs',
+          step: 'Breaks, Opening Hours and Second Rides',
           detail:
-            'PyMuPDF text extraction returns fewer than 30 characters for pages that are images (scanned slides, photographed documents). In this case, the PDFProcessor sends the page image to OpenAI Vision (GPT-4o-mini) with a strict verbatim-transcription prompt. To prevent API timeouts from hanging the pipeline: 25-second timeout per page, maximum 2 concurrent vision calls, and an early bail-out after 5 consecutive failures on a single file.',
+            'A lunch break is a disjunction, finish before it or start after it, linearised with a binary that selects which of the two inequalities binds while a second big-M term excuses rides that were never visited. Operating hours are the same pattern without the choice. A ride worth doing twice becomes a virtual twin node with its own arrival time, a lower priority, and a constraint tying it to the original, which is what lets a pure routing formulation schedule the same attraction twice without any special-case logic in the search.',
         },
         {
-          step: 'Deployment & Infrastructure',
+          step: 'Connectivity Without the Exponential Family',
           detail:
-            'Fully containerised with Docker Compose on an Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM). Caddy handles reverse proxying and automatic HTTPS via Let\'s Encrypt. DuckDNS provides the free dynamic domain (with a cron job pinging every 30 minutes to prevent expiry). Total infrastructure cost: ~$1–4/month, essentially just LLM API usage. Solved production issues including Oracle iptables blocking ports 80/443 (fixed via iptables -I to insert ACCEPT before the blanket REJECT rule) and Google OAuth credentials not accessible inside the running container (fixed via docker cp).',
+            'Degree constraints are local, so they admit a valid depot tour plus free-floating cycles among the ride nodes. The classical repair adds a cut for every subset, 2^|R| of them, about a trillion at forty rides, which cannot be written down. Instead the cuts are discovered rather than enumerated: the model is solved without any of them, and every time the solver reaches an integer-feasible candidate a callback reads the selected arcs, walks the successor map to find the components, and for each cycle that does not contain the depot adds exactly that subset\'s cut and rejects the candidate. Because flow conservation gives every visited node exactly one outgoing arc, the components are simple paths and cycles and the walk is a single linear pass. Nothing about exactness is given up: a candidate that survives with no violated cut is provably a single tour.',
+        },
+        {
+          step: 'Knowing When to Stop Searching',
+          detail:
+            'Finding a good route is fast; proving it optimal is not, because the root relaxation is already tight and the remaining work is closing one or two percent against a default tolerance that demands no rearrangement of the day saves even a fraction of a minute. Past roughly ten rides that proof does not finish. The incumbent, however, plateaus early, so the time limit was set from measurement rather than taste: on both a 12-ride and a 16-ride day, ten seconds lands within 0.4% of a sixty-second search. The status is reported honestly as a time limit rather than as optimality, and the finding that tightening the big-M constants per constraint made no measurable difference was written down rather than quietly abandoned.',
+        },
+        {
+          step: 'Joining to the Forecast Without Lying About Gaps',
+          detail:
+            'Queue costs come from the companion Prophet forecasting service, a 7-day horizon at 30-minute resolution across 109 attractions. The two systems key rides differently, so names are compared on letters and digits alone after trademark symbols are stripped, which is also why a misspelling that exists in both systems is left alone rather than corrected: it is the working join key. Rides the forecast does not cover are surfaced as a field on the response, because the fallback is to plan them as zero wait, and a plan that silently treats an unknown queue as no queue is worse than one that says it does not know.',
         },
       ],
       architecture: `
-START
-  ↓
-input_handler       → loads chat history from SQLite
-  ↓
-router              → priority: pending clarification → regex → LLM
-  ↓
-[CONDITIONAL ROUTING by query_type]
+  ── INPUTS ──────────────────────────────────────────────────────────
 
-  deadline branch:
-    retriever         → ChromaDB deadline-boosted search (k=5)
-    deadline_extractor → LLM: {assignment, date, time, confidence}
-    deadline_verifier  → re-query + cross-reference → flag conflicts
-    response_output
+  ┌───────────────────────────────┐  ┌───────────────────────────────┐
+  │ Wait-Time Forecast API        │  │ data/parks.json               │
+  │   Prophet fleet . 7-day       │  │   5 parks . 116 rides         │
+  │   horizon . 30-minute slots   │  │   durations . operating hours │
+  │ predictions.py                │  │ data/walk_times.json          │
+  │   pages PostgREST, joins on   │  │   ride-to-ride walk minutes   │
+  │   letters-and-digits names    │  │   per park                    │
+  └───────────────┬───────────────┘  └───────────────┬───────────────┘
+                  │ W[ride, slot]                    │ c[i,j] . d[i]
+                  └─────────────────┬────────────────┘
+                                    ↓
 
-  summary branch:
-    retriever         → ChromaDB search (k=10)
-    summary_redirector → return Drive links + page numbers
-    response_output
+  ── MODEL  -  solver.py ─────────────────────────────────────────────
 
-  upload branch:
-    upload_handler    → extract file content preview
-    location_classifier → LLM proposes Drive folder path
-    human_approval_gate [INTERRUPT] ← user approves/edits/rejects
-    upload_executor   → Drive upload + chunk + embed + ChromaDB
-    response_output
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ nodes  depot 0 . one node per selected ride . a twin per repeat  │
+  │ vars   x[i,j] arc . y[i] visit . z[i,s] slot . a[i] e[i] w[i]    │
+  │                                                                  │
+  │ max    sum p[i]*y[i]   -   gamma * a[0]                          │
+  │        reward every ride reached, charge the whole loop's time   │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ constraints                                                      │
+  │   degree tied to selection: in/out degree is y[i], not 1         │
+  │   time carried along the route by a big-M switch on x[i,j]       │
+  │   the arrival slot pins z[i,s], which prices w[i] = W[ride(i),s] │
+  │   breaks as a linearised finish-before or start-after choice     │
+  │   per-ride opening and closing hours                             │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    ↓
 
-  general branch:
-    retriever         → ChromaDB search (k=7)
-    general_responder → LLM answer with cited sources
-    response_output
+  ── SEARCH  -  Gurobi ───────────────────────────────────────────────
 
-  source_explanation branch:
-    source_explainer  → scan session history → return raw chunks
-    response_output
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ branch and bound . TimeLimit 10s . solution pool for alternates  │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    │  every integer-feasible candidate
+                                    ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ MIPSOL callback   _eliminate_subtours                            │
+  │   read the arcs, walk successor[], find components   O(|N|)      │
+  │   a cycle with no depot -> cbLazy exactly that subset's cut      │
+  │   reject the candidate; the cut stays in the model               │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    │  repeat until no cycle remains
+                                    ↓
 
-END
+  ── OUTPUT ──────────────────────────────────────────────────────────
 
-Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
-          EmbeddingService (text-embedding-3-small, 1536-dim)
-          ChromaService (metadata filter: course_id + quarter, fallback on zero results)
-          DriveService (Google Drive API, OAuth 2.0)
-          PDFProcessor (PyMuPDF + Vision fallback for scanned pages)`,
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ replay the fixed plan minute by minute, idling included          │
+  │ ranked itineraries + metadata: status . wait source . gaps       │
+  └────────────────┬────────────────────────────────┬────────────────┘
+                   ↓                                ↓
+               cli.py  markdown day             api.py  POST /solve
+`,
       results: [
-        { metric: 'LangGraph Nodes', value: '13', description: 'Plus 1 interrupt point for human-in-the-loop' },
-        { metric: 'Query Types', value: '5', description: 'Deadline, summary, upload, general, source explanation' },
-        { metric: 'Infra Cost', value: '~$1–4/mo', description: 'Oracle Cloud Free Tier + DuckDNS + Let\'s Encrypt' },
-        { metric: 'Courses Indexed', value: '4', description: 'MSA408, MSA409, MSA410, MSA413' },
-        { metric: 'Production Bugs Solved', value: '9', description: 'iptables, domain expiry, Docker creds, ChromaDB filters, and more' },
-        { metric: 'Test Count', value: '33', description: '20 Phase 1 + 13 Phase 2 tests' },
+        { metric: 'Queue Time Saved', value: '22 min avg', description: 'Vs. the legacy LLM planner, per itinerary, up to a full hour on a 12-hour day' },
+        { metric: 'Response Time', value: '83.3% faster', description: '10 s solver budget vs. 60 s legacy LLM average' },
+        { metric: 'Cost per Query', value: '$0.75 saved', description: 'Token costs eliminated entirely' },
+        { metric: 'Day Shortened', value: '130 min', description: 'Makespan objective vs. queue-time only, same 7 rides' },
+        { metric: 'Gap to a 60s Search', value: '0.4%', description: 'Measured on 12- and 16-ride days' },
+        { metric: 'Optimality', value: 'Exact', description: 'Proven optimal to ~10 rides, best-found beyond' },
       ],
+      github_url: 'https://github.com/TirthPatel3223/Mapblazer_Route_Optimization_Algorithm',
     },
   },
   {

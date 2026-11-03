@@ -18,6 +18,8 @@ import CrewPairingResultsChart from '@/components/CrewPairingResultsChart';
 import AirbnbRDDResults from '@/components/AirbnbRDDResults';
 import AirbnbFindingCallout from '@/components/AirbnbFindingCallout';
 import RouteOptItineraryCard from '@/components/RouteOptItineraryCard';
+import KneeMRIResults from '@/components/KneeMRIResults';
+import KneeMRICostGuide from '@/components/KneeMRICostGuide';
 
 export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.id }));
@@ -45,6 +47,7 @@ export default async function ProjectPage({
   const isCrewPairing = project.id === 'airline-crew-pairing-rl';
   const isAirbnb = project.id === 'airbnb-superhost-rdd';
   const isRouteOpt = project.id === 'mapblazer-route-optimization';
+  const isKnee = project.id === 'knee-mri-data-efficiency';
 
   /* Accent colours per-project */
   const accentText   = isDataTech ? 'text-[#4e9bb9]'
@@ -52,6 +55,7 @@ export default async function ProjectPage({
     : isRouteOpt ? 'routeopt-accent-text'
     : isCrewPairing ? 'crewpair-accent-text'
     : isAirbnb ? 'airbnb-accent-text'
+    : isKnee ? 'knee-accent-text'
     : isRAG ? 'site-accent-text'
     : 'cube-accent-text';
   const accentBorder = isDataTech ? 'border-[#1f77b4]/30'
@@ -59,6 +63,7 @@ export default async function ProjectPage({
     : isRouteOpt ? 'routeopt-accent-border'
     : isCrewPairing ? 'crewpair-accent-border'
     : isAirbnb ? 'airbnb-accent-border'
+    : isKnee ? 'knee-accent-border'
     : isRAG ? 'site-accent-border'
     : 'cube-accent-border';
   const accentBg     = isDataTech ? 'bg-[#1f77b4]/10'
@@ -66,6 +71,7 @@ export default async function ProjectPage({
     : isRouteOpt ? 'routeopt-accent-bg'
     : isCrewPairing ? 'crewpair-accent-bg'
     : isAirbnb ? 'airbnb-accent-bg'
+    : isKnee ? 'knee-accent-bg'
     : isRAG ? 'site-accent-bg'
     : 'cube-accent-bg';
   const accentHover  = isDataTech ? 'hover:border-[#4e9bb9]/50'
@@ -73,6 +79,7 @@ export default async function ProjectPage({
     : isRouteOpt ? 'hover-routeopt-accent-border'
     : isCrewPairing ? 'hover-crewpair-accent-border'
     : isAirbnb ? 'hover-airbnb-accent-border'
+    : isKnee ? 'hover-knee-accent-border'
     : isRAG ? 'hover-site-accent-border'
     : 'hover:border-teal-500/40';
 
@@ -84,7 +91,7 @@ export default async function ProjectPage({
 
   const mainContent = (
     <main
-      className={`min-h-screen${isCubeSolver ? ' cube-body-bg' : ''}${isDataTech ? ' datatech-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}${isRouteOpt ? ' routeopt-body-bg' : ''}${isCrewPairing ? ' crewpair-body-bg' : ''}${isAirbnb ? ' airbnb-body-bg' : ''}`}
+      className={`min-h-screen${isCubeSolver ? ' cube-body-bg' : ''}${isDataTech ? ' datatech-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}${isRouteOpt ? ' routeopt-body-bg' : ''}${isCrewPairing ? ' crewpair-body-bg' : ''}${isAirbnb ? ' airbnb-body-bg' : ''}${isKnee ? ' knee-body-bg' : ''}`}
       style={{
         color: 'var(--foreground)',
         position: 'relative',
@@ -95,7 +102,7 @@ export default async function ProjectPage({
 
       {/* ── HERO BANNER ─────────────────────────────────────────────── */}
       <div
-        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}${isMapblazer ? ' mapblazer-hero-bg' : ''}${isRouteOpt ? ' routeopt-hero-bg' : ''}${isCrewPairing ? ' crewpair-hero-bg' : ''}${isAirbnb ? ' airbnb-hero-bg' : ''}`}
+        className={`relative overflow-hidden${isCubeSolver ? ' cube-hero-bg' : ''}${isMapblazer ? ' mapblazer-hero-bg' : ''}${isRouteOpt ? ' routeopt-hero-bg' : ''}${isCrewPairing ? ' crewpair-hero-bg' : ''}${isAirbnb ? ' airbnb-hero-bg' : ''}${isKnee ? ' knee-hero-bg' : ''}`}
         style={{ borderBottom: '1px solid var(--border)' }}
       >
         {/* Mapblazer hero background image (sits beneath the scrim gradients) */}
@@ -117,6 +124,7 @@ export default async function ProjectPage({
             : isRouteOpt ? 'bg-[#60a5fa]/12'
             : isCrewPairing ? 'bg-[#60a5fa]/12'
             : isAirbnb ? 'bg-[#FF385C]/14'
+            : isKnee ? 'bg-[#8b5cf6]/14'
             : 'bg-teal-500/8'
           }`}
         />
@@ -197,7 +205,7 @@ export default async function ProjectPage({
           <>
             {/* Problem Statement */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb}>Problem Statement</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb} isKnee={isKnee}>Problem Statement</SectionLabel>
               <div className={`glass rounded-2xl p-8 border ${accentBorder}${cardFx}`}>
                 <p className="leading-relaxed text-lg" style={{ color: 'var(--foreground)' }}>
                   {detail.problem_statement}
@@ -210,7 +218,7 @@ export default async function ProjectPage({
 
             {/* Results / Impact */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb}>Results &amp; Impact</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb} isKnee={isKnee}>Results &amp; Impact</SectionLabel>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
                 {detail.results.map((r, i) => (
                   <div
@@ -260,9 +268,14 @@ export default async function ProjectPage({
             {/* Airbnb RDD plots + coefficient table: the evidence behind the finding */}
             {isAirbnb && <AirbnbRDDResults />}
 
+            {/* Knee MRI: learning curves, crossover and label-gap charts, then the
+                cost-to-target table and hospital decision guide */}
+            {isKnee && <KneeMRIResults />}
+            {isKnee && <KneeMRICostGuide />}
+
             {/* Approach / Methodology */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb}>Approach &amp; Methodology</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb} isKnee={isKnee}>Approach &amp; Methodology</SectionLabel>
               <div className="space-y-4">
                 {detail.approach.map((item, i) => (
                   <div
@@ -293,7 +306,7 @@ export default async function ProjectPage({
 
             {/* Architecture Diagram */}
             <section>
-              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb}>Architecture</SectionLabel>
+              <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb} isKnee={isKnee}>Architecture</SectionLabel>
               <div className={`glass border ${accentBorder} rounded-2xl overflow-hidden${cardFx}`}>
                 <div
                   className="flex items-center gap-2 px-5 py-3"
@@ -312,7 +325,7 @@ export default async function ProjectPage({
                   <WeatherPipelineArchDiagram />
                 ) : (
                   <pre
-                    className={`${isRAG ? 'site-accent-text' : isMapblazer ? 'mapblazer-accent-text' : isRouteOpt ? 'routeopt-accent-text' : isCrewPairing ? 'crewpair-accent-text' : isAirbnb ? 'airbnb-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
+                    className={`${isRAG ? 'site-accent-text' : isMapblazer ? 'mapblazer-accent-text' : isRouteOpt ? 'routeopt-accent-text' : isCrewPairing ? 'crewpair-accent-text' : isAirbnb ? 'airbnb-accent-text' : isKnee ? 'knee-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
                     style={{ fontVariantLigatures: 'none', fontFeatureSettings: '"liga" 0, "calt" 0' }}
                   >
                     {detail.architecture}
@@ -426,19 +439,23 @@ function SectionLabel({
   isDataTech,
   isMapblazer,
   isAirbnb,
+  isKnee,
 }: {
   children: React.ReactNode;
   isDataTech?: boolean;
   isMapblazer?: boolean;
   isAirbnb?: boolean;
+  isKnee?: boolean;
 }) {
-  const hasGradient = isDataTech || isMapblazer || isAirbnb;
+  const hasGradient = isDataTech || isMapblazer || isAirbnb || isKnee;
   const gradientClass = isDataTech
     ? 'from-[#1f77b4] to-[#4e9bb9]'
     : isMapblazer
     ? 'from-[#f97316] to-[#fbbf24]'
     : isAirbnb
     ? 'from-[#a10d33] to-[#d1214e] dark:from-[#FF385C] dark:to-[#FF9A8B]'
+    : isKnee
+    ? 'from-[#5b21b6] to-[#7c3aed] dark:from-[#a78bfa] dark:to-[#c084fc]'
     : '';
 
   return (
@@ -450,7 +467,7 @@ function SectionLabel({
             : ''
         }`}
         style={
-          isMapblazer || isAirbnb
+          isMapblazer || isAirbnb || isKnee
             ? { color: 'transparent' }
             : hasGradient
             ? undefined

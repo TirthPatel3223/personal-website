@@ -12,14 +12,17 @@ const skills: Record<string, string[]> = {
      group sizes are held to 7-13 items, and the ORDER is by rendered card weight
      (label length, not item count - "Champion/Challenger Promotion" costs a whole
      line) so each row of three holds cards of similar height. Every skill from the
-     original eight groups is still here, just regrouped. */
+     original eight groups is still here, just regrouped. Rows are currently
+     ML / CV / LLMs, MLOps / Optimization / Statistics, Languages / Analytics / Data
+     Engineering, measured within ~40px of each other. */
   'Machine Learning': ['XGBoost', 'Prophet', 'scikit-learn', 'PyTorch', 'TensorFlow', 'Deep Learning', 'Deep RL', 'CUDA', 'Time-Series Forecasting', 'Feature Engineering', 'Transformers', 'Deep Q-Networks', 'Reward Design'],
+  'Computer Vision & Medical Imaging': ['Computer Vision', 'Medical Imaging (MRI)', 'DICOM', 'Vision Transformers', 'ConvNeXt', 'DINOv3 / DINOv2', 'Transfer Learning', 'Fine-Tuning', 'Multiple-Instance Learning', 'timm'],
+  'LLMs & Generative AI': ['LangGraph', 'Agentic RAG', 'ChromaDB', 'Vector Search', 'Claude & OpenAI APIs', 'Embeddings', 'Hugging Face', 'Prompt Engineering', 'Local LLMs (Ollama)', 'LLM Label Extraction'],
   'MLOps & Productionization': ['Databricks', 'Databricks Asset Bundles', 'Automated Retraining', 'Champion/Challenger Promotion', 'Data Quality Gates', 'GitHub Actions', 'CI/CD', 'Docker', 'AWS EC2', 'TensorBoard', 'Experiment Tracking'],
   'Optimization & Operations Research': ['Gurobi', 'Linear Programming', 'Mixed-Integer Programming', 'Combinatorial Optimization', 'Constraint Modeling', 'Lazy Constraint Generation', 'Routing & Scheduling', 'Operations Research'],
-  'Statistics & Causal Inference': ['Probability & Statistics', 'Regression', 'Causal Inference', 'Regression Discontinuity', 'Econometrics', 'Mathematical Modeling', 'Market Sizing Models'],
+  'Statistics & Causal Inference': ['Probability & Statistics', 'Regression', 'Causal Inference', 'Regression Discontinuity', 'Econometrics', 'Mathematical Modeling', 'Market Sizing Models', 'Bootstrap Inference', 'Mixed-Effects Models'],
   'Languages & Tools': ['Python', 'SQL', 'R', 'JavaScript', 'TypeScript', 'Git', 'Jupyter', 'pytest', 'Next.js', 'Excel', 'systemd', 'Oracle Cloud', 'YAML-Driven Configuration'],
-  'LLMs & Generative AI': ['LangGraph', 'Agentic RAG', 'ChromaDB', 'Vector Search', 'Claude & OpenAI APIs', 'Embeddings', 'Hugging Face', 'Prompt Engineering'],
-  'Analytics & Visualization': ['Tableau', 'pandas', 'NumPy', 'Matplotlib', 'VADER NLP', 'Sentiment Analysis', 'KPI Design', 'Executive Dashboards', 'statsmodels', 'seaborn'],
+  'Analytics & Visualization': ['Tableau', 'pandas', 'NumPy', 'Matplotlib', 'VADER NLP', 'Sentiment Analysis', 'KPI Design', 'Executive Dashboards', 'statsmodels', 'seaborn', 'Healthcare Analytics', 'Polars'],
   'Data Engineering': ['PySpark', 'Delta Lake', 'Snowflake', 'Airflow', 'Medallion Architecture', 'PostgreSQL', 'Supabase', 'FastAPI', 'Pydantic', 'ETL / ELT'],
 };
 

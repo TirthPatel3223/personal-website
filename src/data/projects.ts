@@ -347,6 +347,162 @@ export const projects: Project[] = [
     },
   },
   {
+    id: 'knee-mri-data-efficiency',
+    title: 'Knee MRI Diagnosis: How Much Labeled Data Does a Hospital Need?',
+    short_description:
+      'How many labeled exams does a hospital need to build its own knee-MRI triage model? A learning-curve study of five vision backbones on multi-site MRI, run on one laptop GPU with no patient data leaving the machine.',
+    motivation:
+      'For a hospital building its own knee-MRI model, expert labels cost about $45,000 per 1,000 exams while compute costs a few dollars, so the deciding number is how many exams need labeling, and whether the backbone changes it. Nobody had measured that on knee MRI across modern foundation models, so we did, under a hospital\'s rule: no images or reports leave the workstation. A two-person team project for UCLA\'s Healthcare Analytics course.',
+    card_achievements: [
+      'Ran 1,729 training runs across 5 backbones, 7 data sizes and 5 unseen-hospital folds on a single 12 GB laptop GPU.',
+      'Fine-tuned DINOv3 ConvNeXt-B reaches AUC 0.80 at an unseen site with ~1,300 exams; frozen backbones would need 6,000+.',
+      'Labeled 4,407 multilingual radiology reports with a local 14B LLM for about $5, against ~$200k for dual-reader radiologists.',
+    ],
+    achievements: [
+      'Measured learning curves for five pretrained backbones (DINOv3 ViT-B/16, DINOv3 ConvNeXt-B, ImageNet ConvNeXt-B, DINOv2 ViT-B/14, and a ResNet-18 trained from scratch) on 4,407 multi-site knee MRI studies, from 65 to 2,600 training exams, in 1,729 runs on a single 12 GB laptop RTX 5070 Ti: about 55 GPU-hours end to end, roughly $32 at cloud rates.',
+      'Found no plateau within 2,600 exams: AUC rises roughly linearly in log N, adding about +0.020 per doubling for frozen backbones and +0.031 for fine-tuned ones (mixed-model difference +0.011, p < 0.001). The pre-registered power law lost to a log-linear fit on 8 of 10 curves by AIC, so the study reports gain per doubling and exams-to-target instead of a plateau the data cannot support.',
+      'Located the crossover where fine-tuning starts paying for itself: frozen DINOv3 ViT-B is better at 65 exams (−0.019 AUC), the two tie from 130 to 520, and fine-tuning wins from 1,040 (+0.027) to 2,600 (+0.068). Fine-tuned DINOv3 ConvNeXt-B is never worse than frozen, is significantly better from 260 exams, and reaches 0.828 macro AUC at an unseen site and 0.837 on the expert gold set.',
+      'Turned the curves into a hospital budget: fine-tuned ConvNeXt-B needs about 313 report-labeled exams for AUC 0.75 and 1,333 for AUC 0.80 (the level of the published CoPAS model\'s 0.812 internal AUC), while frozen backbones would need an extrapolated 6,355 or more for 0.80. At about $45,400 per 1,000 exams for dual-reader expert labels, annotation outweighs compute by roughly four orders of magnitude.',
+      'Built the training labels without any protected health information leaving the machine: a local qwen3:14b model read every report, in nine or more languages, into positive / negative / not-mentioned calls for 12 findings in 8.4 GPU-hours, scoring 0.866 macro AUC against the 58 expert-labeled studies. Hand audits of 84 positive and 84 not-mentioned cells located its weak spots (MCL, lateral OA, contusion), and a rewritten prompt that scored worse on the gold set (0.834) was tested and rejected rather than adopted.',
+      'Made every test fold behave like a new hospital: studies were grouped by scanner (vendor, model and coil) into five folds of ~870, one 80% Philips and another 100% 1.5 T, and rotated so each fold takes a turn as the unseen test site. Training subsets are nested so each size contains the smaller ones, and test folds and the gold set were scored once, after selection on a separate validation fold.',
+      'Reported a pre-registered hypothesis that failed: older supervised ImageNet ConvNeXt-B weights beat the newer self-supervised DINOv3 weights on the same architecture at every training size (+0.033 to +0.050 AUC) and on all five test sites, the opposite of what H3 predicted. All five hypotheses were time-stamped before the main sweeps ran.',
+      'Showed that tears and fractures are harder to learn than fluid and soft-tissue findings, and that rarity explains only about a quarter of the gap: at an equal number of positive training examples, focal findings still trail by 0.040 AUC, and each doubling of positives adds +0.018.',
+      'Checked that the conclusions do not hinge on noisy labels or one site: model rankings on the expert gold set match the report-labeled test folds (Spearman ρ = 0.97 across 45 model and size cells), frozen rankings are near-identical across the five sites (Kendall\'s W = 0.94), and dropping studies with guessed laterality moves medial and lateral AUCs by at most 0.004.',
+      'Caught a silent evaluation bug mid-sweep: an evaluation cache keyed on Python object ids let some runs score predictions against the wrong 870 studies, because the validation and test folds are the same size and CPython reuses freed ids. Flagged the 99 suspect runs by near-chance AUC, reran them with a content-keyed cache, and redid model selection before any analysis.',
+      'Benchmarked against the RSNA 2026 challenge without overclaiming: the winner scored 0.960 on ~1,300 hidden expert-labeled studies versus our 0.840 on the 58-study gold set, a different ruler. Our fine-tuned models nearly match the accuracy of the report labels they learned from (0.866), and the winner used a single ~28M-parameter ConvNeXt-T, a third the size of our backbones, trained on image-reading frontier-LLM labels. Label quality, not model size, is the binding constraint.',
+    ],
+    tech_stack: ['PyTorch', 'timm', 'Computer Vision', 'Vision Transformers', 'DINOv3', 'ConvNeXt', 'Medical Imaging', 'Multiple-Instance Learning', 'Local LLMs (Ollama)', 'Mixed-Effects Models', 'Bootstrap Inference'],
+    technical_details:
+      'A controlled learning-curve study on the RSNA 2026 Knee Abnormality Detection data (4,407 studies, 819,078 slices, ~20 sites). Slices are resampled to 0.5 mm, canonicalized lateral to medial and sorted into six sequence slots; a backbone embeds each slice and a shared attention multiple-instance head with 12 learned queries outputs one probability per finding. Five backbones chosen in controlled pairs are trained frozen (all five) or fine-tuned with LP-FT and layer-wise learning-rate decay (the two DINOv3 models) on nested subsets of 65 to 2,600 exams, tested on rotating scanner-grouped folds that each act as an unseen hospital. Labels come from a local qwen3:14b reading the free-text reports; results are checked against 58 expert-labeled studies. Comparisons are paired with study-level bootstrap intervals and Holm correction, curves are fit by AIC model selection, and a cost model converts exams-to-target into GPU-hours and labeling dollars.',
+    status: 'complete',
+    link: '/projects/knee-mri-data-efficiency',
+    detail: {
+      problem_statement:
+        'Knee MRI is one of the highest-volume musculoskeletal exams, and one study is a lot to read: in this cohort a median of 5 sequences and 162 slices, cross-checked for a dozen structures in about 8 minutes of radiologist time. A model that pre-screens exams and flags likely abnormalities could cut that load and push urgent studies up the worklist. For a hospital analytics team deciding whether to build one, the hard part is not the architecture. It is the labels: having two radiologists read training exams costs about $45,400 per 1,000 studies (range $9,600 to $250,000), and because images and reports are protected health information, governance usually rules out sending them to a hosted API. So the questions that decide the project are budget questions. How many labeled exams does it take to reach a useful AUC at a hospital the model has never seen? Does fine-tuning a pretrained backbone beat using it frozen, and from how many exams? With pretraining held fixed, does a vision transformer beat a CNN, and with the architecture held fixed, does a 2025 self-supervised foundation model beat ordinary ImageNet weights? Do small focal lesions need more data than diffuse ones? The RSNA 2026 Knee Abnormality Detection data (4,407 studies from about 20 sites on five continents, 12 yes/no findings, free-text reports in nine or more languages, and only 58 studies with expert image labels) is a realistic place to answer all of that at once.',
+      approach: [
+        {
+          step: 'A Cost Curve, Not a Leaderboard',
+          detail:
+            'A single accuracy number at one training size cannot tell a hospital what to buy. The study instead measures how macro AUC grows as the training set doubles from 65 to 2,600 exams, for every model and regime, and then reads the curves two ways: AUC gained per doubling, and exams needed to reach AUC 0.75, 0.80 and 0.85. Those counts feed a cost model in GPU-hours and labeling dollars. Five research questions and five hypotheses (H1 to H5), including which way each comparison should go, were written down and time-stamped before the main sweeps ran, so a result that contradicts them gets reported as a contradiction rather than reframed afterwards.',
+        },
+        {
+          step: 'Labels Without Letting a Single Report Leave the Machine',
+          detail:
+            'Only 58 studies carry expert image labels, so training labels had to come from the radiology reports, written in English, Spanish, Turkish, Croatian, Greek, German, Bulgarian, Dutch, French and more. A locally served qwen3:14b model (through Ollama) read all 4,407 reports and marked each of 12 findings positive, negative or not mentioned, at about 6.9 seconds per report and 8.4 GPU-hours in total; not-mentioned cells train at half weight. Against the expert labels these report labels score 0.866 macro AUC. Two hand audits of 84 random cells each found 64 of 84 positive calls clearly correct (weakest for MCL, lateral OA and contusion, because the model calls mild sprains and partial cartilage loss positive) and every wrong not-mentioned call to be a missed negative, never a missed positive. A rewritten prompt, tried on 226 development studies, scored worse on the gold set (0.834 vs. 0.866); the one variant that helped, averaging two models (+0.017), was found on those same 58 studies and would have cost another 10 GPU-hours, so the original labels were kept. The noise is identical for every model, which keeps the comparisons fair even though it caps absolute accuracy.',
+        },
+        {
+          step: 'Every Test Fold Is a Hospital the Model Has Never Seen',
+          detail:
+            'Random splits would let a model learn a scanner and get credit for it. Studies were instead grouped by scanner (vendor, model and coil) and packed into five folds of about 870, and the folds came out very different: fold 0 is 80% Philips, fold 3 is 100% 1.5 T. The design rotates through them, with one fold as the test set, the next for model selection, and the remaining three (about 2,610 studies) as the training pool. Training sets of 65, 130, 260, 520, 1,040, 2,080 and 2,600 exams are nested, so each size contains the smaller ones and a gap between sizes reflects only the added exams. One study is one patient, so there is no patient leakage across folds.',
+        },
+        {
+          step: 'Backbones Chosen in Pairs That Change One Thing',
+          detail:
+            'Five slice encoders, picked so each comparison isolates a single factor. DINOv3 ViT-B/16 versus DINOv3 ConvNeXt-B shares the pretraining and changes only the architecture (transformer versus CNN, 86 to 88M parameters each). DINOv3 ConvNeXt-B versus ImageNet ConvNeXt-B shares the architecture and changes only the pretraining (1.7 billion unlabeled images versus about a million labeled photos). DINOv2 ViT-B/14 gives the previous foundation-model generation, and a ResNet-18 trained from scratch gives the no-pretraining floor. Everything else is held identical: preprocessing, head, loss, splits, training budget and selection rules, so a difference between two curves can only come from the backbone or the regime.',
+        },
+        {
+          step: 'One Study-Level Head for Every Backbone',
+          detail:
+            'Each exam is standardized first: slices resampled to 0.5 mm per pixel over a 160 mm field of view, both knees canonicalized so the lateral side always comes first, intensity windowed per series so relative brightness (effusion, for instance) survives, and everything sorted into six sequence slots (three planes, with and without fat suppression) at 224 pixels. Horizontal flips are banned outright, because they would silently swap the medial and lateral compartments and corrupt four of the twelve labels. The backbone turns every slice into a feature vector, and an attention-based multiple-instance head with 12 learned queries (one per finding) reads all slices of all sequences in a study and decides which slices matter for each finding.',
+        },
+        {
+          step: 'Frozen and Fine-Tuned, at Laptop Scale',
+          detail:
+            'Frozen runs embed every slice once and train only the head, with the best of four learning-rate and dropout settings picked on the validation fold: 1,680 runs across four backbones, five rotations, three random subset draws and seven sizes, about 3.3 hours for the whole sweep. Fine-tuning retrains the two DINOv3 backbones end to end in bf16 with AdamW, a cosine schedule, layer-wise learning-rate decay of 0.75 and a linear-probe-then-fine-tune start, at a learning rate chosen in a validation-only pilot. Fitting that on a 12 GB laptop GPU and 31 GB of RAM took a hard 90% VRAM cap per process (so an overflow is a catchable error instead of a silent spill to shared memory), GPU-side augmentation, and a 48-slice cap per study; all 42 fine-tuned runs over three rotations completed.',
+        },
+        {
+          step: 'Statistics That Match the Design',
+          detail:
+            'Every model comparison is paired: both models are trained on exactly the same exams and scored on the same studies, and 95% intervals come from 2,000 bootstrap resamples over rotations and test studies, with Holm correction across the 12 findings. A linear mixed model, AUC ~ model x regime x log2(N) with random intercepts for test fold and seed, estimates how much faster fine-tuned models climb. The pre-registered inverse power law was fit alongside log-linear and saturating curves and compared by AIC; it lost on 8 of 10 curves and its plateau hit the 1.0 bound on 4, so the plateau estimates it was meant to produce were dropped rather than reported at absurd sizes. Anything beyond 2,600 exams is marked as an extrapolation.',
+        },
+        {
+          step: 'From AUC to Dollars, and an Honest Benchmark',
+          detail:
+            'The cost model prices each target three ways: measured GPU-hours on the laptop at a $0.59 per hour cloud rate, dual-reader expert labels at 8 minutes per exam and $170.17 per hour (with a sensitivity table from $9,600 to $250,000 per 1,000 exams), and local LLM labels at their measured 6.9 seconds per report. The result is then set against the RSNA 2026 leaderboard, where the winner reached 0.960. The gap to our 0.840 is reported as a bundle of differences ranked by evidence (label quality first, then image-read versus report-read labels, training volume, and resolution plus ensembling) on a different and much smaller test set, not as a single attributable number.',
+        },
+      ],
+      architecture: `
+  ── DATA ────────────────────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ RSNA 2026 knee MRI           4,407 studies, ~20 sites            │
+  │   24,371 series . 819,078 slices . 5 vendors . 1.5T / 3.0T       │
+  │   free-text radiology reports in 9+ languages                    │
+  │   58 studies with expert image labels (2 MSK radiologists)       │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │
+                ┌──────────────────┴──────────────────┐
+                ↓                                     ↓
+  ┌───────────────────────────┐         ┌───────────────────────────┐
+  │ LABELS  (stays on the PC) │         │ IMAGES                    │
+  │ qwen3:14b via Ollama      │         │ resample to 0.5 mm/px     │
+  │ reads every report        │         │ lateral-to-medial order   │
+  │ 12 findings: pos/neg/n.a. │         │ 6 sequence slots          │
+  │ 8.4 GPU-h, ~6.9 s/report  │         │ 224 px slices             │
+  │ gold-58 macro AUC 0.866   │         │ no left/right flips       │
+  └───────────────────────────┘         └───────────────────────────┘
+                └──────────────────┬──────────────────┘
+                                   │  one target table + pixel cache
+                                   ↓
+
+  ── DESIGN ──────────────────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Scanner-grouped splits   5 folds of ~870, by vendor/model/coil   │
+  │   test fold  = an unseen site     (rotated through all 5)        │
+  │   val fold   = model selection only                              │
+  │   pool       = remaining 3 folds, ~2,610 studies                 │
+  │   nested N   = 65, 130, 260, 520, 1,040, 2,080, 2,600            │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  same subsets for every model
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Slice encoder, one of five backbones                             │
+  │   M1  ViT-B/16      DINOv3       |  M4  ViT-B/14   DINOv2        │
+  │   M2  ConvNeXt-B    DINOv3       |  M5  ResNet-18  from scratch  │
+  │   M3  ConvNeXt-B    ImageNet                                     │
+  │   frozen: embed once, train the head only                        │
+  │   fine-tuned: LP-FT, layer-wise LR decay 0.75, bf16              │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Study head (identical for every backbone)                        │
+  │   attention MIL over every slice of every sequence               │
+  │   12 learned queries  ->  12 finding probabilities               │
+  │   soft-label weighted BCE, n.a. cells at weight 0.5              │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │  1,729 runs, one 12 GB GPU
+                                   ↓
+
+  ── EVALUATION ──────────────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Scored once, after selection on the val fold                     │
+  │   unseen-site test fold   report labels, ~870 studies            │
+  │   gold-58                 expert image labels, +/- 0.03 AUC      │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   │
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Analysis                                                         │
+  │   learning curves: power law vs log-linear vs saturating (AIC)   │
+  │   paired bootstrap, 2,000 resamples, Holm over 12 findings       │
+  │   mixed model   AUC ~ model x regime x log2(N)                   │
+  │   cost model    exams, GPU-hours, labelling dollars              │
+  └──────────────────────────────────────────────────────────────────┘
+`,
+      results: [
+        { metric: 'Best Unseen-Site AUC', value: '0.828', description: 'Fine-tuned DINOv3 ConvNeXt-B at 2,600 exams; 0.837 on expert labels' },
+        { metric: 'Exams to AUC 0.80', value: '1,333', description: 'Fine-tuned ConvNeXt-B; frozen needs 6,355+ (extrapolated)' },
+        { metric: 'Gain per Doubling', value: '+0.031', description: 'AUC per doubling, fine-tuned (frozen +0.020); no plateau' },
+        { metric: 'Training Runs', value: '1,729', description: '5 backbones, 7 sizes, 5 unseen-site folds, one laptop GPU' },
+        { metric: 'Compute per Model', value: '< $2', description: 'vs. ~$45k of expert labels per 1,000 exams' },
+        { metric: 'Labels for 4,407 Reports', value: '~$5', description: 'Local 14B LLM; no patient data leaves the PC' },
+      ],
+    },
+  },
+  {
     id: 'airline-crew-pairing-rl',
     title: 'Airline Crew Pairing: Transformer Deep-RL Scheduler',
     short_description:

@@ -67,7 +67,7 @@ export default function CubeMacroExplorerCard() {
   /* Wider than the 1080px article column: below ~1080px the explorer drops its two
      nets into one column and the comparison stops being a comparison. The parent wrap
      is margin:0 auto, so a symmetric negative margin re-centres a wider child. The
-     48px gutter matters — 100vw includes the scrollbar, and without it the whole page
+     48px gutter matters: 100vw includes the scrollbar, and without it the whole page
      scrolls sideways by the scrollbar's width. */
   const bleed = 'min(1320px, calc(100vw - 48px))';
 

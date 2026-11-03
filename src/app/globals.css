@@ -512,6 +512,69 @@ body {
    otherwise dark mode shows a bright white slab with no frame around it. */
 .airbnb-plot-plate { background: #ffffff; }
 
+/* ─── Knee MRI Data-Efficiency Page: Violet Tokens ─────────────────── */
+/* Violet keeps the page distinct from the chart series below (blue, orange, aqua,
+   yellow, magenta), which carry backbone identity and must not compete with the UI
+   accent. Text steps measured on the glass card: 6.6:1 dark, 7.0:1 light. */
+.knee-accent-text   { color: #a78bfa; }
+.knee-accent-bg     { background-color: rgba(139, 92, 246, 0.10); }
+.knee-accent-border { border-color: rgba(139, 92, 246, 0.30); }
+.hover-knee-accent-border:hover { border-color: rgba(167, 139, 250, 0.58); }
+
+.light .knee-accent-text   { color: #6d28d9; }
+.light .knee-accent-bg     { background-color: rgba(109, 40, 217, 0.08); }
+.light .knee-accent-border { border-color: rgba(109, 40, 217, 0.30); }
+.light .hover-knee-accent-border:hover { border-color: rgba(109, 40, 217, 0.55); }
+
+/* No scrim, homepage theme; the body class carries the violet hover colours. */
+.knee-hero-bg  { background-color: transparent; }
+.knee-body-bg  {
+  background-color: transparent;
+  --fx-bar-a: #a78bfa;
+  --fx-bar-b: #c084fc;
+  --fx-glow:  rgba(139, 92, 246, 0.16);
+}
+.light .knee-body-bg {
+  --fx-bar-a: #6d28d9;
+  --fx-bar-b: #9333ea;
+  --fx-glow:  rgba(109, 40, 217, 0.11);
+  /* Same page-scoped contrast fix as the other project pages (5.98:1 on the card). */
+  --muted: #55637a;
+}
+
+/* Chart palette for the knee page's SVG charts. Slots follow the dataviz reference
+   order (blue, orange, aqua, yellow, magenta), validated as a set against each
+   theme's card surface: worst adjacent CVD dE 9.1 light / 8.4 dark. The light steps
+   fall under 3:1 for aqua, yellow and magenta, so every chart also ships marker
+   shapes, direct labels and a data-table view. Components read these with a dark
+   fallback inside var(), so a stale stylesheet still draws a readable chart. */
+.knee-viz {
+  --kv-vit:      #3987e5;   /* DINOv3 ViT-B/16    */
+  --kv-cnx:      #d95926;   /* DINOv3 ConvNeXt-B  */
+  --kv-inet:     #199e70;   /* ImageNet ConvNeXt-B */
+  --kv-dino2:    #c98500;   /* DINOv2 ViT-B/14    */
+  --kv-scratch:  #d55181;   /* ResNet-18 scratch  */
+  --kv-grid:     rgba(148, 163, 184, 0.14);
+  --kv-axis:     rgba(148, 163, 184, 0.34);
+  --kv-surface:  #12171d;
+  --kv-ref:      rgba(167, 139, 250, 0.55);
+  --kv-expert:   #a78bfa;
+  --kv-tip:      rgba(17, 22, 29, 0.96);
+}
+.light .knee-viz {
+  --kv-vit:      #2a78d6;
+  --kv-cnx:      #eb6834;
+  --kv-inet:     #1baf7a;
+  --kv-dino2:    #eda100;
+  --kv-scratch:  #e87ba4;
+  --kv-grid:     rgba(15, 23, 42, 0.07);
+  --kv-axis:     rgba(15, 23, 42, 0.22);
+  --kv-surface:  #fdfdfe;
+  --kv-ref:      rgba(109, 40, 217, 0.45);
+  --kv-expert:   #6d28d9;
+  --kv-tip:      rgba(255, 255, 255, 0.97);
+}
+
 /* --- AI Chat panel -------------------------------------------------- */
 /* Neutral bubble/field fill that stays visible on the translucent .glass
    panel in both themes (a flat --surface-raised disappears on light). */

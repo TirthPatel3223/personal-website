@@ -26,6 +26,30 @@
         "Deep Q-Networks",
         "Reward Design"
       ],
+      "Computer Vision & Medical Imaging": [
+        "Computer Vision",
+        "Medical Imaging (MRI)",
+        "DICOM",
+        "Vision Transformers",
+        "ConvNeXt",
+        "DINOv3 / DINOv2",
+        "Transfer Learning",
+        "Fine-Tuning",
+        "Multiple-Instance Learning",
+        "timm"
+      ],
+      "LLMs & Generative AI": [
+        "LangGraph",
+        "Agentic RAG",
+        "ChromaDB",
+        "Vector Search",
+        "Claude & OpenAI APIs",
+        "Embeddings",
+        "Hugging Face",
+        "Prompt Engineering",
+        "Local LLMs (Ollama)",
+        "LLM Label Extraction"
+      ],
       "MLOps & Productionization": [
         "Databricks",
         "Databricks Asset Bundles",
@@ -56,7 +80,9 @@
         "Regression Discontinuity",
         "Econometrics",
         "Mathematical Modeling",
-        "Market Sizing Models"
+        "Market Sizing Models",
+        "Bootstrap Inference",
+        "Mixed-Effects Models"
       ],
       "Languages & Tools": [
         "Python",
@@ -73,16 +99,6 @@
         "Oracle Cloud",
         "YAML-Driven Configuration"
       ],
-      "LLMs & Generative AI": [
-        "LangGraph",
-        "Agentic RAG",
-        "ChromaDB",
-        "Vector Search",
-        "Claude & OpenAI APIs",
-        "Embeddings",
-        "Hugging Face",
-        "Prompt Engineering"
-      ],
       "Analytics & Visualization": [
         "Tableau",
         "pandas",
@@ -93,7 +109,9 @@
         "KPI Design",
         "Executive Dashboards",
         "statsmodels",
-        "seaborn"
+        "seaborn",
+        "Healthcare Analytics",
+        "Polars"
       ],
       "Data Engineering": [
         "PySpark",
@@ -270,6 +288,125 @@
       "status": "complete",
       "github_url": "https://github.com/TirthPatel3223/Mapblazer_Route_Optimization_Algorithm",
       "notes": "The companion project to mapblazer-wait-time-prediction: that pipeline produces the forecasts, this solver consumes them. Requires a Gurobi licence, since the free pip build's 2,000-variable cap is exceeded by a real park day; the free academic licence lifts it. Limitations stated in the repo: walk times are a precomputed matrix from approximate coordinates rather than real footpaths, ride durations are literature values, the solver uses the forecast point estimate and not its 80% bounds, a ride with no forecast is planned as zero wait and reported as such, single-park days only, and a queue is charged for the slot the plan arrives in rather than re-priced as the guest shuffles forward. The worked Disneyland itinerary from the README is rendered on the project page as a sample-day card; there is no live demo. Disneyland's 'Pirates of the Carbbean' is misspelled in both the upstream attractions table and this project's data, deliberately, because it is the working join key."
+    },
+    {
+      "id": "knee-mri-data-efficiency",
+      "title": "Knee MRI Diagnosis: How Much Labeled Data Does a Hospital Need?",
+      "page_url": "/projects/knee-mri-data-efficiency",
+      "short_description": "A learning-curve study of how much labeled data a hospital needs to build its own knee-MRI triage model. Tirth and a teammate trained five pretrained vision backbones (DINOv3 ViT-B/16, DINOv3 ConvNeXt-B, ImageNet ConvNeXt-B, DINOv2 ViT-B/14, and a from-scratch ResNet-18), frozen and fine-tuned, on 65 to 2,600 exams from the multi-site RSNA 2026 Knee Abnormality Detection data, testing every model on scanner-grouped folds that act as unseen hospitals. Everything ran on one laptop GPU and no images or reports left the machine. Headline: about 1,300 report-labeled exams reach AUC 0.80 at an unseen site with a fine-tuned DINOv3 ConvNeXt-B, for under $2 of compute; frozen backbones would need 6,000+ exams; and label quality, not model size, is the binding constraint. A two-person team project (Tirth Patel and Giulio Elmi) for UCLA MSBA MGMTMSA 432 Healthcare Analytics, Fall 2026.",
+      "motivation": "For a hospital building its own knee-MRI model, expert labels cost about $45,000 per 1,000 exams while compute costs a few dollars, so the deciding number is how many exams need labeling, and whether the backbone changes it. Nobody had measured that on knee MRI across modern foundation models, so we did, under a hospital's rule: no images or reports leave the workstation. A two-person team project for UCLA's Healthcare Analytics course.",
+      "problem_statement": "Knee MRI is one of the highest-volume musculoskeletal exams, and one study is a lot to read: in this cohort a median of 5 sequences and 162 slices, cross-checked for a dozen structures in about 8 minutes of radiologist time. A model that pre-screens exams and flags likely abnormalities could cut that load and push urgent studies up the worklist. For a hospital analytics team deciding whether to build one, the hard part is not the architecture. It is the labels: having two radiologists read training exams costs about $45,400 per 1,000 studies (range $9,600 to $250,000), and because images and reports are protected health information, governance usually rules out sending them to a hosted API. So the questions that decide the project are budget questions. How many labeled exams does it take to reach a useful AUC at a hospital the model has never seen? Does fine-tuning a pretrained backbone beat using it frozen, and from how many exams? With pretraining held fixed, does a vision transformer beat a CNN, and with the architecture held fixed, does a 2025 self-supervised foundation model beat ordinary ImageNet weights? Do small focal lesions need more data than diffuse ones? The RSNA 2026 Knee Abnormality Detection data (4,407 studies from about 20 sites on five continents, 12 yes/no findings, free-text reports in nine or more languages, and only 58 studies with expert image labels) is a realistic place to answer all of that at once.",
+      "approach_steps": [
+        "A Cost Curve, Not a Leaderboard: A single accuracy number at one training size cannot tell a hospital what to buy. The study instead measures how macro AUC grows as the training set doubles from 65 to 2,600 exams, for every model and regime, and then reads the curves two ways: AUC gained per doubling, and exams needed to reach AUC 0.75, 0.80 and 0.85. Those counts feed a cost model in GPU-hours and labeling dollars. Five research questions and five hypotheses (H1 to H5), including which way each comparison should go, were written down and time-stamped before the main sweeps ran, so a result that contradicts them gets reported as a contradiction rather than reframed afterwards.",
+        "Labels Without Letting a Single Report Leave the Machine: Only 58 studies carry expert image labels, so training labels had to come from the radiology reports, written in English, Spanish, Turkish, Croatian, Greek, German, Bulgarian, Dutch, French and more. A locally served qwen3:14b model (through Ollama) read all 4,407 reports and marked each of 12 findings positive, negative or not mentioned, at about 6.9 seconds per report and 8.4 GPU-hours in total; not-mentioned cells train at half weight. Against the expert labels these report labels score 0.866 macro AUC. Two hand audits of 84 random cells each found 64 of 84 positive calls clearly correct (weakest for MCL, lateral OA and contusion, because the model calls mild sprains and partial cartilage loss positive) and every wrong not-mentioned call to be a missed negative, never a missed positive. A rewritten prompt, tried on 226 development studies, scored worse on the gold set (0.834 vs. 0.866); the one variant that helped, averaging two models (+0.017), was found on those same 58 studies and would have cost another 10 GPU-hours, so the original labels were kept. The noise is identical for every model, which keeps the comparisons fair even though it caps absolute accuracy.",
+        "Every Test Fold Is a Hospital the Model Has Never Seen: Random splits would let a model learn a scanner and get credit for it. Studies were instead grouped by scanner (vendor, model and coil) and packed into five folds of about 870, and the folds came out very different: fold 0 is 80% Philips, fold 3 is 100% 1.5 T. The design rotates through them, with one fold as the test set, the next for model selection, and the remaining three (about 2,610 studies) as the training pool. Training sets of 65, 130, 260, 520, 1,040, 2,080 and 2,600 exams are nested, so each size contains the smaller ones and a gap between sizes reflects only the added exams. One study is one patient, so there is no patient leakage across folds.",
+        "Backbones Chosen in Pairs That Change One Thing: Five slice encoders, picked so each comparison isolates a single factor. DINOv3 ViT-B/16 versus DINOv3 ConvNeXt-B shares the pretraining and changes only the architecture (transformer versus CNN, 86 to 88M parameters each). DINOv3 ConvNeXt-B versus ImageNet ConvNeXt-B shares the architecture and changes only the pretraining (1.7 billion unlabeled images versus about a million labeled photos). DINOv2 ViT-B/14 gives the previous foundation-model generation, and a ResNet-18 trained from scratch gives the no-pretraining floor. Everything else is held identical: preprocessing, head, loss, splits, training budget and selection rules, so a difference between two curves can only come from the backbone or the regime.",
+        "One Study-Level Head for Every Backbone: Each exam is standardized first: slices resampled to 0.5 mm per pixel over a 160 mm field of view, both knees canonicalized so the lateral side always comes first, intensity windowed per series so relative brightness (effusion, for instance) survives, and everything sorted into six sequence slots (three planes, with and without fat suppression) at 224 pixels. Horizontal flips are banned outright, because they would silently swap the medial and lateral compartments and corrupt four of the twelve labels. The backbone turns every slice into a feature vector, and an attention-based multiple-instance head with 12 learned queries (one per finding) reads all slices of all sequences in a study and decides which slices matter for each finding.",
+        "Frozen and Fine-Tuned, at Laptop Scale: Frozen runs embed every slice once and train only the head, with the best of four learning-rate and dropout settings picked on the validation fold: 1,680 runs across four backbones, five rotations, three random subset draws and seven sizes, about 3.3 hours for the whole sweep. Fine-tuning retrains the two DINOv3 backbones end to end in bf16 with AdamW, a cosine schedule, layer-wise learning-rate decay of 0.75 and a linear-probe-then-fine-tune start, at a learning rate chosen in a validation-only pilot. Fitting that on a 12 GB laptop GPU and 31 GB of RAM took a hard 90% VRAM cap per process (so an overflow is a catchable error instead of a silent spill to shared memory), GPU-side augmentation, and a 48-slice cap per study; all 42 fine-tuned runs over three rotations completed.",
+        "Statistics That Match the Design: Every model comparison is paired: both models are trained on exactly the same exams and scored on the same studies, and 95% intervals come from 2,000 bootstrap resamples over rotations and test studies, with Holm correction across the 12 findings. A linear mixed model, AUC ~ model x regime x log2(N) with random intercepts for test fold and seed, estimates how much faster fine-tuned models climb. The pre-registered inverse power law was fit alongside log-linear and saturating curves and compared by AIC; it lost on 8 of 10 curves and its plateau hit the 1.0 bound on 4, so the plateau estimates it was meant to produce were dropped rather than reported at absurd sizes. Anything beyond 2,600 exams is marked as an extrapolation.",
+        "From AUC to Dollars, and an Honest Benchmark: The cost model prices each target three ways: measured GPU-hours on the laptop at a $0.59 per hour cloud rate, dual-reader expert labels at 8 minutes per exam and $170.17 per hour (with a sensitivity table from $9,600 to $250,000 per 1,000 exams), and local LLM labels at their measured 6.9 seconds per report. The result is then set against the RSNA 2026 leaderboard, where the winner reached 0.960. The gap to our 0.840 is reported as a bundle of differences ranked by evidence (label quality first, then image-read versus report-read labels, training volume, and resolution plus ensembling) on a different and much smaller test set, not as a single attributable number."
+      ],
+      "achievements": [
+        "Measured learning curves for five pretrained backbones (DINOv3 ViT-B/16, DINOv3 ConvNeXt-B, ImageNet ConvNeXt-B, DINOv2 ViT-B/14, and a ResNet-18 trained from scratch) on 4,407 multi-site knee MRI studies, from 65 to 2,600 training exams, in 1,729 runs on a single 12 GB laptop RTX 5070 Ti: about 55 GPU-hours end to end, roughly $32 at cloud rates.",
+        "Found no plateau within 2,600 exams: AUC rises roughly linearly in log N, adding about +0.020 per doubling for frozen backbones and +0.031 for fine-tuned ones (mixed-model difference +0.011, p < 0.001). The pre-registered power law lost to a log-linear fit on 8 of 10 curves by AIC, so the study reports gain per doubling and exams-to-target instead of a plateau the data cannot support.",
+        "Located the crossover where fine-tuning starts paying for itself: frozen DINOv3 ViT-B is better at 65 exams (−0.019 AUC), the two tie from 130 to 520, and fine-tuning wins from 1,040 (+0.027) to 2,600 (+0.068). Fine-tuned DINOv3 ConvNeXt-B is never worse than frozen, is significantly better from 260 exams, and reaches 0.828 macro AUC at an unseen site and 0.837 on the expert gold set.",
+        "Turned the curves into a hospital budget: fine-tuned ConvNeXt-B needs about 313 report-labeled exams for AUC 0.75 and 1,333 for AUC 0.80 (the level of the published CoPAS model's 0.812 internal AUC), while frozen backbones would need an extrapolated 6,355 or more for 0.80. At about $45,400 per 1,000 exams for dual-reader expert labels, annotation outweighs compute by roughly four orders of magnitude.",
+        "Built the training labels without any protected health information leaving the machine: a local qwen3:14b model read every report, in nine or more languages, into positive / negative / not-mentioned calls for 12 findings in 8.4 GPU-hours, scoring 0.866 macro AUC against the 58 expert-labeled studies. Hand audits of 84 positive and 84 not-mentioned cells located its weak spots (MCL, lateral OA, contusion), and a rewritten prompt that scored worse on the gold set (0.834) was tested and rejected rather than adopted.",
+        "Made every test fold behave like a new hospital: studies were grouped by scanner (vendor, model and coil) into five folds of ~870, one 80% Philips and another 100% 1.5 T, and rotated so each fold takes a turn as the unseen test site. Training subsets are nested so each size contains the smaller ones, and test folds and the gold set were scored once, after selection on a separate validation fold.",
+        "Reported a pre-registered hypothesis that failed: older supervised ImageNet ConvNeXt-B weights beat the newer self-supervised DINOv3 weights on the same architecture at every training size (+0.033 to +0.050 AUC) and on all five test sites, the opposite of what H3 predicted. All five hypotheses were time-stamped before the main sweeps ran.",
+        "Showed that tears and fractures are harder to learn than fluid and soft-tissue findings, and that rarity explains only about a quarter of the gap: at an equal number of positive training examples, focal findings still trail by 0.040 AUC, and each doubling of positives adds +0.018.",
+        "Checked that the conclusions do not hinge on noisy labels or one site: model rankings on the expert gold set match the report-labeled test folds (Spearman ρ = 0.97 across 45 model and size cells), frozen rankings are near-identical across the five sites (Kendall's W = 0.94), and dropping studies with guessed laterality moves medial and lateral AUCs by at most 0.004.",
+        "Caught a silent evaluation bug mid-sweep: an evaluation cache keyed on Python object ids let some runs score predictions against the wrong 870 studies, because the validation and test folds are the same size and CPython reuses freed ids. Flagged the 99 suspect runs by near-chance AUC, reran them with a content-keyed cache, and redid model selection before any analysis.",
+        "Benchmarked against the RSNA 2026 challenge without overclaiming: the winner scored 0.960 on ~1,300 hidden expert-labeled studies versus our 0.840 on the 58-study gold set, a different ruler. Our fine-tuned models nearly match the accuracy of the report labels they learned from (0.866), and the winner used a single ~28M-parameter ConvNeXt-T, a third the size of our backbones, trained on image-reading frontier-LLM labels. Label quality, not model size, is the binding constraint."
+      ],
+      "key_metrics": {
+        "Best Unseen-Site AUC": "0.828 (Fine-tuned DINOv3 ConvNeXt-B at 2,600 exams; 0.837 on expert labels)",
+        "Exams to AUC 0.80": "1,333 (Fine-tuned ConvNeXt-B; frozen needs 6,355+ (extrapolated))",
+        "Gain per Doubling": "+0.031 (AUC per doubling, fine-tuned (frozen +0.020); no plateau)",
+        "Training Runs": "1,729 (5 backbones, 7 sizes, 5 unseen-site folds, one laptop GPU)",
+        "Compute per Model": "< $2 (vs. ~$45k of expert labels per 1,000 exams)",
+        "Labels for 4,407 Reports": "~$5 (Local 14B LLM; no patient data leaves the PC)"
+      },
+      "research_questions": [
+        "RQ1 data scaling: how macro AUC grows from 65 to 2,600 training exams, and whether it levels off.",
+        "RQ2 training regime: does fine-tuning beat a frozen backbone, and from how many exams.",
+        "RQ3 architecture vs pretraining: ViT vs CNN at the same DINOv3 pretraining; DINOv3 vs supervised ImageNet at the same ConvNeXt-B architecture.",
+        "RQ4 finding heterogeneity: do focal tears and fractures need more data than diffuse fluid and cartilage findings, even at equal positive counts.",
+        "RQ5 hospital management: what reaching a target AUC at an unseen hospital costs in exams, GPU-hours and annotation dollars, and what strategy to adopt."
+      ],
+      "hypotheses_and_outcomes": {
+        "H1 fine-tuning gap grows with N, frozen better at the smallest N": "Partially supported. DINOv3 ViT-B: frozen better at N=65 (-0.019 [-0.032, -0.005]), tie at 130-520, fine-tuning wins from 1,040 (+0.027) to 2,600 (+0.068). DINOv3 ConvNeXt-B: fine-tuning never worse, significantly better from N=260 (+0.047) to 2,600 (+0.086).",
+        "H2 ViT vs CNN differ in data efficiency (two-sided)": "Depends on regime (interaction +0.033, p<0.001). Fine-tuned, ConvNeXt-B beats ViT-B at N=260-1,040 (about +0.03) and they tie at 2,080-2,600. Frozen, ViT-B is better (-0.025 at 2,600).",
+        "H3 DINOv3 pretraining beats ImageNet most at small N": "Opposite of prediction. Supervised ImageNet ConvNeXt-B beats DINOv3 ConvNeXt-B at every N (+0.033 to +0.050) and on all five test folds. Untested possible reasons: DINOv3 ConvNeXt-B is distilled from a much larger ViT-7B; the 224 px input. Frozen DINOv3 and DINOv2 ViT-B are within +/-0.011.",
+        "H4 focal findings need more data than diffuse ones, even controlling for positives": "Supported. At the same N, focal findings average -0.054 AUC and cartilage/OA -0.025 vs fluid/soft-tissue findings; at equal numbers of positive training examples the gaps remain -0.040 and -0.021, so rarity explains only about a quarter of the focal gap. Each doubling of positives adds +0.018.",
+        "H5 curves follow an inverse power law (plateau)": "Not supported. Log-linear fits better on 8 of 10 curves by AIC and the power-law ceiling hits its 1.0 bound on 4 of 10, so no plateau is identifiable within 2,600 exams; gain per doubling and exams-to-target are reported instead.",
+        "pre-registration": "H1-H5 and the three finding groups were time-stamped on 2026-10-25, before the main sweeps ran."
+      },
+      "learning_curves_macro_test_auc": {
+        "_note": "Mean macro AUC (12 findings) on the unseen-site test fold, report labels, matched design (test folds 0-2, seed 0). Columns N = 65, 130, 260, 520, 1,040, 2,080, 2,600; last value is the expert gold-58 macro AUC at N = 2,600.",
+        "DINOv3 ViT-B/16 frozen": "0.677, 0.695, 0.719, 0.730, 0.746, 0.755, 0.757 | gold 0.772",
+        "DINOv3 ConvNeXt-B frozen": "0.642, 0.672, 0.698, 0.706, 0.716, 0.729, 0.741 | gold 0.736",
+        "ImageNet ConvNeXt-B frozen (best frozen)": "0.679, 0.703, 0.727, 0.749, 0.762, 0.767, 0.774 | gold 0.793",
+        "DINOv2 ViT-B/14 frozen": "0.656, 0.697, 0.709, 0.737, 0.737, 0.743, 0.746 | gold 0.758",
+        "DINOv3 ViT-B/16 fine-tuned": "0.659, 0.690, 0.715, 0.737, 0.773, 0.813, 0.825 | gold 0.840",
+        "DINOv3 ConvNeXt-B fine-tuned": "0.678, 0.711, 0.745, 0.764, 0.791, 0.815, 0.828 | gold 0.837",
+        "ResNet-18 from scratch (fold 0 only, N = 260 / 1,040 / 2,600)": "0.644, 0.668, 0.737 | gold 0.742",
+        "full frozen design (5 folds x 3 seeds) at N = 2,600": "ViT-B DINOv3 0.755, ConvNeXt-B DINOv3 0.729, ConvNeXt-B ImageNet 0.779, ViT-B DINOv2 0.745"
+      },
+      "exams_to_target_and_cost": {
+        "_note": "Matched design. Compute at $0.59/GPU-h; expert labels at 8 min/exam x 2 readers x $170.17/h (about $45,379 per 1,000 exams, sensitivity range $9,583 to $250,000); local LLM labels measured at 6.9 s/report. Exam counts exclude the ~870-study validation set a hospital also needs. A dagger means extrapolated beyond 2,600 exams.",
+        "ImageNet ConvNeXt-B frozen, AUC 0.75": "555 exams, $0.08 compute, $25,181 expert labels, $0.62 LLM labels (870 exams in the full 5-fold design)",
+        "DINOv3 ViT-B frozen, AUC 0.75": "1,404 exams, $0.13 compute, $63,720 expert labels (2,311 in the full design)",
+        "DINOv3 ViT-B fine-tuned": "AUC 0.75: 671 exams [412-994], $0.33; AUC 0.80: 1,652 [1,201-2,255], $0.70, $74,977 expert; AUC 0.85: 3,955 (extrapolated), $1.38, $179,478 expert",
+        "DINOv3 ConvNeXt-B fine-tuned": "AUC 0.75: 313 exams [195-619], $0.40, $14,201 expert; AUC 0.80: 1,333 [773-2,131], $0.58, $60,481 expert; AUC 0.85: 4,882 (extrapolated), $1.78, $221,517 expert",
+        "frozen backbones at AUC 0.80": "Not reached within 2,600 exams; extrapolated 6,355+ for the best frozen backbone in the full design, and not within 26,000 in the matched design.",
+        "gain per doubling of N": "Frozen +0.017 to +0.020 AUC; fine-tuned ViT-B +0.031, fine-tuned ConvNeXt-B +0.027 (mixed-model: frozen +0.020, fine-tuned adds +0.011, p<0.001)."
+      },
+      "per_finding_gold58_auc_at_2600": {
+        "_note": "Expert gold-set AUC per finding, mean of folds 0-2, for fine-tuned DINOv3 ViT-B / fine-tuned DINOv3 ConvNeXt-B / frozen ImageNet ConvNeXt-B. Single findings resolve only to about +/-0.12.",
+        "ACL": "0.843 / 0.855 / 0.783",
+        "MCL": "0.683 / 0.661 / 0.672",
+        "Medial meniscus": "0.885 / 0.930 / 0.740",
+        "Lateral meniscus": "0.806 / 0.753 / 0.814",
+        "Medial OA": "0.957 / 0.969 / 0.910",
+        "Lateral OA": "0.762 / 0.823 / 0.798",
+        "Patellofemoral OA": "0.797 / 0.764 / 0.794",
+        "Effusion": "0.983 / 0.973 / 0.946",
+        "Synovitis": "0.675 / 0.680 / 0.677",
+        "Baker's cyst": "0.930 / 0.967 / 0.879",
+        "Bone contusion": "0.916 / 0.901 / 0.813",
+        "Fracture": "0.838 / 0.773 / 0.693"
+      },
+      "labels": "Training labels come from a local qwen3:14b model (served with Ollama) reading every free-text report (41% English, then Spanish, Turkish, Croatian/Bosnian, Greek, German, Bulgarian, Dutch, French) and marking each of 12 findings positive, negative or not mentioned: 8.4 GPU-hours for 4,407 reports, about $5 at cloud rates. Against the 58 expert-labeled studies the labels score 0.866 macro AUC (lowest for synovitis). Hand audits: 64 of 84 random positive calls clearly correct (weak for MCL, lateral OA, contusion, effusion); of 84 not-mentioned cells, every wrong one should have been negative, never positive. A rewritten v2.1 prompt scored worse on gold (0.834) and was rejected. Reports vs expert image reads on the same 58 knees: reports under-call patellofemoral OA (7 vs 21), effusion (20 vs 35), synovitis (13 vs 27) and fracture (9 vs 18) and over-call contusion (27 vs 19).",
+      "robustness_checks": "Gold-58 rankings match test-fold rankings (Spearman rho 0.97 over 45 model-size cells). Frozen backbone rankings across the five unseen sites have Kendall W 0.94 (ImageNet ConvNeXt-B is best on every fold) even though absolute AUC shifts by roughly +/-0.02-0.04 between sites. Dropping ~65 studies with guessed left/right orientation changes medial/lateral AUCs by at most 0.004. Dropping findings with fewer than 10 training positives raises small-N scores (+0.03 at N=65) without changing any ranking.",
+      "competition_context": "RSNA 2026 Knee Abnormality Detection on Kaggle (~6,400 teams): winner (Team Kangaroo) 0.960 private-leaderboard macro AUC, gold cutoff (rank 22) 0.954, versus this study best 0.840 on the 58-study gold set, a different and smaller ruler, so the gap is approximate. Ranked explanations: (1) label quality, strongest evidence: the fine-tuned models nearly match the 0.866 accuracy of their report labels, and the winner plain 12-label ConvNeXt-T baseline already scored ~0.933 with frontier-agent labels; (2) image-read vs report-read labels; (3) training volume (~4,400 vs at most 2,600 studies is worth only ~+0.02 at the fine-tuned slope); (4) 256-384 px anatomy crops and 12-16 model ensembles vs single 224 px models. Model size is not the reason: the winner used a single ~28M-parameter ConvNeXt-T. Labeling cost for all 4,407 studies: local LLM ~$5; one hosted multimodal-LLM pass $48.49 (a bronze-level entry, 0.942); the winner agentic labels an estimated $500-$1,000 in API calls ($1,000-$2,000+ with debugging); dual-reader radiologists ~$200,000. The competition allowed hosted APIs on de-identified data; hospitals generally cannot send raw PHI to them, which is why this study stayed fully local.",
+      "hospital_recommendation": "For an on-premise knee-MRI triage aid: about 300 report-labeled exams for an initial AUC 0.75 screen, or about 1,300-1,700 for AUC 0.80 (the level of the published CoPAS model 0.812 internal AUC). Fine-tune a mid-size CNN (DINOv3 ConvNeXt-B) on one consumer GPU for under $2 of compute, build a 60-100 exam expert audit set ($2.6k-$4.5k), spend remaining radiologist time on findings reports under-call and on focal positives, and stop adding exams when the next doubling (+0.027-0.031 AUC) no longer justifies its labeling bill. Build locally for 0.75-0.80; buy a cleared commercial tool or join a labeling consortium for 0.90+ diagnostic accuracy.",
+      "limitations": [
+        "Noisy report-derived labels for training and the primary test set: makes the exam counts conservative; cleaner image-level labels should need fewer studies.",
+        "Fine-tuning ran on one seed over three folds, at a learning rate at the top of the tested grid: may slightly understate fine-tuned performance.",
+        "Uniform 224 px whole-image inputs understate accuracy on small focal tears compared with zoomed crops.",
+        "No plateau by 2,600 exams, so the AUC 0.85 counts (3,955-4,882) are order-of-magnitude extrapolations.",
+        "AUC is not a clinical operating point; thresholds still need choosing on a local validation set.",
+        "Retrospective single-challenge cohort: no prospective reader-time or workflow measurement; deployment needs Software as a Medical Device governance.",
+        "Fine-tuned ImageNet ConvNeXt-B was not run (single-GPU limits), so the pretraining comparison is frozen-only."
+      ],
+      "tech_stack": [
+        "PyTorch",
+        "timm",
+        "Computer Vision",
+        "Vision Transformers",
+        "DINOv3",
+        "ConvNeXt",
+        "Medical Imaging",
+        "Multiple-Instance Learning",
+        "Local LLMs (Ollama)",
+        "Mixed-Effects Models",
+        "Bootstrap Inference"
+      ],
+      "technical_details": "A controlled learning-curve study on the RSNA 2026 Knee Abnormality Detection data (4,407 studies, 819,078 slices, ~20 sites). Slices are resampled to 0.5 mm, canonicalized lateral to medial and sorted into six sequence slots; a backbone embeds each slice and a shared attention multiple-instance head with 12 learned queries outputs one probability per finding. Five backbones chosen in controlled pairs are trained frozen (all five) or fine-tuned with LP-FT and layer-wise learning-rate decay (the two DINOv3 models) on nested subsets of 65 to 2,600 exams, tested on rotating scanner-grouped folds that each act as an unseen hospital. Labels come from a local qwen3:14b reading the free-text reports; results are checked against 58 expert-labeled studies. Comparisons are paired with study-level bootstrap intervals and Holm correction, curves are fit by AIC model selection, and a cost model converts exams-to-target into GPU-hours and labeling dollars.",
+      "status": "complete",
+      "github_url": null,
+      "notes": "Team project for UCLA MSBA MGMTMSA 432 Healthcare Analytics (Fall 2026), team of two: Tirth Patel and Giulio Elmi. Final report: \"How Much Data Does a Hospital Need? Data Efficiency of CNNs vs. Pretrained Transformers for Knee-MRI Diagnosis\". Data: RSNA 2026 Knee Abnormality Detection (Kaggle) raw data only, no public notebooks or competition code; 4,407 studies (one per patient), 24,371 series, 819,078 slices, ~20 sites on five continents, scanners Siemens 44% / Philips 30% / GE 21% / other 6%, 1.5 T 58% / 3.0 T 36%. Hardware: one laptop RTX 5070 Ti (12 GB), 31 GB RAM; about 55 GPU-hours in total (8.4 labeling, 1.6 embedding, 45 for the 1,729 training runs), roughly $32 at cloud rates. Runs: 1,680 frozen (4 backbones x 5 folds x 3 subset seeds x 7 sizes x 4 head settings), 42 fine-tuned main runs plus 4 learning-rate pilots, 3 from-scratch runs. An evaluation-cache bug (keyed on Python object ids) was caught mid-sweep and the 99 flagged frozen runs were rerun before analysis. The GitHub repository (TirthPatel3223/knee-mri-data-efficiency) is private, and the radiology report text is never published because the competition data may not be redistributed. Other tools: statsmodels (mixed model), Polars, Matplotlib, python-docx (report build)."
     },
     {
       "id": "airline-crew-pairing-rl",

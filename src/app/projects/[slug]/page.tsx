@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import TableauPreviewCard from '@/components/TableauPreviewCard';
 import CourseRAGPreviewCard from '@/components/CourseRAGPreviewCard';
-import ScrollCubeWrapper from '@/components/ScrollCubeWrapper';
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import WeatherParticles from '@/components/WeatherParticles';
 import WeatherPipelineArchDiagram from '@/components/WeatherPipelineArchDiagram';
 import WeatherPipelineInsights from '@/components/WeatherPipelineInsights';
 import DeepCubeAPage from '@/components/DeepCubeAPage';
+import MalteseScrollCube from '@/components/MalteseScrollCube';
 import MapblazerResultsChart from '@/components/MapblazerResultsChart';
 import MapblazerDashboardCard from '@/components/MapblazerDashboardCard';
 import CrewPairingDemoCard from '@/components/CrewPairingDemoCard';
@@ -416,8 +416,17 @@ export default async function ProjectPage({
     </main>
   );
 
+  /* The cube page has its own layout and its own background: the real Maltese Gear Cube,
+     fixed behind the page, scrambling as you scroll. */
   if (isCubeSolver) {
-    return <ScrollCubeWrapper><DeepCubeAPage project={project} /></ScrollCubeWrapper>;
+    return (
+      <div>
+        <MalteseScrollCube />
+        <div style={{ position: 'relative', zIndex: 10 }}>
+          <DeepCubeAPage project={project} />
+        </div>
+      </div>
+    );
   }
 
   /* All other project pages: use the animated blob background */

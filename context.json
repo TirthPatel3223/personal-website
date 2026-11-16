@@ -608,45 +608,99 @@
     },
     {
       "id": "deep-cube-solver",
-      "title": "Maltese Gear Cube Solver: Deep Reinforcement Learning & Search",
+      "title": "Maltese Gear Cube Solver: Subgroup Ladder & Deep Value Iteration",
       "page_url": "/projects/deep-cube-solver",
-      "short_description": "Deep reinforcement learning agent that solves the Maltese Gear Cube using a CUDA-accelerated neural heuristic.",
-      "motivation": "To apply the DeepCubeA algorithm to a novel, higher-complexity puzzle and validate whether deep RL can generalize to unseen combinatorial state spaces.",
-      "problem_statement": "The Maltese Gear Cube is a higher-order mechanical puzzle with an estimated state space of ~10¹⁹ configurations - featuring non-standard gear-linked move sets that invalidate the symmetry assumptions of solvers designed for the standard 3×3 Rubik's Cube. Classical search algorithms (BFS, IDA*) are computationally intractable at this scale. The core challenge: can a neural network learn a generalizable distance-to-solved heuristic without any hand-crafted domain knowledge, and can that heuristic guide an efficient search to optimality?",
+      "short_description": "A solver for Meffert's Maltese Gear Cube (about 4.5×10⁵⁸ visible states) that splits the puzzle into a ladder of subgroups and solves one rung at a time: exact tables where a rung's coset space fits in memory, DeepCubeA-style value networks where it does not. It solves 100 of 100 scrambles of 2,000 to 5,000 moves in about 12 s each.",
+      "motivation": "Tirth's first attempt trained a single value network for the whole puzzle, the plain DeepCubeA recipe. Its predicted distance flattened out near 18 and it solved nothing deeper than 24 quarter turns. Instead of a bigger network, he went back to the group theory and gave the learning a much smaller job. That earlier single-network version is kept in the repo's archive/ folder; the numbers it was once described with (a ~4.9×10¹⁹ state space, 1.08× optimal) were wrong and are not claims of this project.",
+      "problem_statement": "A quarter turn of a face drags the Maltese Gear Cube's middle layer round 45°, so centres and edges trade places and 24 gears spin and tilt. Solving it means finding a path in a Cayley graph with about 4.5×10⁵⁸ vertices (194.8 bits of visible state). One network over the whole graph fails because its value estimates saturate; the goal was to solve arbitrary deep scrambles reliably, with every solution verified.",
       "approach_steps": [
-        "State Representation",
-        "Backward Induction Data Generation",
-        "Neural Network Training",
-        "Symmetry-Based Data Augmentation",
-        "Batched Weighted A* Search",
-        "Evaluation"
+        "Labelled permutation model: the move tables (U, L, F and inverses, opposite corner held fixed) become permutations of 216 labelled points: 96 stickers, 24 gear colours, 24 × 4 gear rotation points.",
+        "Structure discovery from the permutations alone: orbits, pieces, orientation sub-blocks and candidate rung features. It finds 7 corners × 3, 18 ring pieces × 4 (12 edges and 6 centres sharing one set of slots), and 24 gears with a colour and a rotation.",
+        "Rung order by measured rules: generator periods (4 on corners, 8 elsewhere, so corners first), shortest pure macros (the ring has 12-move ones, so it goes last), and bits resolved per macro length (gear parity, then rotation, then colour).",
+        "Macro harvesting: each rung's moves must keep earlier rungs solved. They are found exhaustively by meet in the middle over a radius-7 ball (115,462 elements) and as Schreier generators of the previous rung's table, then a SymPy membership test proves they generate the whole stabiliser.",
+        "Per-rung heuristics: exact GPU Dijkstra tables where the coset space fits (8.4 million cosets × ~700 actions in about a minute); residual value networks trained by deep approximate value iteration on the coset graph (following DeepXube, Forest Agostinelli's MIT-licensed package) where it does not. Walks use the rung's own macros and costs are macro lengths in quarter turns.",
+        "Search and verification: table rungs are a table walk; learned rungs use batched GPU beam search (width 4,096, retried at 8× and 64×). Rung solutions are concatenated, adjacent turns merged, and the result replayed on the reference simulator before it is reported."
+      ],
+      "ladder": [
+        {
+          "rung": "corners",
+          "cosets": "3,674,160",
+          "bits": 21.8,
+          "method": "exact table",
+          "actions": "6 primitive moves",
+          "mean_quarter_turns": 10.5
+        },
+        {
+          "rung": "gear parity",
+          "cosets": "8,388,608",
+          "bits": 23.0,
+          "method": "exact table",
+          "actions": "696 corner-fixing macros (4 to 10 moves)",
+          "mean_quarter_turns": 27.2
+        },
+        {
+          "rung": "gear rotation",
+          "cosets": "8,388,608",
+          "bits": 23.0,
+          "method": "exact table",
+          "actions": "669 macros (4 to 12 moves)",
+          "mean_quarter_turns": 48.8
+        },
+        {
+          "rung": "gear colour",
+          "cosets": "3.2×10¹⁵",
+          "bits": 51.5,
+          "method": "value network",
+          "actions": "376 macros (4 to 18 moves)",
+          "mean_quarter_turns": 88.4
+        },
+        {
+          "rung": "ring (edges and centres)",
+          "cosets": "5.4×10²²",
+          "bits": 75.5,
+          "method": "value network",
+          "actions": "72 macros of 12 moves",
+          "mean_quarter_turns": 247.4
+        }
       ],
       "achievements": [
-        "Trained a value network on 50M+ self-generated cube states using PyTorch + CUDA",
-        "Implemented batched A* search guided by learned heuristic, solving cubes optimally",
-        "Achieved 100% solve rate on test set within optimal or near-optimal move counts",
-        "Reduced training time 40% through symmetry-based data augmentation"
+        "Solved 100 of 100 random scrambles of 2,000 to 5,000 quarter turns: mean 406 quarter turns (349 face turns), 12.0 s per solve on an RTX 5070 Ti laptop GPU; every solution replayed on the reference simulator.",
+        "Found and fixed a silent failure: the 132 short gear-colour macros only move the gears as 12 rigid pairs, reaching under 1/3000 of the colourings. With a single bridging macro, 8 of the first 9 deep scrambles failed at that rung; keeping all 244 pair-splitting macros took the benchmark to 100/100.",
+        "Verified facts against the tables: the corner rung reproduces the 2×2×2 pocket cube (3,674,160 positions, diameter 14); the coset counts multiply to 4.5×10⁵⁸ visible states, matching an independent reference.",
+        "Measured and replaced the design note's ring chain: with exact tables, its rungs cost 31, 53, 118, 466 and 945 quarter turns on average; one learned ring rung with 12-move macros costs about 247.",
+        "Cross-checked a solution on an independent engine: a 433-quarter-turn solution replayed in Tirth's three.js simulator of the physical puzzle returns it to solved."
       ],
       "key_metrics": {
-        "Solve Rate": "100%",
-        "Test Cubes": "1,000",
-        "Avg. Solution Length": "1.08× optimal",
-        "Training States": "50M+",
-        "Training Speedup": "40% faster",
-        "Max Scramble Depth Tested": "35 moves"
+        "Deep scrambles solved": "100 / 100 (2,000 to 5,000 quarter turns each)",
+        "Mean solution length": "406.1 quarter turns (±27.7), 349.4 face turns",
+        "Solution length range": "332 to 510 quarter turns",
+        "Mean solve time": "12.0 s (8.6 to 22.8 s), RTX 5070 Ti laptop GPU",
+        "Visible states": "about 4.5×10⁵⁸ (194.8 bits)",
+        "Tables and network weights on disk": "about 0.5 GB",
+        "Tests": "pytest suite including end-to-end checks against a 29,160-state toy puzzle solved by brute force"
       },
+      "comparison": "Bram Cohen's table-based reference solver (maltese_scramble) averages 135 face turns in 35 s but needs about 50 GB of tables. This solver's solutions are about 2.6× longer (349 face turns); it takes about 12 s on a laptop GPU (the 35 s figure is on different hardware, so speed is not a like-for-like comparison) and needs about half a gigabyte instead of 50 GB. Solutions are not optimal and the page does not claim they are.",
+      "limitations": [
+        "Solutions are long: each rung is solved without regard to the next. Keeping several landings per rung gains about 10 moves in the reference solver; not implemented.",
+        "Gear rotation takes two table rungs and about 76 quarter turns; one learned rung over the 2⁴⁶ rotation states would likely be shorter.",
+        "The ring rung uses 72 of its 304 distinct cheap moves; more actions would lengthen training and shorten solutions.",
+        "Learned values saturate at depth; beam search only needs the ranking, so it works before the values are calibrated."
+      ],
+      "interactive_3d_model": "The project page embeds Tirth's own three.js simulator of the physical puzzle (https://tirthpatel3223.github.io/tangram-cube-extreme/?puzzle=maltese-gear-cube, repo TirthPatel3223/tangram-cube-extreme): real gearing (a 90° face turn drives the middle layer 45° and its 8 gears spin 270°), shape-shifting, geometry fitted from photos, and an exact engine. Visitors can paste a scramble and the solver's solution to watch it solve.",
       "tech_stack": [
         "PyTorch",
-        "TensorFlow",
         "CUDA",
-        "Deep Learning",
         "Deep RL",
+        "Group Theory",
+        "Beam Search",
+        "SymPy",
+        "NumPy",
         "Python",
-        "NumPy"
+        "three.js"
       ],
-      "technical_details": "PyTorch, TensorFlow, CUDA, Deep Learning, Deep Reinforcement Learning, Python, NumPy",
+      "technical_details": "Python, PyTorch (CUDA), NumPy, SymPy, pytest; deep approximate value iteration (DeepCubeA / DeepXube), Schreier coset graphs, meet-in-the-middle macro harvesting, GPU Dijkstra tables, batched GPU beam search; 3D simulator in TypeScript, three.js and manifold-3d (WebAssembly)",
       "status": "complete",
-      "github_url": "https://github.com/tirth/deep-cube-solver"
+      "github_url": "https://github.com/TirthPatel3223/cube-solving-pipeline"
     }
   ],
   "about_this_website": {

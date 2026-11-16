@@ -232,6 +232,14 @@ body {
   --dca-card-soft: rgba(15, 10, 26, 0.35);
   --dca-card-firm: rgba(15, 10, 26, 0.50);
   --dca-arch:      rgba(4, 2, 10, 0.88);
+
+  /* Chart marks (MalteseLadderViz). Validated with the dataviz palette script on
+     each theme's surface: the text accents above are too light to pass the dark
+     lightness band as fills, so marks get their own steps. */
+  --mv-table: #0f9f90;   /* exact table rungs */
+  --mv-net:   #8b5cf6;   /* value network rungs */
+  --mv-grid:  rgba(148, 163, 184, 0.16);
+  --mv-track: rgba(148, 163, 184, 0.08);
 }
 .light .cube-page {
   --cp:      #7c3aed;
@@ -253,6 +261,11 @@ body {
   --dca-card-soft: rgba(255, 255, 255, 0.74);
   --dca-card-firm: rgba(255, 255, 255, 0.86);
   --dca-arch:      rgba(255, 255, 255, 0.94);
+
+  --mv-table: #0d9488;
+  --mv-net:   #7c3aed;
+  --mv-grid:  rgba(15, 23, 42, 0.10);
+  --mv-track: rgba(15, 23, 42, 0.05);
 }
 
 @keyframes cube-float {
@@ -279,34 +292,110 @@ body {
   .dca-hero-grid {
     grid-template-columns: 1fr;
   }
-  .dca-hero-grid > div:last-child {
-    order: -1;
-  }
   .dca-hero-grid img {
     width: 240px !important;
-    height: 240px !important;
+    height: auto !important;
   }
 }
 
+/* ─── Cube Solver Page: section grids ─────────────────────────────── */
+.dca-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.dca-lesson-grid,
+.dca-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.mgc-replay-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 1.6rem;
+  align-items: start;
+}
+.dca-arch-grid {
+  padding: 2rem 1.75rem;
+  display: grid;
+  grid-template-columns: 1fr 56px 1fr;
+}
+.dca-arch-bridge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 40px;
+}
+@media (max-width: 860px) {
+  .dca-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dca-lesson-grid,
+  .dca-compare-grid,
+  .mgc-replay-grid { grid-template-columns: minmax(0, 1fr); }
+  .dca-arch-grid { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding: 1.5rem 1.1rem; }
+  .dca-arch-bridge { display: none; }
+}
+
 /* ─── Cube Solver Page: theme-aware scrims & accents ───────────────── */
-/* This page KEEPS its scrim, unlike every other project page. Its background is not
-   the soft blob field but the fixed 3D cube from ScrollCubeWrapper, which scales up
-   as you scroll: with the scrim removed the cube shows straight through the cards and
-   the body text becomes unreadable. Only the .home-card hover treatment is shared. */
+/* This page KEEPS a scrim, unlike every other project page. Its background is not the
+   blob field but the fixed Maltese Gear Cube from MalteseScrollCube, which scrambles as
+   you scroll: with the scrim removed the cube shows straight through and the text
+   between cards becomes unreadable. Only the .home-card hover treatment is shared. */
 .cube-hero-bg {
   background-color: rgba(5, 8, 16, 0.82);
 }
+/* .cube-body-bg sits on <main> and carries tokens only; the body scrim is on
+   .cube-content-bg, below the hero, so the two scrims never stack over the hero. */
 .cube-body-bg {
-  background-color: rgba(5, 8, 16, 0.55);
   --fx-bar-a: var(--cp);
   --fx-bar-b: var(--ct);
   --fx-glow:  var(--cp-dim-h);
 }
+.cube-content-bg {
+  background-color: rgba(5, 8, 16, 0.55);
+}
 .light .cube-hero-bg {
   background-color: rgba(248, 250, 255, 0.92);
 }
-.light .cube-body-bg {
+.light .cube-content-bg {
   background-color: rgba(248, 250, 255, 0.88);
+}
+.light .cube-body-bg {
+  /* Same contrast fix as the Airbnb and crew pages: site light --muted is ~3.8:1. */
+  --muted: #55637a;
+}
+
+/* The scroll-scrubbed background cube (frames are 560px squares). */
+.mgc-scroll-cube {
+  width: min(74vh, 88vw, 820px);
+  aspect-ratio: 1;
+  animation: cube-float 7s ease-in-out infinite;
+  filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.45));
+}
+@media (prefers-reduced-motion: reduce) {
+  .mgc-scroll-cube { animation: none; }
+}
+
+/* Desktop: the background cube doubles as the hero visual. It sits under the hero's
+   right-hand column (half the 1080px article minus half the 360px column), and the hero
+   scrim fades from light to the body's strength so there is no step at the hero's edge. */
+@media (min-width: 861px) {
+  .mgc-scroll-cube-pos {
+    transform: translate(calc(min(540px, 50vw - 24px) - 180px), -7vh);
+  }
+  .mgc-scroll-cube {
+    width: min(64vh, 560px);
+  }
+  .cube-hero-bg {
+    background: linear-gradient(to bottom, rgba(5, 8, 16, 0.06) 0%, rgba(5, 8, 16, 0.18) 60%, rgba(5, 8, 16, 0.55) 100%);
+  }
+  .light .cube-hero-bg {
+    background: linear-gradient(to bottom, rgba(248, 250, 255, 0.05) 0%, rgba(248, 250, 255, 0.22) 60%, rgba(248, 250, 255, 0.88) 100%);
+  }
+}
+@media (max-width: 860px) {
+  .dca-hero-visual { display: none; }
 }
 
 /* Teal accent text, readable in both modes */

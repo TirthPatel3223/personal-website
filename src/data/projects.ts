@@ -1020,98 +1020,67 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
   },
   {
     id: 'deep-cube-solver',
-    title: 'Maltese Gear Cube Solver: Deep Reinforcement Learning & Search',
+    title: 'Maltese Gear Cube Solver: Subgroup Ladder & Deep Value Iteration',
     short_description:
-      'Deep reinforcement learning agent that solves the Maltese Gear Cube using a CUDA-accelerated neural heuristic.',
+      'A solver for a 4.5×10⁵⁸-state geared twisty puzzle that splits it into a ladder of subgroups: exact tables where the coset space fits in memory, DeepCubeA-style value networks where it does not. Solves 100/100 scrambles of 2,000 to 5,000 moves in 12 s each.',
     motivation:
-      'To apply the DeepCubeA algorithm to a novel, higher-complexity puzzle and validate whether deep RL can generalize to unseen combinatorial state spaces.',
-    achievements: [
-      'Trained a value network on 50M+ self-generated cube states using PyTorch + CUDA',
-      'Implemented batched A* search guided by learned heuristic, solving cubes optimally',
-      'Achieved 100% solve rate on test set within optimal or near-optimal move counts',
-      'Reduced training time 40% through symmetry-based data augmentation',
+      'My first attempt trained one value network for the whole Maltese Gear Cube, DeepCubeA style. Its predicted distance flattened out near 18 and it solved nothing deeper than 24 quarter turns. Rather than a bigger network, I went back to the group theory and gave the learning a much smaller job.',
+    card_achievements: [
+      'Solved 100 of 100 random scrambles of 2,000 to 5,000 moves, every solution replayed and verified on the reference simulator.',
+      'Five-rung subgroup ladder: three exact GPU Dijkstra tables plus two coset value networks trained by deep approximate value iteration.',
+      'Mean solution 406 quarter turns in 12 s on a laptop GPU, with under 1 GB of tables and weights.',
     ],
-    tech_stack: ['PyTorch', 'TensorFlow', 'CUDA', 'Deep Learning', 'Deep RL', 'Python', 'NumPy'],
-    technical_details: 'PyTorch, TensorFlow, CUDA, Deep Learning, Deep Reinforcement Learning, Python, NumPy',
+    achievements: [
+      'Built a hierarchical solver that works from the move tables alone: the 144-entry state becomes permutations of 216 labelled points, orbits and pieces are discovered automatically (7 corners, 18 ring pieces, 24 gears with colour and rotation), and the puzzle is solved one subgroup rung at a time.',
+      'Solved 100 of 100 random scrambles of 2,000 to 5,000 quarter turns: mean 406 quarter turns (349 face turns), 12.0 s per solve on an RTX 5070 Ti laptop GPU, every solution replayed on the reference simulator before it is reported.',
+      'Gave each rung the cheapest exact method it allows: three rungs of 3.7 to 8.4 million cosets get exact Dijkstra tables built on the GPU in about a minute, and the two rungs too large to enumerate (3.2×10¹⁵ and 5.4×10²² cosets) get residual value networks trained by coset value iteration.',
+      'Harvested each rung\'s macros exactly, by meet in the middle over a radius-7 ball (115,462 elements) and as Schreier generators of the previous rung\'s table, then proved with a SymPy permutation-group membership test that they generate the whole stabiliser.',
+      'Found and fixed a silent failure: the 132 short gear-colour macros only move the gears as 12 rigid pairs, reaching under 1/3000 of the colourings. With one bridging macro the rung was solvable on paper but 8 of the first 9 deep scrambles failed there; keeping all 244 pair-splitting macros took the benchmark to 100/100.',
+      'Measured the puzzle instead of trusting the design note: the corner rung reproduces the pocket cube\'s 3,674,160 positions and diameter 14, the coset counts multiply to the 4.5×10⁵⁸ visible states, and the note\'s proposed ring chain was replaced by one learned rung after measuring its cost climb to 945 quarter turns.',
+      'Cross-checked a solution on an independent engine: a 433-quarter-turn solution replayed in my three.js simulator of the physical puzzle returns it to solved.',
+    ],
+    tech_stack: ['PyTorch', 'CUDA', 'Deep RL', 'Group Theory', 'Beam Search', 'SymPy', 'NumPy', 'Python', 'three.js'],
+    technical_details:
+      'Python, PyTorch (CUDA), NumPy, SymPy, pytest; deep approximate value iteration (DeepCubeA / DeepXube), Schreier coset graphs, meet-in-the-middle macro harvesting, GPU Dijkstra tables, batched GPU beam search; 3D simulator in TypeScript, three.js and manifold-3d',
     status: 'complete',
     link: '/projects/deep-cube-solver',
     detail: {
       problem_statement:
-        'The Maltese Gear Cube is a higher-order mechanical puzzle with an estimated state space of ~10¹⁹ configurations, featuring non-standard gear-linked move sets that invalidate the symmetry assumptions of solvers designed for the standard 3×3 Rubik\'s Cube. Classical search algorithms (BFS, IDA*) are computationally intractable at this scale. The core challenge: can a neural network learn a generalizable distance-to-solved heuristic without any hand-crafted domain knowledge, and can that heuristic guide an efficient search to optimality?',
+        'Meffert\'s Maltese Gear Cube has about 4.5×10⁵⁸ visible states. A quarter turn of a face drags the middle layer round 45°, so centres and edges trade places and 24 gears spin and tilt. One value network for the whole puzzle, the plain DeepCubeA recipe, flattened out at a predicted distance of about 18 and solved nothing beyond 24 quarter turns. The task was to solve arbitrary deep scrambles reliably, with every solution verified.',
       approach: [
         {
-          step: 'State Representation',
+          step: 'Labelled permutation model',
           detail:
-            'Encoded each cube configuration as a flattened one-hot tensor of sticker positions (630-dimensional vector), capturing all face colors and gear orientations. This representation is permutation-sensitive and fully differentiable.',
+            'The move tables become permutations of 216 labelled points (96 stickers, 24 gear colours, 24 × 4 gear rotation points), so identical-looking pieces can be told apart internally.',
         },
         {
-          step: 'Backward Induction Data Generation',
+          step: 'Structure discovery',
           detail:
-            'Generated 50M+ training samples using the DeepCubeA backward induction strategy: starting from the solved state, applied k random legal moves (k ~ Uniform[1, 26]) and labeled each resulting state with k as the approximate distance-to-solved. This avoids the need for any ground-truth optimal solver.',
+            'Orbits, pieces, orientation sub-blocks and candidate rung features are computed from the six generator permutations alone: 7 corners × 3, 18 ring pieces × 4, 24 gears with a colour and a rotation.',
         },
         {
-          step: 'Neural Network Training',
+          step: 'Rung order and macro harvesting',
           detail:
-            'Trained a 4-layer fully-connected value network (630→1024→512→256→1) with ReLU activations using MSE loss on distance estimates. Trained on NVIDIA RTX GPU with PyTorch; used learning rate warmup and cosine annealing. Total training: ~18 hours.',
+            'Generator periods, shortest pure macros and bits resolved per macro length set the ladder: corners, gear parity, gear rotation, gear colour, ring. Each rung\'s macros keep earlier rungs solved and are proven to generate the whole stabiliser.',
         },
         {
-          step: 'Symmetry-Based Data Augmentation',
+          step: 'Exact tables and coset value iteration',
           detail:
-            'Exploited the Maltese Gear Cube\'s rotational symmetry group to generate 8 equivalent representations of each training state, effectively multiplying usable training data 8× at zero additional solve cost, reducing training time by 40%.',
+            'Rungs that fit in memory get exact GPU Dijkstra tables; the gear-colour and ring rungs get residual value networks trained by deep approximate value iteration on their coset graphs, following DeepXube.',
         },
         {
-          step: 'Batched Weighted A* Search',
+          step: 'Search and verification',
           detail:
-            'At inference, ran batched weighted A* search with f(n) = g(n) + λ·V_θ(n), where V_θ is the learned value function and λ is a weight hyperparameter. Used beam width 128 to explore candidate states in parallel on GPU, terminating when the solved state is found.',
-        },
-        {
-          step: 'Evaluation',
-          detail:
-            'Tested on 1,000 held-out cubes scrambled with 25 random moves. Measured: solve rate, average solution length vs. known-optimal (computed via brute-force on small depth), and generalization to unseen scramble depths (up to 35 moves).',
+            'Table rungs are a table walk; learned rungs use batched GPU beam search (width 4,096, retried at 8× and 64×). Rung solutions are concatenated, adjacent turns merged, and the result replayed on the reference simulator.',
         },
       ],
-      architecture: `
-  ── Training Phase ──────────────────────────────────────
-
-  Solved State
-       │
-       ↓
-  Random Scrambler ──→ 50M (state, distance) pairs
-  k ∈ Uniform[1..26]      labeled by scramble depth
-       │
-       │  8× Symmetry Augmentation
-       ↓
-  ┌───────────────────────────────────────┐
-  │         Value Network (PyTorch)       │
-  │   FC: 630 → 1024 → 512 → 256 → 1    │
-  │   Loss: MSE on distance estimate      │
-  │   GPU: NVIDIA RTX  ·  ~18 hrs total  │
-  └──────────────────┬────────────────────┘
-                     │  Trained weights V_θ
-                     │
-  ── Inference Phase ─────────────────────────────────────
-
-  Scrambled Cube (25 moves)
-       │
-       ↓
-  ┌───────────────────────────────────────┐
-  │       Batched Weighted A*             │
-  │   f(n) = g(n) + λ · V_θ(n)          │
-  │   Beam width: 128  ·  GPU batched    │
-  └──────────────────┬────────────────────┘
-                     │
-                     ↓
-              Solved State ✓
-          (optimal / near-optimal)`,
       results: [
-        { metric: 'Solve Rate', value: '100%' },
-        { metric: 'Test Cubes', value: '1,000' },
-        { metric: 'Avg. Solution Length', value: '1.08× optimal' },
-        { metric: 'Training States', value: '50M+' },
-        { metric: 'Training Speedup', value: '40% faster' },
-        { metric: 'Max Scramble Depth Tested', value: '35 moves' },
+        { metric: 'Deep scrambles solved', value: '100 / 100', description: '2,000 to 5,000 quarter turns each' },
+        { metric: 'Mean solution', value: '406 QT', description: '349 face turns' },
+        { metric: 'Mean solve time', value: '12.0 s', description: 'RTX 5070 Ti laptop GPU' },
+        { metric: 'Visible states', value: '4.5×10⁵⁸', description: '194.8 bits across 5 rungs' },
       ],
-      github_url: 'https://github.com/tirth/deep-cube-solver',
+      github_url: 'https://github.com/TirthPatel3223/cube-solving-pipeline',
     },
   },
 ];

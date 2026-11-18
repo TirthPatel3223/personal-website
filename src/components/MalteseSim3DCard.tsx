@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@/components/ThemeProvider';
 
 /* My three.js simulator of the physical puzzle, hosted on GitHub Pages (repo
-   tangram-cube-extreme). It is cross-origin, so the theme goes in two ways: a ?theme=
+   combinatorics-puzzle-simulator). It is cross-origin, so the theme goes in two ways: a ?theme=
    parameter on first load, and a postMessage on every later toggle. Both are ignored
    harmlessly by a build of the simulator that does not read them. */
 const SIM_ORIGIN = 'https://tirthpatel3223.github.io';
-const SIM_URL = `${SIM_ORIGIN}/tangram-cube-extreme/?puzzle=maltese-gear-cube`;
+const SIM_URL = `${SIM_ORIGIN}/combinatorics-puzzle-simulator/?puzzle=maltese-gear-cube`;
 
 /* A real run of the solver (scripts/solve.py, beam 4096). The scramble is 40 random
    turns of U, L and F; the solution was verified on the solver's reference simulator

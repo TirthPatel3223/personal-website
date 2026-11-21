@@ -88,10 +88,8 @@ export default function MapblazerResultsChart() {
 
           <div className="px-5 pt-5">
             <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-              Backtest on the held-out final 20% of history: <strong style={{ color: 'var(--title)' }}>78,110
-              observations</strong> the models never saw, taken chronologically rather than at random.
-              Every candidate is scored on all seven KPIs, and the champion has to clear the per-ride
-              mean baseline before it is allowed to serve.
+              Backtest on the final 20% of history: <strong style={{ color: 'var(--title)' }}>78,110
+              observations</strong> the models never saw, split by time rather than at random.
             </p>
           </div>
 
@@ -168,17 +166,13 @@ export default function MapblazerResultsChart() {
 
           <div className="px-5 pb-5 space-y-2">
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
-              Lower is better on every column except <span className="font-mono">Within 10m</span>. A severe
-              miss is an error over 15 minutes, the size that actually breaks a route.{' '}
-              <span className="font-mono">High-wait MAE</span> covers rides averaging over 10 minutes and{' '}
-              <span className="font-mono">Peak MAE</span> covers 11:00 to 20:00 local, because roughly 37% of
-              observations are exactly zero and a single average would let a model look good by predicting
-              &ldquo;short queue&rdquo; everywhere.
+              Lower is better everywhere except <span className="font-mono">Within 10m</span>. A severe
+              miss is off by more than 15 minutes. <span className="font-mono">High-wait</span> and{' '}
+              <span className="font-mono">Peak MAE</span> cover long queues and 11:00 to 20:00, since about
+              37% of readings are zero and one average would flatter a model that always predicts short queues.
             </p>
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)', opacity: 0.8 }}>
-              Bias is the one column the baseline wins, and that is expected rather than surprising:
-              predicting each ride&apos;s historical mean is unbiased by construction. It buys that with the
-              worst error on every other measure.
+              The baseline wins only on bias, which a historical mean gets by construction.
             </p>
           </div>
         </div>
@@ -186,11 +180,9 @@ export default function MapblazerResultsChart() {
         <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
           The champion beats the baseline by{' '}
           <span className="mapblazer-accent-text font-semibold">26.3% on MAE</span>, lifts ±10-minute
-          containment from 64.5% to <span className="mapblazer-accent-text font-semibold">76.6%</span>, and
-          cuts severe misses by <span className="mapblazer-accent-text font-semibold">42.1%</span>, with the
-          widest margin on exactly the long queues a router is most sensitive to. These are the numbers from
-          run <span className="font-mono">{RUN_ID}</span>; the pipeline retrains every Sunday, so the
-          embedded dashboard above is always the current authority.
+          accuracy from 64.5% to <span className="mapblazer-accent-text font-semibold">76.6%</span> and
+          cuts severe misses by <span className="mapblazer-accent-text font-semibold">42.1%</span>. The
+          pipeline retrains every Sunday, so the live dashboard above is always the latest word.
         </p>
       </motion.div>
     </section>

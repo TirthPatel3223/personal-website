@@ -119,10 +119,8 @@ export default function CrewPairingResultsChart() {
           <div className="px-5 pt-5">
             <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
               Every policy is scored on the same{' '}
-              <strong style={{ color: 'var(--title)' }}>8 held-out instances</strong> (perturbations
-              of the base month whose seeds were never sampled during training), and the reference
-              solution is re-measured with this project&apos;s own connection classifiers, so the
-              robustness columns compare like with like.
+              <strong style={{ color: 'var(--title)' }}>8 held-out months</strong> it never trained
+              on, and the reference solution is re-measured with the same connection classifiers.
             </p>
           </div>
 
@@ -211,18 +209,14 @@ export default function CrewPairingResultsChart() {
 
           <div className="px-5 pb-5 space-y-2">
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
-              A <span className="font-mono">short</span> connection is a tight same-airport turn the
-              crew can make because it follows the aircraft, the robust kind. A{' '}
-              <span className="font-mono">critical</span> connection has under 15 minutes of buffer,
-              so one late inbound cascades. Higher is better in the short column and lower in the
-              other three.
+              A <span className="font-mono">short</span> connection follows the aircraft (robust); a{' '}
+              <span className="font-mono">critical</span> one has under 15 minutes of buffer, so one
+              late flight cascades. Higher is better for short connections, lower for the other three.
             </p>
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)', opacity: 0.85 }}>
-              The reference row is not a like-for-like coverage comparison: it reaches 1.00 by
-              deadheading throughout, which the headline runs deliberately did not model. The
-              comparison that does hold is robustness, and even per covered leg, the reference&apos;s
-              critical-connection rate is about 2.3 times the learned policy&apos;s. The trade this
-              project makes is coverage for resilience, and it is a trade rather than a win.
+              The reference reaches 1.00 coverage by repositioning crews throughout, which these runs
+              did not model, so coverage is not like for like. Robustness is: even per covered leg,
+              its critical-connection rate is about 2.3 times the policy&apos;s.
             </p>
           </div>
         </div>
@@ -241,8 +235,8 @@ export default function CrewPairingResultsChart() {
 
           <div className="p-5 flex flex-col gap-4">
             <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-              The trained Q-function is already a value estimate, so at inference it doubles as a
-              search heuristic. No retraining, no new data, just a larger decode budget.
+              The trained network already estimates value, so at inference it doubles as a search
+              guide, with no retraining.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -281,22 +275,20 @@ export default function CrewPairingResultsChart() {
             </div>
 
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
-              About four coverage points for roughly three times the wall clock, nine seconds against
-              three per instance. The anytime best-first variant is seeded with a full greedy dive, so
-              whatever budget it is given, it cannot return a worse answer than greedy.
+              About four coverage points for roughly three times the run time (9 s against 3 s per
+              month).
             </p>
           </div>
         </div>
 
         <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-          The number that matters most here is not the coverage headline but the{' '}
+          The key number is the{' '}
           <span className="crewpair-accent-text font-semibold">
             train-versus-held-out gap of 0.00 to 0.05
-          </span>{' '}
-          at plateau. A construction policy that had memorized its training month would show a wide
-          one. Alongside{' '}
-          <span className="crewpair-accent-text font-semibold">zero feasibility violations</span> from
-          an independent re-checker, that is what makes the rest of the table worth reading.
+          </span>
+          : a policy that had memorized its training month would show a wide one. Together with{' '}
+          <span className="crewpair-accent-text font-semibold">zero feasibility violations</span>, it
+          is what makes the rest of the table trustworthy.
         </p>
       </motion.div>
     </section>

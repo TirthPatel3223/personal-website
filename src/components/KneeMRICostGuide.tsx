@@ -200,12 +200,9 @@ function CostTable() {
             Compute is a rounding error next to the labels: under $2 per model, against tens of
             thousands of dollars of radiologist time for the same exams.
           </strong>{' '}
-          That is the whole management case in one line, and it is why frozen backbones lose the
-          argument above 0.75 even though they are cheaper to train: they need so many more labeled
-          exams that the compute saving is irrelevant. Exam counts are read off the observed curves
-          (fine-tuned rows on 3 test folds, matched with the frozen rows); † marks an extrapolation past
-          2,600 exams, so the AUC 0.85 figures are order-of-magnitude guides, not prescriptions. A
-          hospital also needs a validation set of about 870 exams on top of these.
+          So frozen backbones lose above 0.75 despite cheaper training: they need far more labeled
+          exams. † marks an extrapolation past 2,600 exams (a rough guide only), and a hospital also
+          needs about 870 validation exams on top.
         </p>
       </div>
     </div>
@@ -263,14 +260,10 @@ function LabelLadder() {
           ))}
         </div>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-          The challenge allowed hosted APIs because its data was already de-identified. A hospital&apos;s
-          own reports and images are protected health information, so the hosted rows usually need
-          de-identification, a business associate agreement and a governance review before they are
-          even an option, which is why this study ran entirely on one workstation. The local labels
-          cost about 200 to 400 times less than the winner&apos;s agentic labels; those in turn cost 100
-          to 200 times less than expert reads. The 0.942 and 0.960 figures are leaderboard scores on
-          about 1,300 hidden studies, a different and much larger ruler than our 58-study gold set
-          (best model 0.840), so the comparison is approximate.
+          A hospital&apos;s own reports are protected health information, so hosted options usually need
+          de-identification and a governance review first; this study ran on one workstation. The 0.942
+          and 0.960 figures are leaderboard scores on about 1,300 hidden studies, a different ruler from
+          our 58-study gold set (best model 0.840), so the comparison is approximate.
         </p>
       </div>
     </div>
@@ -308,9 +301,8 @@ function DecisionGuide() {
       <div className="px-5 pb-5 pt-1">
         <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
           <strong style={{ color: 'var(--title)' }}>Build or buy:</strong> build locally for a 0.75 to
-          0.80 triage aid (about $5 of local LLM labels, $2.6k to $4.5k for a 60 to 100 exam expert
-          audit set, and under $2 of compute), and buy a cleared product or join a multi-site labeling
-          consortium when the target is 0.90 or better, because that takes image-level supervision.
+          0.80 triage aid (about $5 of labels, $2.6k to $4.5k for an expert audit set, under $2 of
+          compute); buy or join a labeling consortium for 0.90 or better.
         </p>
       </div>
     </div>

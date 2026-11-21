@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getProjectBySlug, projects } from '@/data/projects';
 import { ArrowLeft, Github, CheckCircle2, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -9,8 +10,9 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 import WeatherParticles from '@/components/WeatherParticles';
 import WeatherPipelineArchDiagram from '@/components/WeatherPipelineArchDiagram';
 import WeatherPipelineInsights from '@/components/WeatherPipelineInsights';
-import DeepCubeAPage from '@/components/DeepCubeAPage';
 import MalteseScrollCube from '@/components/MalteseScrollCube';
+import MalteseSim3DCard from '@/components/MalteseSim3DCard';
+import MalteseResultsChart from '@/components/MalteseResultsChart';
 import MapblazerResultsChart from '@/components/MapblazerResultsChart';
 import MapblazerDashboardCard from '@/components/MapblazerDashboardCard';
 import CrewPairingDemoCard from '@/components/CrewPairingDemoCard';
@@ -20,9 +22,25 @@ import AirbnbFindingCallout from '@/components/AirbnbFindingCallout';
 import RouteOptItineraryCard from '@/components/RouteOptItineraryCard';
 import KneeMRIResults from '@/components/KneeMRIResults';
 import KneeMRICostGuide from '@/components/KneeMRICostGuide';
+import ProjectExhibit from '@/three/exhibits/ProjectExhibit';
 
 export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.id }));
+}
+
+/* Each project page gets its own title and description in search results and link
+   previews, instead of the homepage's. */
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const project = getProjectBySlug(slug);
+  if (!project) return {};
+  const title = `${project.title} | Tirth Patel`;
+  return {
+    title,
+    description: project.short_description,
+    openGraph: { title, description: project.short_description, url: project.link },
+    twitter: { title, description: project.short_description },
+  };
 }
 
 export default async function ProjectPage({
@@ -48,6 +66,7 @@ export default async function ProjectPage({
   const isAirbnb = project.id === 'airbnb-superhost-rdd';
   const isRouteOpt = project.id === 'mapblazer-route-optimization';
   const isKnee = project.id === 'knee-mri-data-efficiency';
+  const isPuzzleLab = project.id === 'puzzle-lab';
 
   /* Accent colours per-project */
   const accentText   = isDataTech ? 'text-[#4e9bb9]'
@@ -91,7 +110,7 @@ export default async function ProjectPage({
 
   const mainContent = (
     <main
-      className={`min-h-screen${isCubeSolver ? ' cube-body-bg' : ''}${isDataTech ? ' datatech-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}${isRouteOpt ? ' routeopt-body-bg' : ''}${isCrewPairing ? ' crewpair-body-bg' : ''}${isAirbnb ? ' airbnb-body-bg' : ''}${isKnee ? ' knee-body-bg' : ''}`}
+      className={`min-h-screen${isCubeSolver || isPuzzleLab ? ' cube-body-bg' : ''}${isDataTech ? ' datatech-body-bg' : ''}${isMapblazer ? ' mapblazer-body-bg' : ''}${isRouteOpt ? ' routeopt-body-bg' : ''}${isCrewPairing ? ' crewpair-body-bg' : ''}${isAirbnb ? ' airbnb-body-bg' : ''}${isKnee ? ' knee-body-bg' : ''}`}
       style={{
         color: 'var(--foreground)',
         position: 'relative',
@@ -130,7 +149,10 @@ export default async function ProjectPage({
         />
         {isDataTech && <WeatherParticles />}
 
-        <div className="relative max-w-5xl mx-auto px-4 pt-28 pb-16">
+        <div className={`relative max-w-5xl mx-auto px-4 pt-28 pb-16${isCubeSolver ? ' cube-hero-inner' : ''}`}>
+          {/* The cube page's hero text keeps to a left column on desktop: the fixed
+              background cube (MalteseScrollCube) is the hero visual on the right. */}
+          <div className={isCubeSolver ? 'cube-hero-text' : undefined}>
           {/* Back link */}
           <Link
             href="/"
@@ -149,7 +171,7 @@ export default async function ProjectPage({
           )}
 
           <h1
-            className={`text-4xl md:text-6xl font-black tracking-tight mb-5 max-w-3xl leading-tight${
+            className={`text-4xl ${isCubeSolver ? 'md:text-5xl' : 'md:text-6xl'} font-black tracking-tight mb-5 max-w-3xl leading-tight${
               isRouteOpt || isCrewPairing ? ' bg-clip-text' : ''
             }`}
             /* Homepage-theme pages reuse the hero wordmark gradient from page.tsx. */
@@ -195,14 +217,22 @@ export default async function ProjectPage({
               View on GitHub
             </a>
           )}
+          </div>
         </div>
       </div>
 
       {/* ── CONTENT ─────────────────────────────────────────────────── */}
+      {/* The cube page keeps a scrim under its content (.cube-content-bg): its
+          background is the scrambling cube, not the blob field, and text between
+          cards would otherwise sit straight on top of it. */}
+      <div className={isCubeSolver ? 'cube-content-bg' : undefined}>
       <div className="max-w-5xl mx-auto px-4 py-16 space-y-16">
 
         {detail ? (
           <>
+            {/* The project's 3D exhibit (client-only; renders nothing on devices without WebGL) */}
+            <ProjectExhibit slug={project.id} />
+
             {/* Problem Statement */}
             <section>
               <SectionLabel isDataTech={isDataTech} isMapblazer={isMapblazer} isAirbnb={isAirbnb} isKnee={isKnee}>Problem Statement</SectionLabel>
@@ -258,9 +288,13 @@ export default async function ProjectPage({
             {isMapblazer && <MapblazerDashboardCard />}
             {isCrewPairing && <CrewPairingDemoCard />}
             {isRouteOpt && <RouteOptItineraryCard />}
+            {isCubeSolver && <MalteseSim3DCard />}
 
             {/* Mapblazer model comparison: reads against the dashboard above it */}
             {isMapblazer && <MapblazerResultsChart />}
+
+            {/* Maltese cube: average moves per stage, under the 3D simulator */}
+            {isCubeSolver && <MalteseResultsChart />}
 
             {/* Crew-pairing policy table: reads against the replay above it */}
             {isCrewPairing && <CrewPairingResultsChart />}
@@ -325,7 +359,7 @@ export default async function ProjectPage({
                   <WeatherPipelineArchDiagram />
                 ) : (
                   <pre
-                    className={`${isRAG ? 'site-accent-text' : isMapblazer ? 'mapblazer-accent-text' : isRouteOpt ? 'routeopt-accent-text' : isCrewPairing ? 'crewpair-accent-text' : isAirbnb ? 'airbnb-accent-text' : isKnee ? 'knee-accent-text' : 'text-teal-300/80'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
+                    className={`${isRAG ? 'site-accent-text' : isMapblazer ? 'mapblazer-accent-text' : isRouteOpt ? 'routeopt-accent-text' : isCrewPairing ? 'crewpair-accent-text' : isAirbnb ? 'airbnb-accent-text' : isKnee ? 'knee-accent-text' : 'cube-accent-text'} text-xs md:text-sm font-mono leading-relaxed p-6 overflow-x-auto whitespace-pre`}
                     style={{ fontVariantLigatures: 'none', fontFeatureSettings: '"liga" 0, "calt" 0' }}
                   >
                     {detail.architecture}
@@ -413,17 +447,18 @@ export default async function ProjectPage({
           )}
         </div>
       </div>
+      </div>
     </main>
   );
 
-  /* The cube page has its own layout and its own background: the real Maltese Gear Cube,
-     fixed behind the page, scrambling as you scroll. */
+  /* The cube page shares the template; only its background differs: the real Maltese
+     Gear Cube, fixed behind the page, scrambling as you scroll. */
   if (isCubeSolver) {
     return (
       <div>
         <MalteseScrollCube />
         <div style={{ position: 'relative', zIndex: 10 }}>
-          <DeepCubeAPage project={project} />
+          {mainContent}
         </div>
       </div>
     );

@@ -2,8 +2,8 @@
 
 import { motion, type Variants } from 'framer-motion';
 import Navbar from '@/components/Navbar';
-import ProjectCard from '@/components/ProjectCard';
-import AnimatedBackground from '@/components/AnimatedBackground';
+import HomeBackdrop from '@/three/tour/HomeBackdrop';
+import TourSection from '@/three/tour/TourSection';
 import { projects } from '@/data/projects';
 import { Github, Linkedin, Mail, FileText, MapPin } from 'lucide-react';
 
@@ -64,8 +64,8 @@ const heroItem: Variants = {
 export default function Home() {
   return (
     <div className="min-h-screen font-sans" style={{ color: 'var(--foreground)' }}>
-      {/* Animated blob background */}
-      <AnimatedBackground />
+      {/* The 3D archipelago (or, on devices without WebGL, the animated blobs) */}
+      <HomeBackdrop />
 
       {/* All content sits above the background */}
       <div className="relative z-10">
@@ -74,20 +74,23 @@ export default function Home() {
         {/* ── HERO ─────────────────────────────────────────────────────── */}
         <section
           id="hero"
-          className="relative flex flex-col items-center justify-center min-h-screen px-4 pt-20 overflow-hidden"
+          className="relative flex items-center min-h-screen px-4 pt-24 pb-20 overflow-hidden"
         >
+          {/* A soft wash behind the text so it stays readable over the islands */}
+          <div className="hero-wash" aria-hidden="true" />
           <motion.div
             variants={heroContainer}
             initial="hidden"
             animate="visible"
-            className="z-10 text-center space-y-6 max-w-4xl"
+            className="relative z-10 w-full max-w-6xl mx-auto text-center lg:text-left"
           >
+            <div className="max-w-2xl mx-auto lg:mx-0 space-y-6">
             <motion.p
               variants={heroItem}
               className="text-sm font-semibold uppercase tracking-[0.2em]"
               style={{ color: 'var(--accent)' }}
             >
-              Portfolio
+              Data Scientist &amp; ML Engineer
             </motion.p>
 
             <motion.h1
@@ -102,17 +105,20 @@ export default function Home() {
 
             <motion.p
               variants={heroItem}
-              className="text-base sm:text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed"
-              style={{ color: 'var(--muted)' }}
+              className="text-lg sm:text-xl md:text-2xl font-light leading-relaxed"
+              style={{ color: 'var(--foreground)' }}
             >
-              Data Scientist &amp; ML Engineer
-              <br />
-              <span className="text-sm sm:text-lg opacity-75">MSBA @ UCLA Anderson</span>
+              I build machine learning models and optimizers for hard search problems: twisty puzzles,
+              airline crew schedules, theme-park days and AI agents.
+            </motion.p>
+
+            <motion.p variants={heroItem} className="text-sm sm:text-base" style={{ color: 'var(--muted)' }}>
+              MSBA @ UCLA Anderson
             </motion.p>
 
             <motion.div
               variants={heroItem}
-              className="flex items-center justify-center gap-3 pt-4 flex-wrap"
+              className="flex items-center justify-center lg:justify-start gap-3 pt-2 flex-wrap"
             >
               <a
                 href="https://github.com/TirthPatel3223"
@@ -173,21 +179,27 @@ export default function Home() {
                 Resume
               </a>
             </motion.div>
+            </div>
           </motion.div>
 
-          {/* Scroll indicator */}
-          <motion.div
+          {/* Scroll cue */}
+          <motion.a
+            href="#projects"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce"
-            style={{ color: 'var(--border)' }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-xs tracking-wide"
+            style={{ color: 'var(--muted)' }}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            Scroll to fly through the projects
+            <svg className="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
-          </motion.div>
+          </motion.a>
         </section>
+
+        {/* ── PROJECTS: the island tour ─────────────────────────────────── */}
+        <TourSection projects={projects} />
 
         {/* ── ABOUT ────────────────────────────────────────────────────── */}
         <section
@@ -307,7 +319,7 @@ export default function Home() {
                 <div className="flex items-start justify-between flex-wrap gap-3">
                   <div>
                     <h3 className="text-2xl font-bold" style={{ color: 'var(--title)' }}>
-                      Data Science Intern
+                      Scientist 1, Data Science
                     </h3>
                     <p className="font-medium mt-0.5" style={{ color: 'var(--accent)' }}>
                       Becton Dickinson
@@ -427,33 +439,6 @@ export default function Home() {
               </motion.div>
             </div>
           </motion.div>
-        </section>
-
-        {/* ── PROJECTS ─────────────────────────────────────────────────── */}
-        <section
-          id="projects"
-          className="max-w-7xl mx-auto px-4 py-24"
-          style={{ borderTop: '1px solid var(--border)' }}
-        >
-          <motion.div
-            variants={sectionHeading}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="text-center mb-16 space-y-3"
-          >
-            <h2 className="section-title text-3xl md:text-4xl font-bold tracking-tight">
-              Projects
-            </h2>
-            <p className="mt-6 max-w-xl mx-auto" style={{ color: 'var(--muted)' }}>
-              A selection of data science and ML engineering work.
-            </p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, i) => (
-              <ProjectCard key={project.id} project={project} index={i} />
-            ))}
-          </div>
         </section>
 
         {/* ── SKILLS ───────────────────────────────────────────────────── */}
@@ -602,7 +587,7 @@ export default function Home() {
             color: 'var(--muted)',
           }}
         >
-          <p>© {new Date().getFullYear()} Tirth Patel. Built with Next.js &amp; Tailwind CSS.</p>
+          <p>© {new Date().getFullYear()} Tirth Patel. Built with Next.js, Tailwind CSS and three.js.</p>
         </motion.footer>
       </div>
     </div>

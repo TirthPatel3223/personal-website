@@ -1,5 +1,117 @@
 {
   "_note": "Context for the portfolio chatbot. The projects array mirrors src/data/projects.ts, which is what the website actually renders. If a project is edited there, regenerate this file so the two cannot drift.",
+  "chatbot_brief": {
+    "how_to_use": "The short, specific facts to answer from by default. Full detail for every project is in the projects array; go there when a visitor asks for depth.",
+    "one_line": "UCLA Anderson MSBA student (Sep 2025 to Dec 2026), IIT Madras chemical engineering graduate, and Data Scientist Intern at Becton Dickinson since Aug 2026. His projects pair machine learning with exact math (integer programming, group theory, causal designs), and most end as something running in production or a result checked against an independent reference.",
+    "patterns_with_evidence": [
+      {
+        "pattern": "Combines learning with exact optimization or math instead of picking one",
+        "evidence": "Maltese Gear Cube solver: group theory splits a 4.5×10⁵⁸-state puzzle into 5 stages; exact lookup tables solve 3 of them and neural networks solve the 2 too big for tables. Route planner: an exact Gurobi optimization model that runs on his own ML forecasts. Crew pairing: every airline rule is built into the RL agent's allowed moves, so schedules are legal by construction."
+      },
+      {
+        "pattern": "Reports results that do not flatter him",
+        "evidence": "Airbnb study: 5 of 6 outcomes showed no effect, and he flagged the 6th as probably not caused by the badge. Knee MRI: a hypothesis written down in advance failed (older ImageNet weights beat the newer DINOv3 model) and was reported as a failure. Maltese cube: the first version's headline numbers turned out wrong and were withdrawn."
+      },
+      {
+        "pattern": "Catches silent bugs before they reach the results",
+        "evidence": "Knee MRI: an evaluation cache keyed on Python object ids scored 99 runs against the wrong patients; spotted from near-chance scores and rerun before analysis. Maltese cube: the short gear moves could reach under 1/3000 of gear colourings, so 8 of 9 deep scrambles failed; fixed to 100 of 100. Wait-time pipeline: a timezone tripwire fails any run whose busiest hour lands outside 11:00 to 20:00, the signature of a UTC bug."
+      },
+      {
+        "pattern": "Ships systems that run on their own for almost nothing",
+        "evidence": "The wait-time pipeline retrains every Sunday on Databricks behind 12 quality checks with automatic fallback to the last good forecast, for $0/month. The course Q&A assistant has run on Oracle Cloud's free tier for about $1 to 4/month through 9 production issues."
+      },
+      {
+        "pattern": "Turns analysis into a business decision",
+        "evidence": "Knee MRI: turned learning curves into a hospital budget (about 1,300 labeled exams for AUC 0.80; expert labels cost about $45,000 per 1,000 exams against under $2 of compute). Seat of Joy: his 55M-customer market-sizing model went into the investor decks used in two Shark Tank India rounds."
+      }
+    ],
+    "projects_at_a_glance": [
+      {
+        "id": "deep-cube-solver",
+        "page": "/projects/deep-cube-solver",
+        "plain": "A program that solves the Maltese Gear Cube, a gear-driven Rubik's-style puzzle with about 4.5×10⁵⁸ positions.",
+        "headline": "Solves 100 of 100 deep scrambles (2,000 to 5,000 moves) in about 12 s each on a laptop GPU, with 0.5 GB of tables instead of the 50 GB a reference solver needs.",
+        "twist": "One big neural network failed: it solved nothing deeper than 24 moves. Splitting the puzzle into 5 stages with group theory, and using networks only where tables do not fit, is what worked.",
+        "caveat": "Solutions average 349 face turns, about 2.6x longer than the table-based reference solver. Not optimal and not claimed to be."
+      },
+      {
+        "id": "puzzle-lab",
+        "page": "/projects/puzzle-lab",
+        "plain": "Playable 3D browser versions of six real twisty puzzles.",
+        "headline": "Six puzzles from four designers, every piece cut from the real geometry, only legal moves allowed; the Maltese engine was cross-checked against 5,000+ move sequences.",
+        "twist": "It is the exact model his solvers use: the Tangram Cube solver reads its pieces from it, and the Maltese solver's answers are replayed in it to prove they work.",
+        "caveat": "An unofficial fan project; the puzzles belong to their designers."
+      },
+      {
+        "id": "mapblazer-wait-time-prediction",
+        "page": "/projects/mapblazer-wait-time-prediction",
+        "plain": "Forecasts theme park ride wait times a week ahead for 109 rides in 5 California parks.",
+        "headline": "26.3% lower error than the baseline (7.01 vs 9.51 min), 42.1% fewer misses over 15 min, retrains itself weekly for $0/month.",
+        "twist": "Databricks Free jobs cannot reach the internet, so data is pushed in from an EC2 agent and results are pulled out by GitHub Actions. A new model ships only if it beats the current one by 1%, and a failed run can never replace a working forecast.",
+        "caveat": "Errors are measured on a 78,110-reading time-ordered holdout."
+      },
+      {
+        "id": "mapblazer-route-optimization",
+        "page": "/projects/mapblazer-route-optimization",
+        "plain": "Plans which rides to do, in what order and when, for a theme park day.",
+        "headline": "Saves 22 min of queueing per itinerary against the LLM planner it replaced (up to an hour on a 12-hour day), answers in 10 s instead of 60 s, and saves $0.75 per query in token costs.",
+        "twist": "The order sets arrival times, arrival times set queues, queues set the best order; he solves that loop exactly with Gurobi. Charging for the length of the whole day, not just queue time, made the same Disneyland day finish 130 minutes earlier.",
+        "caveat": "Provably optimal up to about 10 rides; beyond that it returns the best plan found in 10 s, within 0.4% of a 60 s search. Walk times are approximate."
+      },
+      {
+        "id": "knee-mri-data-efficiency",
+        "page": "/projects/knee-mri-data-efficiency",
+        "plain": "How many labeled MRI exams does a hospital need to build its own knee-scan screening model?",
+        "headline": "About 1,300 exams reach AUC 0.80 at a hospital the model never saw, for under $2 of compute; models that are not fine-tuned would need 6,000+. 1,729 training runs on one laptop GPU.",
+        "twist": "Training labels came from a local LLM reading reports in 9+ languages, so no patient data left the machine. And older ImageNet weights beat the newer DINOv3 foundation model, the opposite of their prediction.",
+        "caveat": "Two-person team project with Giulio Elmi for UCLA Healthcare Analytics (Fall 2026). Private repo. Best score 0.84 vs the RSNA competition winner's 0.96, on a different and smaller test set; label quality is the main gap."
+      },
+      {
+        "id": "airline-crew-pairing-rl",
+        "page": "/projects/airline-crew-pairing-rl",
+        "plain": "An AI agent that builds a month of legal airline crew schedules one flight at a time.",
+        "headline": "Zero rule violations, 3.6x fewer fragile connections than the benchmark's reference solution (85 vs 310), and it works on 8 schedules it never trained on.",
+        "twist": "Every airline rule is built into the moves the agent is allowed to pick, so it cannot break one; no penalty term or repair step needed.",
+        "caveat": "Covers about 63 to 66% of flights on unseen schedules; the reference covers about 1.6x as many by flying crews as passengers."
+      },
+      {
+        "id": "airbnb-superhost-rdd",
+        "page": "/projects/airbnb-superhost-rdd",
+        "plain": "Does Airbnb's Superhost badge still help hosts now that the Guest Favorite badge exists?",
+        "headline": "Mostly no: 5 of 6 outcomes show no jump at the 4.8-rating cutoff, among 6,311 hosts near the line (from a 125,685-host panel across 34 US metros).",
+        "twist": "A 2023 study found a positive badge effect. Airbnb has since removed the Superhost search filter, and this re-test mostly does not find the effect.",
+        "caveat": "The one significant result (+79 reviews, p = 0.02) is probably not caused by the badge, since reviews pile up before it is awarded. Five-person team project."
+      },
+      {
+        "id": "course-rag-pipeline",
+        "page": "/projects/course-rag-pipeline",
+        "plain": "A chatbot that answers UCLA MSBA students' questions about their course materials.",
+        "headline": "Live in production for about $1 to 4/month; a 13-step LangGraph agent that sorts each question into one of 5 types.",
+        "twist": "Deadline answers are searched a second time and cross-checked; conflicting dates are flagged with a confidence level instead of guessed. New files are embedded only after a person approves them."
+      },
+      {
+        "id": "weather-dining-pipeline",
+        "page": "/projects/weather-dining-pipeline",
+        "plain": "Does weather change how people review restaurants?",
+        "headline": "Rain and snow cut review volume 50.7% but sentiment holds; freezing days get the happiest reviews (0.71).",
+        "twist": "PySpark, a Snowflake star schema, Airflow and Tableau over 2M+ Yelp and weather records.",
+        "caveat": "Correlation, not a causal design."
+      }
+    ],
+    "quick_answers": {
+      "best_project": "Depends on what the visitor cares about: Maltese Gear Cube solver for ML research depth, wait-time pipeline for production MLOps, knee MRI for healthcare and experimental rigor, Airbnb study for causal inference, route planner for optimization. Pick one or two, with one number each.",
+      "work_experience": "Data Scientist Intern at Becton Dickinson (Aug 2026 to now; recently started, no finished work to report yet). Before that, Business & Strategy Analyst at Seat of Joy, an IIT Madras-incubated startup making two-wheeler child safety seats (intern Jun to Jul 2023, analyst Aug 2023 to Feb 2024).",
+      "llms_and_genai": "Course Q&A assistant (LangGraph agent, ChromaDB, live in production); knee MRI (a local qwen3:14b model labeled 4,407 radiology reports in 9+ languages, checked against expert labels and hand audits); this chatbot.",
+      "causal_inference_and_statistics": "Airbnb Superhost regression discontinuity study; knee MRI (hypotheses written down before the experiments, paired bootstrap intervals, mixed models, Holm correction).",
+      "optimization": "Route planner (exact Gurobi integer program); Seat of Joy distribution model in Gurobi; crew pairing scheduler; the cube solver's search.",
+      "mlops_and_data_engineering": "Wait-time pipeline (Databricks, Delta Lake, quality gates, automatic retraining); weather pipeline (PySpark, Snowflake, Airflow); the course assistant's Docker deployment.",
+      "sql_and_databases": "Wait-time pipeline: reads hourly from a Postgres source, loads Delta Lake tables with an insert-only MERGE, and publishes through a Postgres function that swaps staging and serving tables inside one transaction. Weather pipeline: a Snowflake star schema over 2M+ records with queries under 5 s. Course assistant: SQLite stores the agent's checkpoints. Do not claim SQL use in other projects.",
+      "python_and_deep_learning_frameworks": "PyTorch for the cube solver (CUDA, GPU beam search), the crew-pairing transformer and the knee MRI backbones (timm, bf16 fine-tuning on a 12 GB laptop GPU). Prophet and XGBoost for the wait-time forecasts.",
+      "teamwork_and_leadership": "Led 3 analysts at Seat of Joy turning his models into one investor story, presented across 2 Shark Tank India rounds. Knee MRI was a 2-person team; the Airbnb study a 5-person team.",
+      "availability_and_contact": "MSBA ends Dec 2026. The context does not state preferred roles, locations, visa status, start dates or salary; for those, email tirthpatel3223@gmail.com or message him on LinkedIn."
+    },
+    "not_in_context": "GPA, visa or work authorization, salary, location preferences, start date, references, personal life, and opinions he has not written down. Say you do not know and point to email or LinkedIn."
+  },
   "personal_info": {
     "name": "Tirth Patel",
     "title": "Data Scientist & ML Engineer",
@@ -7,9 +119,10 @@
     "contact": {
       "email": "tirthpatel3223@gmail.com",
       "linkedin": "https://www.linkedin.com/in/tirthpatel3223",
-      "github": "https://github.com/TirthPatel3223"
+      "github": "https://github.com/TirthPatel3223",
+      "website": "https://www.tirthpatel.org"
     },
-    "summary": "Tirth Patel is a Data Scientist and ML Engineer currently pursuing a Master of Science in Business Analytics (MSBA) at UCLA Anderson. He holds a B.Tech in Engineering from IIT Madras, where he built a foundation in mathematics, statistics, and algorithms. His work centres on turning complex, messy data into decisions that matter: production agentic RAG systems, large-scale data pipelines, deep reinforcement learning, and operations-research style optimization. He is drawn to problems where rigorous analysis drives real-world impact, and to shipping models that keep running unattended rather than stopping at a notebook result.",
+    "summary": "Tirth Patel is finishing a Master of Science in Business Analytics at UCLA Anderson (Sep 2025 to Dec 2026) and has been a Data Scientist Intern at Becton Dickinson since Aug 2026. Before that he earned a B.Tech in Chemical Engineering at IIT Madras (Dec 2021 to May 2025), where his coursework leaned toward data science math, operations research and economics, and worked as a business and strategy analyst at an IIT Madras startup. His projects span production MLOps, deep reinforcement learning, exact optimization, medical imaging and causal inference.",
     "skills": {
       "Machine Learning": [
         "XGBoost",
@@ -131,14 +244,18 @@
     {
       "degree": "Master of Science in Business Analytics (MSBA)",
       "institution": "UCLA Anderson School of Management",
+      "location": "Los Angeles, CA",
+      "dates": "Sep 2025 to Dec 2026",
       "status": "In progress",
-      "focus": "Machine learning, data engineering, and optimization"
+      "coursework": "Machine Learning, Statistical Foundations of Analytics, Data Engineering, Operations Analytics, Optimization, Healthcare Analytics, Competitive Analytics"
     },
     {
-      "degree": "B.Tech in Engineering",
+      "degree": "Bachelor of Technology, Chemical Engineering",
       "institution": "Indian Institute of Technology (IIT) Madras",
+      "location": "Chennai, India",
+      "dates": "Dec 2021 to May 2025",
       "status": "Completed",
-      "focus": "Mathematics, statistics, and algorithms"
+      "coursework": "Mathematical Foundations of Data Science, Advanced Operations Research, Operations Management, Economics"
     }
   ],
   "work_experience": [
@@ -154,14 +271,14 @@
       "company": "Seat of Joy",
       "incubation": "Incubated at IIT Madras",
       "role": "Business & Strategy Analyst",
-      "duration": "2023 - 2024",
+      "duration": "Jun 2023 to Feb 2024",
       "context": "Worked during undergraduate degree",
       "about": "Seat of Joy is an Indian startup incubated at IIT Madras that developed a safety seat for children specifically designed for two-wheelers - in India, 2 children die every day due to two-wheeler accidents and no existing product provided full-body protection during an accident. Seat of Joy fills that gap.",
       "achievements": [
-        "Developed a probabilistic market-sizing mathematical model from scratch using Indian Census 2011 data (100+ tables, 200K+ rows each), combining birth-order probability analysis and age-gap distributions with linear regression to estimate 55M target customers with 5% YoY growth - a 45% improvement over the previous estimate, used in all investor pitch decks. The model works by using two census tables: one mapping mother's age to child age-gap from a previous child (second/third births), and another recording whether each birth is a first, second, or higher-order child. Multiplying these probabilities gives the likelihood a given child falls in the 3-6 year target age range, then linear regression projects future growth. When the next census is released the model's 2011-based predictions can be validated against actual data.",
+        "Developed a probabilistic market-sizing mathematical model from scratch using Indian Census 2011 data (100+ tables, 20M+ rows in total), combining birth-order probability analysis and age-gap distributions with linear regression to estimate 55M target customers with 5% YoY growth - a 45% improvement over the previous estimate, used in all investor pitch decks. The model works by using two census tables: one mapping mother's age to child age-gap from a previous child (second/third births), and another recording whether each birth is a first, second, or higher-order child. Multiplying these probabilities gives the likelihood a given child falls in the 3-6 year target age range, then linear regression projects future growth. When the next census is released the model's 2011-based predictions can be validated against actual data.",
         "Built a supply-chain optimization model using operations research principles (solved via Gurobi and Excel Solver) that maximises profit by balancing manufacturing costs, shipping costs, and selling price - with penalty terms for over-concentrating shipments into one state (elastic-net style) and state-level demand caps derived from the market-sizing model's per-state estimates.",
-        "Conducted full competitor analysis - SWOT across three product categories (child safety seats, two-wheeler accessories, and general child restraints) plus direct pricing analysis sourced by calling manufacturers to obtain their production costs - establishing the margin structure of the category and informing Seat of Joy's positioning and launch pricing strategy.",
-        "Acted as the founding team's internal consultant for Shark Tank India Auditions: led a team of 3 to synthesize the market-sizing model, supply-chain analysis, and competitive/pricing work into a single client-ready pitch deck, managed founder alignment on the story pre-audition, then presented live to a panel of investor stakeholders and defended every claim under adversarial, numbers-first Q&A - a full consulting-style cycle of analysis, stakeholder alignment, and defended delivery.",
+        "During the internship, benchmarked 10+ competitors - SWOT across three product categories (child safety seats, two-wheeler accessories, and general child restraints) plus direct pricing analysis sourced by calling manufacturers to obtain their production costs - establishing the margin structure of the category and informing Seat of Joy's positioning and launch pricing strategy.",
+        "Acted as the founding team's internal consultant for Shark Tank India Auditions: led a team of 3 to synthesize the market-sizing model, supply-chain analysis, and competitive/pricing work into a single client-ready pitch deck, managed founder alignment on the story pre-audition, then presented live to investor panels across 2 Shark Tank India rounds and defended every claim under adversarial, numbers-first Q&A - a full consulting-style cycle of analysis, stakeholder alignment, and defended delivery.",
         "Performed ongoing strategic marketing work: competitor analytics, pricing strategy, market launch strategies, and market analysis - supporting fundraising and product launch planning."
       ],
       "skills_used": [
@@ -177,7 +294,18 @@
         "Mathematical Modeling",
         "Data Analysis",
         "Stakeholder Management"
-      ]
+      ],
+      "roles": [
+        {
+          "role": "Business & Strategy Analyst Intern",
+          "dates": "Jun 2023 to Jul 2023"
+        },
+        {
+          "role": "Business & Strategy Analyst",
+          "dates": "Aug 2023 to Feb 2024"
+        }
+      ],
+      "location": "Chennai, India"
     }
   ],
   "projects": [
@@ -257,6 +385,8 @@
       ],
       "achievements": [
         "Modelled the park day as a time-dependent orienteering problem with mandatory nodes and solved it exactly in Gurobi rather than with the nearest-shortest-queue heuristic the problem invites: arrival time sets the queue, the queue sets the next arrival, and that feedback is precisely what greedy ordering cannot see.",
+        "Replaced MapBlazer's original LLM planner, which could not react once queues shifted: the solver saves 22 minutes of queueing per itinerary on average, and the gap widens with length of stay, up to a full hour on a 12-hour day.",
+        "Cut response time 83.3% (a 10-second solve against a 60-second LLM average) and removed token costs, saving $0.75 per query.",
         "Rewrote the objective from penalising queue time to charging the makespan of the whole loop, which fixed a concrete failure: the earlier version left walking and idling free and duly spent the entire time budget, finishing at closing time on every instance. The same seven-ride Disneyland day now finishes 130 minutes earlier, with less walking.",
         "Scaled the two objective terms so a ride is never sacrificed to finish sooner: since an extra ride can lengthen the day by at most the whole budget, charging under min(priority)/T per minute makes the ride reward provably dominant, and the default half-of-that factor leaves a full 480-minute day costing half of one optional ride.",
         "Kept the time-dependence linear by pinning arrival to a slot with two big-M inequalities and reading the queue as a constant table times a binary, so a genuinely time-varying cost stays inside a MILP instead of forcing a nonlinear model.",
@@ -266,6 +396,9 @@
         "Joined the solver to the live forecast service on normalised ride names, since the two datasets disagree on curly apostrophes, trademark symbols and capitalisation, and made uncovered rides a reported field on the response rather than a silent zero-wait assumption that would flatter every plan containing one."
       ],
       "key_metrics": {
+        "Queue Time Saved": "22 min avg per itinerary vs. the legacy LLM planner, up to a full hour on a 12-hour day",
+        "Response Time": "83.3% faster (10 s solver budget vs. 60 s legacy LLM average)",
+        "Cost per Query": "$0.75 saved (token costs eliminated)",
         "Day Shortened": "130 minutes earlier on the same seven-ride Disneyland day, after switching from a queue-time penalty to a makespan charge",
         "Solve Budget": "10-second default time limit, chosen from a benchmark rather than by taste",
         "Gap to a 60s Search": "within 0.4%, measured on both a 12-ride and a 16-ride day",
@@ -608,7 +741,7 @@
     },
     {
       "id": "deep-cube-solver",
-      "title": "Maltese Gear Cube Solver: Subgroup Ladder & Deep Value Iteration",
+      "title": "Maltese Gear Cube Solver: Reinforcement Learning Meets Group Theory",
       "page_url": "/projects/deep-cube-solver",
       "short_description": "A solver for Meffert's Maltese Gear Cube (about 4.5×10⁵⁸ visible states) that splits the puzzle into a ladder of subgroups and solves one rung at a time: exact tables where a rung's coset space fits in memory, DeepCubeA-style value networks where it does not. It solves 100 of 100 scrambles of 2,000 to 5,000 moves in about 12 s each.",
       "motivation": "Tirth's first attempt trained a single value network for the whole puzzle, the plain DeepCubeA recipe. Its predicted distance flattened out near 18 and it solved nothing deeper than 24 quarter turns. Instead of a bigger network, he went back to the group theory and gave the learning a much smaller job. That earlier single-network version is kept in the repo's archive/ folder; the numbers it was once described with (a ~4.9×10¹⁹ state space, 1.08× optimal) were wrong and are not claims of this project.",
@@ -633,7 +766,7 @@
         {
           "rung": "gear parity",
           "cosets": "8,388,608",
-          "bits": 23.0,
+          "bits": 23,
           "method": "exact table",
           "actions": "696 corner-fixing macros (4 to 10 moves)",
           "mean_quarter_turns": 27.2
@@ -641,7 +774,7 @@
         {
           "rung": "gear rotation",
           "cosets": "8,388,608",
-          "bits": 23.0,
+          "bits": 23,
           "method": "exact table",
           "actions": "669 macros (4 to 12 moves)",
           "mean_quarter_turns": 48.8
@@ -686,7 +819,7 @@
         "The ring rung uses 72 of its 304 distinct cheap moves; more actions would lengthen training and shorten solutions.",
         "Learned values saturate at depth; beam search only needs the ranking, so it works before the values are calibrated."
       ],
-      "interactive_3d_model": "The project page embeds Tirth's own three.js simulator of the physical puzzle (https://tirthpatel3223.github.io/tangram-cube-extreme/?puzzle=maltese-gear-cube, repo TirthPatel3223/tangram-cube-extreme): real gearing (a 90° face turn drives the middle layer 45° and its 8 gears spin 270°), shape-shifting, geometry fitted from photos, and an exact engine. Visitors can paste a scramble and the solver's solution to watch it solve.",
+      "interactive_3d_model": "The project page embeds Tirth's own three.js simulator of the physical puzzle (https://tirthpatel3223.github.io/combinatorics-puzzle-simulator/?puzzle=maltese-gear-cube, repo TirthPatel3223/combinatorics-puzzle-simulator): real gearing (a 90° face turn drives the middle layer 45° and its 8 gears spin 270°), shape-shifting, geometry fitted from photos, and an exact engine. Visitors can paste a scramble and the solver's solution to watch it solve.",
       "tech_stack": [
         "PyTorch",
         "CUDA",
@@ -700,7 +833,55 @@
       ],
       "technical_details": "Python, PyTorch (CUDA), NumPy, SymPy, pytest; deep approximate value iteration (DeepCubeA / DeepXube), Schreier coset graphs, meet-in-the-middle macro harvesting, GPU Dijkstra tables, batched GPU beam search; 3D simulator in TypeScript, three.js and manifold-3d (WebAssembly)",
       "status": "complete",
-      "github_url": "https://github.com/TirthPatel3223/cube-solving-pipeline"
+      "github_url": "https://github.com/TirthPatel3223/deeprubik-ladder"
+    },
+    {
+      "id": "puzzle-lab",
+      "title": "Puzzle Lab: Six Real Twisty Puzzles, Rebuilt in 3D",
+      "page_url": "/projects/puzzle-lab",
+      "live_url": "https://tirthpatel3223.github.io/combinatorics-puzzle-simulator/",
+      "short_description": "Playable browser copies of six real twisty puzzles, built in TypeScript and three.js from photos and the puzzles' true cut geometry. Every move the real puzzle allows works, and nothing else does.",
+      "motivation": "Solving a puzzle with code starts with an exact model of it. These simulators are that model: the Tangram Cube solver reads its pieces and moves straight from the app, and the Maltese Gear Cube solver's demo solution is replayed in it.",
+      "puzzles": [
+        "DaYan Tangram Cube Extreme (Daqing Bao): 60-degree corner turns that shape-shift, plus edge flips",
+        "DaYan Tangram Cube (Daqing Bao): 120-degree corner turns and edge flips; it always stays a cube",
+        "Meffert's Curvy Copter Plus (Tom van der Zanden): small triangles swap with corners, with real bandaging",
+        "Meffert's Curvy Copter (Tom van der Zanden): curved conical cuts, 180-degree edge turns and jumbling",
+        "Meffert's Maltese Gear Cube (Oskar van Deventer): a 90-degree face turn drives the middle layer 45 degrees and spins its 8 gears 270 degrees",
+        "Meffert's David's Gear Cube (David Tzur, engineered by Oskar van Deventer): a 2x2x2 plus a corner gear turn that turns all 8 corners 120 degrees and the 6 face centres 90 degrees"
+      ],
+      "approach_steps": [
+        "Measure the real puzzles: each was rebuilt from photos and published descriptions. The Tangram Cube's cut depth came from a photo (11 shapes per face, 44 visible pieces), and the Maltese Gear Cube was measured from Tirth's own puzzle.",
+        "Cut the pieces exactly: pieces come from the real cut planes and cones, built with mesh booleans in WebAssembly (manifold-3d), with rounded edges like the physical puzzles. The Curvy Copter's cones are tilted 32 degrees (Meffert's figure; a photo fit gave 32.5).",
+        "Model every move: each puzzle has its own engine with exact, discrete piece positions. The Curvy Copter sweeps each turn against the real piece shapes and refuses any that would collide, and the blocking pieces glow red.",
+        "Test against the real thing: Vitest suites cover engines, notation, undo history, animation and meshes. The Maltese engine was cross-checked against more than 5,000 move sequences from Tirth's own model of the puzzle; David's Gear Cube was verified against published centre-swapping algorithms."
+      ],
+      "achievements": [
+        "Rebuilt six real puzzles for the browser, from four designers.",
+        "Built every piece from the real cut geometry, with mesh booleans running in WebAssembly.",
+        "Allowed only legal moves, including real bandaging and jumbling on the Curvy Copters.",
+        "Cross-checked the Maltese engine against more than 5,000 move sequences.",
+        "Exported the Tangram Cube's pieces and moves to the solving pipeline, which compiles them into permutation tables."
+      ],
+      "key_metrics": {
+        "Puzzles": "6, by four designers",
+        "Sequences cross-checked (Maltese)": "5,000+",
+        "Visible Tangram pieces": "44 (11 shapes per face)",
+        "Maltese gears": "24; each face turn spins 8 of them 270 degrees"
+      },
+      "tech_stack": [
+        "TypeScript",
+        "three.js",
+        "manifold-3d",
+        "WebAssembly",
+        "Vite",
+        "Vitest",
+        "Python",
+        "Group Theory"
+      ],
+      "technical_details": "TypeScript, three.js, manifold-3d (mesh booleans in WebAssembly), Vite, Vitest; Python fitting tools for stickers and gear outlines; deployed to GitHub Pages with GitHub Actions. An unofficial fan project: every puzzle belongs to its designer and producer.",
+      "status": "complete",
+      "github_url": "https://github.com/TirthPatel3223/combinatorics-puzzle-simulator"
     }
   ],
   "about_this_website": {

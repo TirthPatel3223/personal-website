@@ -208,149 +208,47 @@ body {
   50%       { opacity: 1; }
 }
 
-/* ─── Cube Solver Dual-Accent Tokens ────────────────────────────────── */
-.cube-page {
-  --cp:      #a78bfa;
-  --cp-h:    #c4b5fd;
-  --cp-dim:  rgba(167,139,250,0.10);
-  --cp-dim-h:rgba(167,139,250,0.18);
-  --cp-bdr:  rgba(167,139,250,0.22);
-  --cp-glow: rgba(124,58,237,0.38);
-
-  --ct:      #2dd4bf;
-  --ct-h:    #5eead4;
-  --ct-dim:  rgba(45,212,191,0.09);
-  --ct-dim-h:rgba(45,212,191,0.16);
-  --ct-bdr:  rgba(45,212,191,0.22);
-
-  --cg:      rgb(74,222,128);
-
-  /* Card surfaces. These used to be hardcoded near-black rgba() values inline in
-     DeepCubeAPage, which meant light mode painted dark slabs of text on a pale
-     page. They are tokens now so both themes get a readable surface. */
-  --dca-card:      rgba(15, 10, 26, 0.55);
-  --dca-card-soft: rgba(15, 10, 26, 0.35);
-  --dca-card-firm: rgba(15, 10, 26, 0.50);
-  --dca-arch:      rgba(4, 2, 10, 0.88);
-
-  /* Chart marks (MalteseLadderViz). Validated with the dataviz palette script on
-     each theme's surface: the text accents above are too light to pass the dark
-     lightness band as fills, so marks get their own steps. */
-  --mv-table: #0f9f90;   /* exact table rungs */
-  --mv-net:   #8b5cf6;   /* value network rungs */
-  --mv-grid:  rgba(148, 163, 184, 0.16);
-  --mv-track: rgba(148, 163, 184, 0.08);
-}
-.light .cube-page {
-  --cp:      #7c3aed;
-  --cp-h:    #6d28d9;
-  --cp-dim:  rgba(124,58,237,0.07);
-  --cp-dim-h:rgba(124,58,237,0.13);
-  --cp-bdr:  rgba(124,58,237,0.25);
-  --cp-glow: rgba(124,58,237,0.07);
-
-  --ct:      #0d9488;
-  --ct-h:    #0f766e;
-  --ct-dim:  rgba(13,148,136,0.07);
-  --ct-dim-h:rgba(13,148,136,0.14);
-  --ct-bdr:  rgba(13,148,136,0.25);
-
-  --cg:      #15803d;   /* green-700; green-400 is ~1.8:1 on a light card */
-
-  --dca-card:      rgba(255, 255, 255, 0.86);
-  --dca-card-soft: rgba(255, 255, 255, 0.74);
-  --dca-card-firm: rgba(255, 255, 255, 0.86);
-  --dca-arch:      rgba(255, 255, 255, 0.94);
-
-  --mv-table: #0d9488;
-  --mv-net:   #7c3aed;
-  --mv-grid:  rgba(15, 23, 42, 0.10);
-  --mv-track: rgba(15, 23, 42, 0.05);
-}
-
+/* ─── Cube Solver Page ─────────────────────────────────────────────── */
+/* The cube page runs the shared project template like every other page. Its one
+   difference is the background: instead of the blob field it gets the real Maltese
+   Gear Cube (MalteseScrollCube), fixed behind the page and scrambling as you scroll.
+   Teal is its accent. */
 @keyframes cube-float {
   0%,100%{ transform: translateY(0) rotate3d(0,1,0,0deg) }
   33%    { transform: translateY(-13px) rotate3d(0,1,0,1.8deg) }
   66%    { transform: translateY(-6px) rotate3d(0,1,0,-1.1deg) }
 }
-@keyframes cube-blink {
-  0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.75)}
+
+/* .cube-body-bg sits on <main>: hover colours for every .home-card, plus the chart
+   marks for MalteseResultsChart (validated with the dataviz palette script on each
+   theme's card surface). */
+.cube-body-bg {
+  --fx-bar-a: #2dd4bf;
+  --fx-bar-b: #5eead4;
+  --fx-glow:  rgba(45, 212, 191, 0.14);
+
+  --mv-table: #0f9f90;   /* exact lookup-table stages */
+  --mv-net:   #8b5cf6;   /* neural-network stages     */
+  --mv-track: rgba(148, 163, 184, 0.08);
 }
-@keyframes cube-aura {
-  0%,100%{opacity:.6} 50%{opacity:1}
+.light .cube-body-bg {
+  --fx-bar-a: #0d9488;
+  --fx-bar-b: #14b8a6;
+  --fx-glow:  rgba(13, 148, 136, 0.11);
+
+  --mv-table: #0d9488;
+  --mv-net:   #7c3aed;
+  --mv-track: rgba(15, 23, 42, 0.05);
+
+  /* Same contrast fix as the other project pages: site light --muted is ~3.8:1. */
+  --muted: #55637a;
 }
 
-/* ─── Cube Solver Page: hero responsive grid ───────────────────────── */
-.dca-hero-grid {
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 2rem;
-  align-items: center;
-  padding: 6.5rem 0 4rem;
-}
-@media (max-width: 860px) {
-  .dca-hero-grid {
-    grid-template-columns: 1fr;
-  }
-  .dca-hero-grid img {
-    width: 240px !important;
-    height: auto !important;
-  }
-}
-
-/* ─── Cube Solver Page: section grids ─────────────────────────────── */
-.dca-metric-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
-.dca-lesson-grid,
-.dca-compare-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-.mgc-replay-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-  gap: 1.6rem;
-  align-items: start;
-}
-.dca-arch-grid {
-  padding: 2rem 1.75rem;
-  display: grid;
-  grid-template-columns: 1fr 56px 1fr;
-}
-.dca-arch-bridge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-top: 40px;
-}
-@media (max-width: 860px) {
-  .dca-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dca-lesson-grid,
-  .dca-compare-grid,
-  .mgc-replay-grid { grid-template-columns: minmax(0, 1fr); }
-  .dca-arch-grid { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding: 1.5rem 1.1rem; }
-  .dca-arch-bridge { display: none; }
-}
-
-/* ─── Cube Solver Page: theme-aware scrims & accents ───────────────── */
-/* This page KEEPS a scrim, unlike every other project page. Its background is not the
-   blob field but the fixed Maltese Gear Cube from MalteseScrollCube, which scrambles as
-   you scroll: with the scrim removed the cube shows straight through and the text
-   between cards becomes unreadable. Only the .home-card hover treatment is shared. */
+/* This page KEEPS a scrim, unlike the others: with none, the cube shows straight
+   through and the text between cards becomes unreadable. The body scrim is on
+   .cube-content-bg (below the hero), so the two scrims never stack over the hero. */
 .cube-hero-bg {
   background-color: rgba(5, 8, 16, 0.82);
-}
-/* .cube-body-bg sits on <main> and carries tokens only; the body scrim is on
-   .cube-content-bg, below the hero, so the two scrims never stack over the hero. */
-.cube-body-bg {
-  --fx-bar-a: var(--cp);
-  --fx-bar-b: var(--ct);
-  --fx-glow:  var(--cp-dim-h);
 }
 .cube-content-bg {
   background-color: rgba(5, 8, 16, 0.55);
@@ -360,10 +258,6 @@ body {
 }
 .light .cube-content-bg {
   background-color: rgba(248, 250, 255, 0.88);
-}
-.light .cube-body-bg {
-  /* Same contrast fix as the Airbnb and crew pages: site light --muted is ~3.8:1. */
-  --muted: #55637a;
 }
 
 /* The scroll-scrubbed background cube (frames are 560px squares). */
@@ -377,15 +271,24 @@ body {
   .mgc-scroll-cube { animation: none; }
 }
 
-/* Desktop: the background cube doubles as the hero visual. It sits under the hero's
-   right-hand column (half the 1080px article minus half the 360px column), and the hero
-   scrim fades from light to the body's strength so there is no step at the hero's edge. */
+/* Desktop: the background cube doubles as the hero visual. It sits right of the
+   hero's text column, the hero is tall enough to hold it, and the hero scrim fades
+   from light to the body's strength so there is no step at the hero's edge. */
 @media (min-width: 861px) {
   .mgc-scroll-cube-pos {
     transform: translate(calc(min(540px, 50vw - 24px) - 180px), -7vh);
   }
   .mgc-scroll-cube {
     width: min(64vh, 560px);
+  }
+  .cube-hero-inner {
+    min-height: min(86vh, 760px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cube-hero-text {
+    max-width: 34rem;
   }
   .cube-hero-bg {
     background: linear-gradient(to bottom, rgba(5, 8, 16, 0.06) 0%, rgba(5, 8, 16, 0.18) 60%, rgba(5, 8, 16, 0.55) 100%);
@@ -394,9 +297,13 @@ body {
     background: linear-gradient(to bottom, rgba(248, 250, 255, 0.05) 0%, rgba(248, 250, 255, 0.22) 60%, rgba(248, 250, 255, 0.88) 100%);
   }
 }
-@media (max-width: 860px) {
-  .dca-hero-visual { display: none; }
-}
+
+/* Solid teal button and bullet dot for the 3D simulator card. White on #0f766e is
+   5.5:1, so the same pair works in both themes. */
+.cube-btn { background-color: #0f766e; color: #ffffff; }
+.cube-btn:hover { background-color: #115e59; }
+.cube-dot { background-color: rgb(45, 212, 191); }
+.light .cube-dot { background-color: rgb(13, 148, 136); }
 
 /* Teal accent text, readable in both modes */
 .cube-accent-text {
@@ -700,4 +607,1146 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 4px;
+}
+
+/* ─── Homepage archipelago (3D tour) ──────────────────────────────────── */
+/* The fixed 3D backdrop. Its own gradient is the "poster" shown until the canvas
+   paints. Once the tour is behind the reader it dims so About and the rest read on
+   a quiet background. */
+.home-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 55% at 62% 72%, rgba(30, 58, 95, 0.35), transparent 70%),
+    linear-gradient(to bottom, #03060c, #0e1a2c);
+  transition: opacity 0.8s ease;
+}
+.light .home-backdrop {
+  background: linear-gradient(to bottom, #8dbbee, #eef4fb);
+}
+.home-backdrop[data-dimmed='true'] {
+  opacity: 0.28;
+}
+.light .home-backdrop[data-dimmed='true'] {
+  opacity: 0.35;
+}
+
+/* Hero text sits on a soft wash so it stays readable over the islands. */
+.hero-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 55% at 50% 45%, rgba(8, 12, 20, 0.6), transparent 72%);
+}
+.light .hero-wash {
+  background: radial-gradient(ellipse 75% 55% at 50% 45%, rgba(248, 250, 255, 0.8), transparent 72%);
+}
+@media (min-width: 1024px) {
+  .hero-wash {
+    background: linear-gradient(90deg, rgba(8, 12, 20, 0.72) 0%, rgba(8, 12, 20, 0.38) 38%, transparent 62%);
+  }
+  .light .hero-wash {
+    background: linear-gradient(90deg, rgba(248, 250, 255, 0.88) 0%, rgba(248, 250, 255, 0.5) 38%, transparent 62%);
+  }
+}
+
+.tour-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+.tour-topbar {
+  position: absolute;
+  top: 5.6rem;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 max(1rem, 4vw);
+}
+.tour-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+}
+.tour-toggle button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.tour-toggle button[aria-pressed='true'] {
+  background: var(--accent-dim-hover);
+  color: var(--accent);
+}
+.tour-toggle button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.tour-skip {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tour-skip:hover {
+  color: var(--accent);
+}
+
+.tour-card-slot {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 5.25rem;
+  z-index: 2;
+}
+@media (min-width: 1024px) {
+  .tour-card-slot {
+    top: 50%;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: 27rem;
+    transform: translateY(-44%);
+  }
+  .tour-card-slot[data-side='1'] {
+    left: max(2rem, 6vw);
+  }
+  .tour-card-slot[data-side='-1'] {
+    right: max(2rem, 6vw);
+  }
+}
+.tour-card {
+  position: relative;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 1.4rem;
+  border-radius: var(--radius-lg);
+}
+.tour-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: linear-gradient(90deg, var(--tour-accent), transparent);
+}
+@media (min-width: 1024px) {
+  .tour-card {
+    max-height: 72vh;
+    padding: 1.9rem;
+  }
+}
+.tour-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tour-accent);
+}
+.tour-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--tour-accent);
+  box-shadow: 0 0 12px var(--tour-accent);
+}
+.tour-points {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+.tour-points li {
+  position: relative;
+  padding-left: 1.1rem;
+}
+.tour-points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 2px;
+  background: var(--tour-accent);
+}
+.tour-pill {
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.tour-explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--tour-accent);
+  color: #0b1020;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.tour-explore:hover {
+  transform: translateX(2px);
+  filter: brightness(1.08);
+}
+.light .tour-explore {
+  color: #ffffff;
+}
+.tour-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--foreground);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.tour-step:hover:not(:disabled) {
+  border-color: var(--tour-accent);
+  color: var(--tour-accent);
+}
+.tour-step:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.tour-minimap {
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.15rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+.tour-island {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.tour-island:hover,
+.tour-island:focus-visible {
+  color: var(--foreground);
+}
+.tour-island-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--dot);
+  opacity: 0.5;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.tour-island[data-active='true'] .tour-island-dot {
+  opacity: 1;
+  transform: scale(1.25);
+  box-shadow: 0 0 10px var(--dot);
+}
+.tour-island-label {
+  display: none;
+  white-space: nowrap;
+}
+@media (min-width: 1024px) {
+  .tour-island[data-active='true'] .tour-island-label,
+  .tour-island:hover .tour-island-label,
+  .tour-island:focus-visible .tour-island-label {
+    display: inline;
+    color: var(--foreground);
+  }
+}
+
+/* Phones: the card stays short so the island above it stays in view, and the island
+   map moves left, clear of the floating chat button. */
+@media (max-width: 1023px) {
+  .tour-card {
+    max-height: 42vh;
+  }
+  .tour-card .tour-points,
+  .tour-card .tour-pills {
+    display: none;
+  }
+  .tour-minimap {
+    left: 1rem;
+    transform: none;
+  }
+}
+
+/* ─── Project exhibits (3D stage + HUD) ───────────────────────────────── */
+.exhibit {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+.exhibit::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ex-accent), transparent 70%);
+  z-index: 1;
+}
+.exhibit-placeholder {
+  background: var(--surface);
+  opacity: 0.5;
+  border-radius: var(--radius-lg);
+}
+.exhibit-head {
+  padding: 1.4rem 1.5rem 1rem;
+}
+.exhibit-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ex-accent);
+}
+.exhibit-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--ex-accent);
+  box-shadow: 0 0 12px var(--ex-accent);
+}
+.exhibit-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--border);
+}
+@media (min-width: 1024px) {
+  .exhibit-body-split {
+    grid-template-columns: minmax(0, 1fr) 21rem;
+  }
+}
+.exhibit-stage {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+.exhibit-side {
+  padding: 1.25rem 1.4rem;
+  border-top: 1px solid var(--border);
+  overflow-y: auto;
+}
+@media (min-width: 1024px) {
+  .exhibit-side {
+    border-top: none;
+    border-left: 1px solid var(--border);
+    max-height: clamp(520px, 74vh, 780px);
+  }
+}
+.exhibit-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+.exhibit-caption {
+  padding: 0.8rem 1.4rem 1.1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.exhibit-caption strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.hud-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--foreground);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.hud-btn:hover:not(:disabled) {
+  border-color: var(--ex-accent);
+  color: var(--ex-accent);
+}
+.hud-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.hud-btn-primary {
+  border-color: transparent;
+  background: var(--ex-accent);
+  color: #0b1020;
+}
+.hud-btn-primary:hover:not(:disabled) {
+  color: #0b1020;
+  filter: brightness(1.08);
+}
+.light .hud-btn-primary,
+.light .hud-btn-primary:hover:not(:disabled) {
+  color: #ffffff;
+}
+.hud-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.hud-seg-btn {
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.hud-seg-btn[aria-checked='true'] {
+  background: color-mix(in srgb, var(--ex-accent) 22%, transparent);
+  color: var(--foreground);
+}
+.hud-grow {
+  flex: 1 1 12rem;
+  min-width: 10rem;
+}
+.hud-range {
+  width: 100%;
+  accent-color: var(--ex-accent);
+}
+.hud-count {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.hud-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.hud-check input {
+  accent-color: var(--ex-accent);
+}
+.hud-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.hud-stat-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--ex-accent);
+}
+.hud-stat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hud-stat-sub {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.hud-mini {
+  margin-bottom: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hud-note {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.hud-options {
+  display: grid;
+  gap: 0.3rem;
+}
+.hud-options li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.hud-options li[data-chosen='true'] {
+  border-color: var(--ex-accent);
+  color: var(--foreground);
+}
+
+/* Labels that live inside the 3D scenes (DOM overlays moved to 3D anchors). */
+.crew-label,
+.agent-label,
+.park-label {
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--foreground);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+.light .crew-label,
+.light .agent-label,
+.light .park-label {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+.crew-label-dim {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* Crew exhibit: airport and base tags, the "now" marker and the trip tag. */
+.crew-label-apt {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color 0.2s ease;
+}
+.crew-label-apt[data-on='true'] {
+  font-weight: 700;
+  color: var(--foreground);
+}
+.crew-label-base,
+.crew-label-now,
+.crew-label-plane {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  text-shadow: none;
+}
+.crew-label-base {
+  background: color-mix(in srgb, #60a5fa 24%, var(--background));
+  border: 1px solid color-mix(in srgb, #60a5fa 55%, transparent);
+  font-size: 11px;
+  font-weight: 700;
+}
+.crew-label-base[data-on='true'] {
+  background: #60a5fa;
+  color: #0b1020;
+}
+.light .crew-label-base {
+  background: color-mix(in srgb, #2563eb 12%, var(--background));
+  border-color: color-mix(in srgb, #2563eb 45%, transparent);
+}
+.light .crew-label-base[data-on='true'] {
+  background: #2563eb;
+  color: #ffffff;
+}
+.crew-label-now {
+  background: color-mix(in srgb, var(--foreground) 14%, var(--background));
+  border: 1px solid color-mix(in srgb, var(--foreground) 35%, transparent);
+  font-size: 11px;
+  font-weight: 700;
+}
+.crew-label-plane {
+  background: color-mix(in srgb, var(--background) 82%, transparent);
+  border: 1px solid var(--border);
+  font-size: 10px;
+  font-weight: 700;
+}
+.crew-label-now:empty,
+.crew-label-plane:empty {
+  display: none;
+}
+
+.crew-key {
+  display: grid;
+  gap: 0.28rem;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--foreground);
+}
+.crew-key-overlay {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--background) 78%, transparent);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+/* On phones the key moves out of the scene, into the panel under it. */
+.crew-key-inline {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem 0.75rem;
+}
+.crew-key span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+.crew-key-line {
+  flex: none;
+  width: 1.4rem;
+  height: 3px;
+  border-radius: 2px;
+}
+.crew-key-dash {
+  background: repeating-linear-gradient(90deg, currentColor 0 5px, transparent 5px 8px);
+}
+.crew-key-pillar {
+  flex: none;
+  width: 5px;
+  height: 0.95rem;
+  margin: 0 calc(0.7rem - 2.5px);
+  border-radius: 2px;
+}
+.crew-key-dot {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin: 0 0.45rem;
+  border-radius: 999px;
+}
+@media (max-width: 639px) {
+  .crew-key-overlay {
+    display: none;
+  }
+  .crew-key-inline {
+    display: grid;
+  }
+  .crew-key-inline span {
+    white-space: normal;
+  }
+  /* Phones: the panel under the scene already gives each flight's day and time. */
+  .crew-label-day {
+    display: none;
+  }
+  .crew-label-apt {
+    font-size: 9px;
+  }
+}
+
+.crew-trip-head {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--title);
+}
+.crew-trip-head span {
+  font-weight: 500;
+  color: var(--muted);
+}
+.crew-itin {
+  display: grid;
+  gap: 0.35rem;
+}
+.crew-itin li {
+  display: grid;
+  gap: 0.15rem;
+}
+.crew-itin-leg {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--foreground);
+}
+.crew-itin-leg strong {
+  font-weight: 650;
+}
+.crew-itin-num {
+  flex: none;
+  min-width: 1.1rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.crew-itin-time {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.crew-itin-wait {
+  padding-left: 1.6rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.crew-itin-more {
+  padding-left: 1.6rem;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--muted);
+}
+.crew-itin-end {
+  margin-top: 0.15rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--ex-accent);
+}
+.agent-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.55;
+}
+.agent-label-on {
+  opacity: 1;
+}
+.park-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.45rem 0.1rem 0.15rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--background) 80%, transparent);
+  text-shadow: none;
+}
+.park-label-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #0b1020;
+  font-size: 10px;
+  font-weight: 800;
+}
+.park-tip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 11rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.park-tip strong {
+  color: var(--title);
+}
+.park-clock {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--ex-accent);
+}
+.park-stops {
+  display: grid;
+  gap: 0.3rem;
+}
+.park-stops li {
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.park-stop-btn {
+  display: grid;
+  grid-template-columns: 1.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.3rem 0.45rem;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  color: inherit;
+  transition: background 0.2s ease;
+}
+.park-stop-btn:hover {
+  background: color-mix(in srgb, var(--ex-accent) 9%, transparent);
+}
+.park-stops li[data-current='true'] {
+  background: color-mix(in srgb, var(--ex-accent) 16%, transparent);
+  color: var(--foreground);
+}
+.park-stops li[data-focused='true'] {
+  outline: 1px solid var(--ex-accent);
+  color: var(--foreground);
+}
+.park-tip-hint {
+  font-size: 11px;
+  opacity: 0.75;
+}
+.park-stop-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--ex-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.park-stop-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agent-bubble,
+.agent-answer,
+.agent-gate {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.agent-answer {
+  border-color: var(--ex-accent);
+}
+.agent-gate {
+  display: grid;
+  gap: 0.6rem;
+  border-color: #f59e0b;
+}
+.agent-gate code {
+  font-size: 0.75rem;
+}
+.agent-steps {
+  display: grid;
+  gap: 0.35rem;
+  counter-reset: step;
+}
+.agent-steps li {
+  position: relative;
+  padding-left: 1.6rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+  counter-increment: step;
+}
+.agent-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  border: 1px solid var(--ex-accent);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+.agent-steps li[data-current='true'] {
+  color: var(--foreground);
+}
+/* Maltese solver stages exhibit (CubeExhibit): a stage picker, the cube before and
+   after the stage, and a colour key that matches the rendered images. */
+.exhibit-intro {
+  max-width: 46rem;
+  margin-top: 0.45rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.solve-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+@media (min-width: 900px) {
+  .solve-steps {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+.solve-step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  height: 100%;
+  padding: 0.35rem 0.6rem 0.35rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+/* Small screens: thumbnail on top, label under it, so six steps fit in two rows. */
+@media (max-width: 639px) {
+  .solve-step {
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.4rem 0.3rem 0.5rem;
+    text-align: center;
+  }
+}
+.solve-step:hover {
+  border-color: color-mix(in srgb, var(--ex-accent) 55%, var(--border));
+}
+.solve-step:focus-visible {
+  outline: 2px solid var(--ex-accent);
+  outline-offset: 2px;
+}
+.solve-step[aria-current='step'] {
+  border-color: var(--ex-accent);
+  background: color-mix(in srgb, var(--ex-accent) 12%, transparent);
+}
+/* The renders leave room around the cube; the thumbnail crops in on it. */
+.solve-thumb {
+  flex: none;
+  width: 3.25rem;
+  height: 3.25rem;
+  overflow: hidden;
+  border-radius: 6px;
+}
+.solve-thumb img {
+  width: 100%;
+  height: 100%;
+  transform: scale(1.4);
+}
+.solve-step-num {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.solve-step[aria-current='step'] .solve-step-num {
+  color: var(--ex-accent);
+}
+.solve-step-name {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--foreground);
+}
+.solve-positions {
+  font-size: 1.1rem;
+}
+.solve-view {
+  padding: 1.25rem 1.25rem 1.1rem;
+}
+.solve-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 62rem;
+  margin: 0 auto;
+}
+.solve-shot {
+  position: relative;
+  margin: 0;
+  border-radius: var(--radius-md);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--ex-accent) 13%, transparent), transparent);
+}
+.solve-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  animation: solve-in 0.45s ease both;
+}
+.solve-shot figcaption {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.6rem;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+.solve-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.25rem;
+  color: var(--ex-accent);
+}
+.solve-arrow span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--foreground);
+}
+@keyframes solve-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .solve-shot img {
+    animation: none;
+  }
+}
+/* Phones: the two pictures stack, with the arrow pointing down between them. */
+@media (max-width: 559px) {
+  .solve-pair {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 21rem;
+  }
+  .solve-arrow {
+    flex-direction: row;
+    justify-content: center;
+  }
+  .solve-arrow svg {
+    transform: rotate(90deg);
+  }
+}
+.solve-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem 1.3rem;
+  margin-top: 0.9rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.solve-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+/* Swatches use the cube's own sticker colours: vivid when solving, dimmed when done
+   (the renderer's muting: 40% toward grey, half the light), grey when ignored. */
+.solve-swatch {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 4px;
+}
+.solve-swatch[data-look='now'] {
+  background: conic-gradient(#11a94f 0 25%, #8b3ec2 0 50%, #f5f5f2 0 75%, #d0142c 0);
+}
+.solve-swatch[data-outlined='true'] {
+  box-shadow: 0 0 0 2px #2dd4bf;
+}
+.solve-swatch[data-look='teal'] {
+  background: #2dd4bf;
+}
+.solve-swatch[data-look='done'] {
+  background: conic-gradient(#457551 0 25%, #5a3878 0 50%, #b4b4b3 0 75%, #803135 0);
+}
+.solve-swatch[data-look='off'] {
+  background: #4d535c;
+}
+.solve-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--title);
+}
+.solve-body {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+.solve-method {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.solve-method::before {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 3px;
+  background: var(--mv-table, #0f9f90);
+}
+.solve-method[data-method='net']::before {
+  background: var(--mv-net, #8b5cf6);
+}
+.lab-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.lab-tab:hover {
+  border-color: var(--ex-accent);
+}
+.lab-tab[aria-selected='true'] {
+  border-color: var(--ex-accent);
+  background: color-mix(in srgb, var(--ex-accent) 14%, transparent);
+}
+.lab-tab-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--title);
+}
+.lab-tab-blurb {
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.lab-activate {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--ex-accent);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--title);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
 }

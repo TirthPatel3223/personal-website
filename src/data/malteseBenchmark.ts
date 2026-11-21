@@ -1,4 +1,4 @@
-/* The 100-scramble benchmark of the Maltese Gear Cube ladder solver (cube-solving-pipeline,
+/* The 100-scramble benchmark of the Maltese Gear Cube ladder solver (deeprubik-ladder,
    scripts/benchmark_deep_scrambles.py, seed 42, beam 4096, RTX 5070 Ti laptop GPU). Each row is one
    random scramble of 2,000 to 5,000 quarter turns. Every solution was replayed on the reference
    simulator and reached the solved state.

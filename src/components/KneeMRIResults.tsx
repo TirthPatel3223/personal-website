@@ -483,16 +483,13 @@ function LearningCurves() {
         </div>
 
         <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-          Solid lines are fine-tuned, dashed lines frozen, and the dotted line is a ResNet-18 trained
-          from scratch on one fold. Every curve keeps climbing in a near-straight line against log N,
-          so there is no plateau to report inside 2,600 exams.{' '}
+          Solid lines are fine-tuned, dashed frozen, dotted a ResNet-18 trained from scratch. No curve
+          plateaus within 2,600 exams.{' '}
           <strong style={{ color: 'var(--title)' }}>
-            The two fine-tuned models climb about 50% faster per doubling than the frozen ones and are
-            the only configurations past AUC 0.80.
+            Fine-tuned models climb about 50% faster per doubling and are the only ones past AUC 0.80.
           </strong>{' '}
-          Switch to the expert labels and the ranking holds (Spearman ρ = 0.97 across all 45 model and
-          size cells); the gold set only has 58 studies, so treat any single point there as about
-          ±0.03.
+          The ranking holds on expert labels (Spearman ρ = 0.97); with only 58 studies, read any single
+          point there as ±0.03.
         </p>
 
         <TableToggle open={table} onClick={() => setTable((t) => !t)} />
@@ -890,16 +887,13 @@ function LabelGap() {
         </div>
 
         <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-          Reports are written to answer a referring doctor&apos;s question, not to grade every
-          structure, so they leave secondary findings out: patellofemoral OA (7 vs. 21 of 58),
-          effusion (20 vs. 35), synovitis (13 vs. 27) and fracture (9 vs. 18), while over-calling bone
-          contusion (27 vs. 19).{' '}
+          Reports answer the referring doctor&apos;s question, so they skip secondary findings such as
+          effusion (20 vs. 35 of 58) and fracture (9 vs. 18).{' '}
           <strong style={{ color: 'var(--title)' }}>
             A text-only labeler cannot recover a finding the radiologist never wrote down.
           </strong>{' '}
-          That puts a ceiling on everything trained from report labels: the labels themselves score
-          0.866 against the experts, and the best fine-tuned models already reach 0.837 to 0.840,
-          which is why the study points a hospital toward better labels before bigger models.
+          The labels score 0.866 against experts and the best models already reach 0.837 to 0.840, so
+          better labels, not bigger models, are the next step.
         </p>
       </div>
     </div>

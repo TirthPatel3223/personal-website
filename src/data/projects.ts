@@ -15,7 +15,7 @@ export interface ProjectDetail {
   problem_statement: string;
   approach: ApproachStep[];
   /** ASCII diagram rendered in a <pre> block. Omit when the project ships a custom
-   *  SVG diagram component instead (weather-dining-pipeline, mapblazer). */
+   *  SVG diagram component instead (weather-dining-pipeline). */
   architecture?: string;
   results: ResultMetric[];
   github_url?: string;
@@ -26,8 +26,8 @@ export interface Project {
   title: string;
   short_description: string;
   motivation: string;
-  /** Full technical achievement list: shown in full on the project detail page's
-   *  Results & Impact section, so it can stay long and dense. */
+  /** Achievement list shown in full on the project detail page's Results & Impact
+   *  section. Keep each bullet to one or two plain sentences. */
   achievements: string[];
   /** Short, homepage-card-only highlights (3 one-liners). Falls back to the first
    *  3 entries of `achievements` when omitted. */
@@ -42,28 +42,214 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: 'deep-cube-solver',
+    title: 'Maltese Gear Cube Solver: Reinforcement Learning Meets Group Theory',
+    short_description:
+      'A solver for a geared puzzle cube with about 4.5×10⁵⁸ positions. It splits the cube into five smaller puzzles and solves each with an exact lookup table or a neural network: 100 of 100 deep scrambles solved, about 12 seconds each.',
+    motivation:
+      'My first try, one neural network for the whole cube, couldn\'t solve anything more than 24 moves from solved. Instead of a bigger network, I used group theory to break the puzzle into pieces small enough to handle.',
+    card_achievements: [
+      'Solved 100 of 100 random scrambles, each 2,000 to 5,000 moves deep, in about 12 seconds apiece.',
+      'Five stages: three solved by exact lookup tables, two by neural networks for the parts too big to store.',
+      'Every solution is replayed on a simulator and only counts if the cube ends up solved.',
+    ],
+    achievements: [
+      'Solved all 100 test scrambles, each 2,000 to 5,000 random moves deep, in 12 seconds on average on one laptop GPU, at 406 moves per solution.',
+      'Split one impossible search into five manageable ones (corners, then the gears, then the middle ring), each using only move sequences that keep earlier stages solved, with a group-theory check that every stage can always be finished.',
+      'Used exact lookup tables where a stage fits in memory (up to 8.4 million positions) and trained neural networks only for the two stages that don\'t (up to 5.4×10²² positions).',
+      'Caught a silent failure: one gear stage looked solvable on paper, yet 8 of the first 9 deep scrambles stalled there. Giving that stage 244 extra move sequences took the benchmark to 100 of 100.',
+      'Reported the trade-off honestly: solutions run about 2.6× longer than the reference table-based solver\'s, which needs about 50 GB of tables against this one\'s 0.5 GB.',
+      'Built nothing cube-specific into the core: the same code has since solved a second puzzle, the DaYan Tangram Cube Extreme, starting from its 3D model.',
+    ],
+    tech_stack: ['PyTorch', 'CUDA', 'Deep RL', 'Group Theory', 'Beam Search', 'SymPy', 'NumPy', 'Python', 'three.js'],
+    technical_details:
+      'Python, PyTorch (CUDA), NumPy, SymPy, pytest; deep approximate value iteration (DeepCubeA / DeepXube), Schreier coset graphs, meet-in-the-middle macro harvesting, GPU Dijkstra tables, batched GPU beam search; 3D simulator in TypeScript, three.js and manifold-3d',
+    status: 'complete',
+    link: '/projects/deep-cube-solver',
+    detail: {
+      problem_statement:
+        'The Maltese Gear Cube looks like a Rubik\'s cube until you turn it. Every turn also drags the middle layer around and spins 24 gears, which gives it about 4.5×10⁵⁸ positions, more than there are atoms in the Sun. My first attempt, a single neural network guiding a search over the whole cube, could not solve anything more than 24 moves from solved. The goal was a solver that handles any scramble, however deep, and proves every answer is correct.',
+      approach: [
+        {
+          step: 'Teach the Computer the Puzzle',
+          detail:
+            'Each move is written as an exact shuffle of 216 tracked points: stickers, gears and gear angles. From those moves alone, the code works out what the pieces are (7 corners, 18 ring pieces and 24 gears) without being told.',
+        },
+        {
+          step: 'Break It Into Five Smaller Puzzles',
+          detail:
+            'Like solving a Rubik\'s cube layer by layer, the solver fixes one group of pieces at a time: corners, then the gears in three stages, then the middle ring. Each stage only uses move sequences that leave earlier stages alone, and a group-theory check proves every stage can always be finished.',
+        },
+        {
+          step: 'Look Up What Fits, Learn What Doesn\'t',
+          detail:
+            'The three small stages (up to 8.4 million positions) get exact lookup tables of the best move from every position, built on the GPU in about a minute. The two huge ones (up to 5.4×10²² positions) can\'t be stored, so a neural network learns to estimate how far any position is from solved.',
+        },
+        {
+          step: 'Search, Then Double-Check',
+          detail:
+            'For the two learned stages, a GPU search follows the network\'s estimates, keeping the 4,096 most promising options at each step. The five stage solutions are joined, back-to-back turns are merged, and the result is replayed on a simulator. It only counts if the cube comes out solved.',
+        },
+      ],
+      architecture: `
+  ── BUILD  -  once, about 80 minutes on one GPU ─────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ The puzzle's moves        U, L, F and their reverses             │
+  │   each one written as a shuffle of 216 tracked points            │
+  │   (stickers, gears and gear angles)                              │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Split the cube into 5 stages, solved in this order:              │
+  │   1 corners   2-3 gear angles   4 gear positions   5 the ring    │
+  │   a stage only uses moves that leave earlier stages solved       │
+  └────────────────────────────────┬─────────────────────────────────┘
+                ┌──────────────────┴──────────────────┐
+                ↓                                     ↓
+  ┌───────────────────────────┐         ┌───────────────────────────┐
+  │ 3 SMALL STAGES            │         │ 2 HUGE STAGES             │
+  │ up to 8.4M positions      │         │ up to 5.4 x 10^22         │
+  │ exact lookup table:       │         │ a neural network learns   │
+  │ best move for each one    │         │ how far each position     │
+  │ built in about a minute   │         │ is from solved            │
+  └───────────────────────────┘         └───────────────────────────┘
+                └──────────────────┬──────────────────┘
+                                   ↓  saved to disk, about 0.5 GB
+
+  ── SOLVE  -  every scramble, about 12 seconds ──────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Scrambled cube                                                   │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Stages 1-3   follow the lookup tables, one best move at a time   │
+  │ Stages 4-5   GPU search guided by the networks,                  │
+  │              keeping the best 4,096 options at each step         │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Join the five stage solutions, merge back-to-back turns          │
+  │ Replay on the simulator: it only counts if the cube is solved    │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+                    Verified solution, about 406 moves
+`,
+      results: [
+        { metric: 'Scrambles Solved', value: '100 / 100', description: 'Each 2,000 to 5,000 random moves deep' },
+        { metric: 'Average Solve Time', value: '12 s', description: 'On one laptop GPU' },
+        { metric: 'Moves per Solution', value: '406', description: 'Average, counted in quarter turns' },
+        { metric: 'Possible Positions', value: '4.5×10⁵⁸', description: 'More than the atoms in the Sun' },
+        { metric: 'Stages', value: '5', description: '3 lookup tables, 2 neural networks' },
+        { metric: 'Memory Needed', value: '0.5 GB', description: 'vs. ~50 GB for a table-based solver' },
+      ],
+      github_url: 'https://github.com/TirthPatel3223/deeprubik-ladder',
+    },
+  },
+  {
+    id: 'puzzle-lab',
+    title: 'Puzzle Lab: Six Real Twisty Puzzles, Rebuilt in 3D',
+    short_description:
+      'Playable browser copies of six real twisty puzzles, built from photos and their true cut geometry. Every move the real puzzle allows works, and nothing else does.',
+    motivation:
+      'Solving a puzzle with code starts with an exact model of it. These simulators are that model: the Tangram Cube solver reads its pieces and moves straight from the app.',
+    card_achievements: [
+      'Six puzzles by four designers, each rebuilt from photos of the real puzzle and its published geometry.',
+      'Only legal moves: Curvy Copter turns are checked against the real piece shapes, and blocked turns glow red.',
+      'The Maltese engine was cross-checked against more than 5,000 move sequences from my own model of the puzzle.',
+    ],
+    achievements: [
+      'Rebuilt six real puzzles for the browser: the DaYan Tangram Cube and Tangram Cube Extreme, Meffert\'s Curvy Copter and Curvy Copter Plus, the Maltese Gear Cube and David\'s Gear Cube.',
+      'Built every piece from the puzzle\'s real cuts. The Curvy Copter\'s curved cuts are cones tilted 32°, Meffert\'s own figure, and a fit to a photo gave 32.5°.',
+      'Allowed every move the real puzzle allows, and only those: a Curvy Copter turn that would make pieces collide is refused, and the pieces in the way glow red.',
+      'Geared the Maltese Gear Cube exactly: a 90° face turn drives the middle layer 45° and spins its 8 gears 270°, checked against the real puzzle.',
+      'Cross-checked the Maltese engine against more than 5,000 move sequences from my own model of the puzzle, and David\'s Gear Cube against published centre-swapping algorithms.',
+      'Exported the Tangram Cube\'s pieces and moves for the solving pipeline, which compiles them into permutation tables.',
+    ],
+    tech_stack: ['TypeScript', 'three.js', 'manifold-3d', 'WebAssembly', 'Vite', 'Vitest', 'Python', 'Group Theory'],
+    technical_details:
+      'TypeScript, three.js, manifold-3d (mesh booleans in WebAssembly), Vite, Vitest; Python fitting tools for stickers and gear outlines; deployed to GitHub Pages with GitHub Actions',
+    status: 'complete',
+    link: '/projects/puzzle-lab',
+    detail: {
+      problem_statement:
+        'Geared and shape-shifting puzzles are hard to reason about on paper: one turn of the Maltese Gear Cube moves a face, drags the middle layer and spins eight gears. I wanted exact, playable 3D copies of six real puzzles, accurate enough for a solver to trust: every piece from the real cut geometry, every legal move, and no illegal ones.',
+      approach: [
+        {
+          step: 'Measure the Real Puzzles',
+          detail:
+            'Each puzzle was rebuilt from photos and published descriptions. The Tangram Cube\'s cut depth came from a photo (11 shapes per face), and the Maltese Gear Cube was measured from my own puzzle.',
+        },
+        {
+          step: 'Cut the Pieces Exactly',
+          detail:
+            'Pieces come from the puzzle\'s real cut planes and cones, built with mesh booleans in WebAssembly (manifold-3d), with rounded edges like the physical puzzles.',
+        },
+        {
+          step: 'Model Every Move',
+          detail:
+            'Each puzzle has its own engine. Pieces sit in exact, discrete positions, so a turn is a table lookup rather than a physics guess. The Curvy Copter checks each turn against the real piece shapes and refuses any that would collide.',
+        },
+        {
+          step: 'Test Against the Real Thing',
+          detail:
+            'Test suites cover the engines, notation, undo history and meshes. The Maltese engine was cross-checked against more than 5,000 move sequences, and David\'s Gear Cube against published algorithms.',
+        },
+      ],
+      architecture: `
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Real puzzles: photos, measurements, published descriptions       │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ Geometry: real cut planes, cones and traced gear outlines        │
+  │   pieces built with mesh booleans (manifold-3d, WebAssembly)     │
+  └────────────────────────────────┬─────────────────────────────────┘
+                                   ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ One engine per puzzle: exact piece positions and move tables     │
+  │   legal moves only, tested with Vitest                           │
+  └────────────────────────────────┬─────────────────────────────────┘
+                ┌──────────────────┴──────────────────┐
+                ↓                                     ↓
+  ┌───────────────────────────┐         ┌───────────────────────────┐
+  │ 3D app (three.js)         │         │ Export for the solver     │
+  │ click or type moves,      │         │ pieces and moves as       │
+  │ undo, scramble, themes    │         │ JSON, compiled into       │
+  │ on GitHub Pages           │         │ permutation tables        │
+  └───────────────────────────┘         └───────────────────────────┘
+`,
+      results: [
+        { metric: 'Puzzles', value: '6', description: 'By four designers' },
+        { metric: 'Sequences Checked', value: '5,000+', description: 'Maltese engine vs. my own model' },
+        { metric: 'Visible Tangram Pieces', value: '44', description: '11 shapes per face' },
+        { metric: 'Curvy Cut Angle', value: '32°', description: 'A photo fit gave 32.5°' },
+        { metric: 'Maltese Gears', value: '24', description: 'Each face turn spins 8 of them 270°' },
+        { metric: 'Runs In', value: 'Browser', description: 'three.js on GitHub Pages' },
+      ],
+      github_url: 'https://github.com/TirthPatel3223/combinatorics-puzzle-simulator',
+    },
+  },
+  {
     id: 'mapblazer-wait-time-prediction',
     title: 'Theme Park Wait-Time Forecasting: Production MLOps Pipeline',
     short_description:
-      'A production ML pipeline that forecasts theme park wait times a week ahead, retrained unattended every week on Databricks and served live for $0/month. Powers the Mapblazer routing engine.',
+      'A production ML pipeline that forecasts theme park wait times a week ahead, retrains itself weekly on Databricks and runs for $0/month. It powers the Mapblazer routing engine.',
     motivation:
-      'A route built on 9 AM wait times is already wrong by 1 PM, because crowds shift all day and one bad estimate cascades into a ruined plan. I built the forecasting system that predicts wait times across the whole week, so Mapblazer\'s routing engine can anticipate crowd flow instead of chasing it.',
+      'A route planned on 9 AM wait times is already wrong by 1 PM. Mapblazer\'s router needed a forecast for every ride at every time of day, a week out.',
     card_achievements: [
-      'Ships fully unattended across 109 attractions in 5 parks, forecasting 7 days out for $0/month in infrastructure.',
-      'Cut holdout MAE 26.3% below baseline (7.01 vs 9.51 min) and lifted 10-minute accuracy from 64.5% to 76.6%.',
-      'A champion/challenger promotion gate and 12 automated quality checks keep the live dashboard from ever going stale.',
+      'Forecasts 109 rides in 5 parks, 7 days ahead, fully unattended for $0/month.',
+      'Cut forecast error 26.3% below baseline (7.01 vs. 9.51 min); 76.6% of forecasts land within 10 minutes.',
+      'A new model ships only if it beats the current one, and 12 automated checks keep a bad run off the dashboard.',
     ],
     achievements: [
-      'Shipped a fully unattended weekly forecasting system covering 109 attractions across 5 California theme parks, forecast 7 days ahead at 30-minute resolution, running end to end on Databricks with no manual step and $0/month in infrastructure.',
-      'Cut holdout MAE 26.3% below the per-ride mean baseline (7.01 vs 9.51 minutes) and lifted the within-10-minute containment rate from 64.5% to 76.6%, with severe misses over 15 minutes down 42.1%, measured on a 78,110-observation chronological holdout.',
-      'Designed a three-runtime architecture around a hard platform constraint: Databricks Free Edition jobs have no outbound internet, so ingestion pushes in from an EC2 systemd agent and serving is pulled out by GitHub Actions, leaving every network hop initiated from outside the job.',
-      'Chose a push-based ingestion agent over a pull-based CI runner so the source Postgres never leaves the loopback interface: no inbound firewall rule, no wildcard listen_addresses, and no database credentials crossing the internet.',
-      'Made ingestion idempotent and stateless by deriving the watermark from the bronze table itself rather than a local cursor file, so a run killed at any point re-reads the same range and the insert-only MERGE absorbs the overlap, leaving nothing to reconcile by hand.',
-      'Trained and benchmarked four model families every run (a per-ride Prophet fleet, a global XGBoost with ride identity as a native categorical, a per-ride XGBoost fleet, and a per-ride historical mean as the floor) on a strict chronological 80/20 split rather than random folds, which leak the future on a time series.',
-      'Gated promotion on evidence: a newly trained model ships only if it beats the incumbent\'s recorded MAE by at least 1%, and otherwise the incumbent is reloaded from disk and re-scored, so the forecast window is refreshed either way and rollback is a one-line edit to a serving pointer.',
-      'Built a _current/_last table discipline so a bad run can never take down a working dashboard: every run writes only _current, twelve quality gates run against _current, and only a fully passing run promotes via atomic DEEP CLONE, with the serving pointer written last.',
-      'Wrote a timezone tripwire into the quality gates, requiring the local hour with the highest mean wait to fall between 11:00 and 20:00, a condition an inverted UTC conversion mathematically cannot satisfy, so the class of bug that silently deletes the evening peak fails the run instead of shipping.',
-      'Published serving atomically through a PostgREST RPC that swaps staging and serving tables by rename inside a single Postgres transaction, so readers always see one consistent KPI/forecast pair, and rendered the public dashboard as a single static HTML file with inline SVG and zero JavaScript.',
+      'Built a weekly forecasting system for 109 attractions across 5 California parks, 7 days ahead at 30-minute resolution, running unattended on Databricks for $0/month.',
+      'Cut holdout error 26.3% below the per-ride baseline (MAE 7.01 vs. 9.51 min), raised within-10-minute accuracy from 64.5% to 76.6% and cut severe misses (over 15 min) by 42.1%, on a 78,110-observation time-ordered holdout.',
+      'Designed ingestion as a push agent on the database\'s own host, so Postgres never accepts an inbound connection, and made every run safe to repeat: a crashed run re-reads the same range and nothing needs fixing by hand.',
+      'Trained four model families every week on a strict time-ordered split; a challenger replaces the champion only if it cuts error by at least 1%, and rollback is a one-line edit.',
+      'Kept the dashboard working through failures: each run writes to a staging copy, 12 quality gates check it, and only a fully passing run is promoted. One gate is a timezone tripwire that fails any run whose busiest hour falls outside 11:00 to 20:00.',
+      'Published to Supabase with a single-transaction table swap, so readers never see half an update, and served the public dashboard as one static HTML file with no JavaScript.',
     ],
     tech_stack: ['Python', 'Databricks', 'PySpark', 'Delta Lake', 'Prophet', 'XGBoost', 'Supabase', 'PostgreSQL', 'GitHub Actions', 'AWS EC2', 'pandas', 'SQL'],
     technical_details:
@@ -73,52 +259,37 @@ export const projects: Project[] = [
     hero_image: '/mapblazer_hero.png',
     detail: {
       problem_statement:
-        'Mapblazer builds a guest\'s optimal ride itinerary from their must-visit attractions, live wait times, and walking distances. The flaw was that the optimizer routed on "current" wait times: a plan built at 9:00 AM is already wrong by the time the guest reaches their 1:00 PM attraction, and each stale estimate cascades into the next. What the solver actually needs is not a prediction endpoint but the entire cost surface, every attraction at every possible arrival time a week out, which makes this a batch forecasting problem rather than a model-serving one. Producing that surface reliably means answering the operational questions alongside the modelling ones: where the data comes from each hour, what retrains the model as crowd patterns drift, what happens when a run fails at 6am on a Sunday, and how anyone can tell whether the forecast being served right now is fresh or three weeks stale.',
+        'Mapblazer plans a guest\'s ride itinerary from wait times, but a plan built at 9 AM is already wrong by 1 PM, and each stale estimate cascades into the next. The router needs a forecast for every ride at every possible arrival time, a week ahead, refreshed automatically and visibly fresh. That makes this an operations problem as much as a modelling one: where the data comes from each hour, what retrains the model as crowds drift, and what happens when a run fails at 6 AM on a Sunday.',
       approach: [
         {
           step: 'Ingestion: A Push Agent on the Source Host',
           detail:
-            'The ingestion agent runs on the same EC2 host as the upstream wait-time Postgres and pushes outbound rather than being pulled from. That was a deliberate choice: pulling would have meant exposing Postgres to a rotating set of CI runner IPs, while pushing keeps the database connection on the loopback interface, needs no security-group change, and requires only outbound HTTPS. One hourly systemd run does four things: read the watermark as MAX(wait_time_id) from bronze itself, select the next batch above it, land it as Parquet, and MERGE it in insert-only. Because the watermark comes from the destination rather than a local cursor file, an interrupted run simply re-reads the same range and the MERGE absorbs the overlap. There is no local state that can drift out of sync, and nothing to repair by hand at 3am.',
+            'An hourly agent runs on the same EC2 host as the wait-time Postgres and pushes new rows out over HTTPS. That was a deliberate choice: pulling would have meant exposing Postgres to a rotating set of CI runner IPs. The agent reads its position back from the destination table, so an interrupted run simply repeats and the insert-only merge absorbs the overlap.',
         },
         {
-          step: 'Bronze to Silver: The Cleaning That Decides the Numbers',
+          step: 'Cleaning That Decides the Numbers',
           detail:
-            'Bronze is append-only and never edited. It is the audit trail, and every correction happens downstream. Silver drops duplicate readings from overlapping batches, the source system\'s 900-minute sentinel, negative waits, a duplicated obsolete park, and an attraction literally named "0". Order matters more than any individual filter: timestamps are converted from UTC to America/Los_Angeles first, and only then filtered against each park\'s local operating hours. Done the other way round it keeps 00:00 to 15:00 local and discards the entire evening peak, the busiest hours of the day, while leaving a dataset that still looks perfectly reasonable. Every ride then resamples onto a fixed 30-minute grid through a single canonical ride-key function, and attractions with under 100 observations are dropped as too thin to model.',
+            'Raw (bronze) data is never edited. The silver layer drops duplicates, sentinel values and junk rides, and converts timestamps to park-local time before filtering to operating hours: done the other way round, it quietly deletes the evening peak while the data still looks fine. Every ride is then resampled to a 30-minute grid.',
         },
         {
-          step: 'Features From Local Wall Time',
+          step: 'Four Models, One Honest Split',
           detail:
-            'Calendar features are derived from park-local wall time, never UTC: hour, minute, day of week, month, weekend and US-holiday flags. With under a year of history, gradient-boosted trees cannot extrapolate raw datetime values because they only split inside dates they have already seen, so hour and month are additionally encoded as sin/cos pairs, making 23:59 and 00:00 (and December and January) adjacent rather than maximally distant. Training, scoring, and the forecast grid all call the same feature builder and the same ride-key function, so a change cannot silently apply to one path and not the others.',
+            'Each run trains a per-ride Prophet fleet, a global XGBoost, a per-ride XGBoost and a per-ride average as the floor, on a strict time-ordered 80/20 split, because random splits leak the future. Models are scored on seven KPIs, including peak-hour and long-queue error, since 37% of readings are zero and a single average flatters a model that always predicts short queues.',
         },
         {
-          step: 'Four Model Families, One Chronological Split',
+          step: 'Champion, Challenger and Quality Gates',
           detail:
-            'Every run trains a per-ride Prophet fleet (flat growth, daily and weekly seasonality, US-holiday regressors, 80% prediction intervals), a single global XGBoost carrying ride identity as a native categorical so it can borrow signal across attractions, a per-ride XGBoost fleet, and a per-ride historical mean as the floor every candidate must clear. The split is strictly chronological, the first 80% by time trains and the last 20% tests, never random, because random folds leak the future into validation on a time series. Hyperparameter search is deliberately absent for the same reason: a RandomizedSearchCV with random K-fold carries that leak straight into model selection, so fixed conservative parameters stand in until there is enough history for a proper rolling-origin search.',
-        },
-        {
-          step: 'KPIs That Do Not Hide Behind an Average',
-          detail:
-            'About 37% of observations are exactly zero, so a single mean absolute error flatters any model that learns to predict "short queue" everywhere. Each model is scored on seven KPIs: MAE, RMSE, within-10-minute rate, severe-miss rate, bias, high-wait MAE (rides averaging over 10 minutes), and peak-hours MAE (11:00 to 20:00 local), so the segments a router actually cares about stay visible instead of averaging away. The Prophet fleet wins on every one of them, and the margin is widest exactly where it matters, on the long queues.',
-        },
-        {
-          step: 'Champion and Challenger Promotion',
-          detail:
-            'A newly trained model ships only if its holdout MAE beats the incumbent\'s recorded MAE by at least 1%. If it does not, the incumbent is reloaded from disk and re-scored over the upcoming week, so the forecast window is fresh either way. Model artifacts are plain files, Prophet serialized to JSON per ride and XGBoost through save_model, never pickles of repository classes, which are only loadable by a process that can import the class that made them. They are written to an immutable runs/<run_id>/ directory with a manifest. A small serving.json names the run that serves, and it is written last, after the tables have been promoted. Rolling back is editing that pointer to an earlier run id.',
-        },
-        {
-          step: 'Quality Gates and the _current / _last Discipline',
-          detail:
-            'Every silver and gold table exists twice. A run writes only _current, the quality gates run against _current, and only a fully passing run promotes _current into _last through atomic DEEP CLONE commits. Supabase and the dashboard read _last only, so a failed or half-finished run can never take down a working dashboard. The gates cover silver row count against last week, attraction count, zero-wait share, nulls, model presence, finite MAEs, serving-model-beats-baseline, forecast ride coverage, interval bound ordering and row-count bands, plus a domain tripwire: the local hour with the highest mean wait must fall between 11:00 and 20:00, a condition an inverted timezone conversion cannot satisfy.',
+            'A new model ships only if it beats the incumbent by at least 1%; otherwise the incumbent re-forecasts the coming week. Every run writes to _current tables, 12 gates check them, and only a passing run is promoted to _last, which is all the dashboard ever reads.',
         },
         {
           step: 'Failing Without Going Dark',
           detail:
-            'Any failure, whether a quality gate, a training error or unreadable bronze, drops _current, leaves _last untouched, re-scores the upcoming week with the previous serving model so the dashboard never serves a forecast window that has slid into the past, and still fails the job so the failure alerts. Both gold tables carry run_id, run_status (fresh_model, kept_previous_model, or fallback_after_failure) and generated_at, and the dashboard prints all three, so a fallback week is visibly a fallback rather than a quietly stale one. A first-ever run with nothing to fall back to changes nothing and says so.',
+            'If anything fails, the last good model still refreshes the forecast window, the job still raises an alert, and the dashboard labels the week as a fallback instead of quietly serving stale numbers.',
         },
         {
-          step: 'Serving: Atomic Swap and a Dashboard With No JavaScript',
+          step: 'Serving With No JavaScript',
           detail:
-            'Because the training job has no outbound internet, serving is pulled rather than pushed. A GitHub Actions workflow reads the gold _last tables over the Databricks SQL warehouse once, chunk-loads them into Supabase staging tables with idempotent inserts, then calls a PostgREST RPC that swaps staging and serving by table rename inside a single Postgres transaction, a catalog-only operation that is instant at any row count where the earlier DELETE/INSERT approach hit the free-tier statement timeout at 255K rows. Readers therefore always see one consistent KPI/forecast pair. The same fetch renders the public dashboard: one static HTML file with inline SVG charts and zero JavaScript, so it survives a strict Content-Security-Policy. The dashboard deploys even if the Supabase push fails, and the job still goes red so the failure is visible.',
+            'Databricks Free Edition jobs have no outbound internet, so GitHub Actions pulls the results out, loads them into Supabase and swaps tables inside one Postgres transaction. The public dashboard is a single static HTML file with inline SVG charts.',
         },
       ],
       architecture: `
@@ -202,174 +373,25 @@ export const projects: Project[] = [
     },
   },
   {
-    id: 'mapblazer-route-optimization',
-    title: 'Theme Park Route Optimization: Time-Dependent MILP Solver',
-    short_description:
-      'An exact Gurobi MILP that plans a whole park day at once: which rides to do, in what order, and at what time, with every queue priced by the 30-minute slot you actually arrive in. The routing engine behind Mapblazer.',
-    motivation:
-      'A park day is not a shortest-path problem: a ride costs whatever its queue costs, the queue changes hour by hour, and the order you pick changes the costs that decide the order. I wanted to solve that feedback loop exactly rather than greedily, with an objective that says when idling for a cheaper slot is worth the wait it costs.',
-    card_achievements: [
-      'Saves an average of 22 minutes of queue time per itinerary against the legacy LLM planner it replaced, up to a full hour on a 12-hour park day.',
-      'Cut itinerary generation from a 60-second LLM average to a 10-second exact solve: 83.3% faster, with per-query token costs eliminated entirely.',
-      'Solves the day exactly as a time-dependent orienteering problem, each ride priced by the 30-minute slot the plan actually arrives in.',
-    ],
-    achievements: [
-      'Modelled the park day as a time-dependent orienteering problem with mandatory nodes and solved it exactly in Gurobi rather than with the nearest-shortest-queue heuristic the problem invites: arrival time sets the queue, the queue sets the next arrival, and that feedback is precisely what greedy ordering cannot see.',
-      'Replaced the prompt-based LLM planner MapBlazer originally shipped with, which had no mechanism to react once a queue moved after a plan was written and underperformed most sharply on exactly those cascading-wait-time days; the MILP saves an average of 22 minutes of queue time per itinerary against it, and the gap widens with the length of the visit, reaching a full hour saved on a 12-hour park day because the static LLM plan cannot see the afternoon bottlenecks a time-dependent solve routes around.',
-      'Cut response time 83.3% by replacing the LLM call with a 10-second solver budget (down from a 60-second LLM average) and removed per-query token costs entirely, saving $0.75 a query.',
-      'Rewrote the objective from penalising queue time to charging the makespan of the whole loop, which fixed a concrete failure: the earlier version left walking and idling free and duly spent the entire time budget, finishing at closing time on every instance. The same seven-ride Disneyland day now finishes 130 minutes earlier, with less walking.',
-      'Scaled the two objective terms so a ride is never sacrificed to finish sooner: since an extra ride can lengthen the day by at most the whole budget, charging under min(priority)/T per minute makes the ride reward provably dominant, and the default half-of-that factor leaves a full 480-minute day costing half of one optional ride.',
-      'Kept the time-dependence linear by pinning arrival to a slot with two big-M inequalities and reading the queue as a constant table times a binary, so a genuinely time-varying cost stays inside a MILP instead of forcing a nonlinear model.',
-      'Replaced the exponential subtour-elimination family, 2^|R| constraints and roughly a trillion at forty rides, with lazy generation from a MIPSOL callback that walks the successor map in a single O(|N|) pass and cuts only the cycles it actually finds; the result is still exact, because a candidate surviving with no violated cut is provably one tour.',
-      'Expressed lunch breaks as a linearised finish-before-or-start-after disjunction and repeat rides as virtual twin nodes tied back to the original, so a pure routing model can schedule the same attraction twice and refuse to let any ride straddle a break.',
-      'Benchmarked the search budget instead of guessing it: the incumbent plateaus early, so the 10-second default lands within 0.4% of a 60-second search on both 12- and 16-ride days, and the finding that per-constraint big-M tightening made no measurable difference was recorded rather than quietly dropped.',
-      'Joined the solver to the live forecast service on normalised ride names, since the two datasets disagree on curly apostrophes, trademark symbols and capitalisation, and made uncovered rides a reported field on the response rather than a silent zero-wait assumption that would flatter every plan containing one.',
-    ],
-    tech_stack: ['Python', 'Gurobi', 'Mixed-Integer Programming', 'Operations Research', 'Combinatorial Optimization', 'FastAPI', 'Pydantic', 'pytest'],
-    technical_details:
-      'A time-dependent orienteering problem with mandatory nodes, solved exactly as a Gurobi MILP over arc, visit, slot, arrival, departure and wait variables, with connectivity enforced by lazily generated subtour cuts from a MIPSOL callback. The objective maximises priority-weighted rides less a scaled charge on the day\'s makespan; breaks and operating hours are linearised disjunctions and repeatable rides become virtual twin nodes. Queue costs come from the companion Prophet forecasting service at 30-minute resolution over a 7-day horizon, joined on normalised ride names, and the fixed plan is replayed minute by minute into a ranked itinerary served by both a CLI and a FastAPI endpoint.',
-    status: 'complete',
-    link: '/projects/mapblazer-route-optimization',
-    detail: {
-      problem_statement:
-        'Given a guest\'s must-do and nice-to-have rides, a start time and a time budget, decide which attractions to visit, in what order, and at what time. That is a Time-Dependent Orienteering Problem with mandatory nodes, and each of its three departures from the textbook Travelling Salesman Problem matters. You cannot do every ride, so the subset is part of the answer rather than given. The cost of visiting a node is its queue, which is not a constant but a function of when you arrive. And some rides are non-negotiable while others are merely worth points. The consequence is a circular dependency: the order determines the arrival times, the arrival times determine the queues, and the queues determine which order is best. Greedy rules such as "always take the shortest queue next" fail on exactly this, because the cheapest ride now can be the one that should have been left until the afternoon. The design question was therefore not which heuristic to use, but whether the whole day could be stated as one linear model and solved to optimality, with the time-dependence and the operational realities of breaks, opening hours and repeat rides all inside the model rather than patched on afterwards.',
-      approach: [
-        {
-          step: 'Naming the Problem Before Modelling It',
-          detail:
-            'The day is a single loop that leaves the park entrance and returns to it, so the depot is the entrance and the rides are nodes on a complete digraph. What separates this from a tour is that in- and out-degree are tied to a selection variable rather than fixed at one, which is the formal difference between orienteering and TSP: an unvisited ride simply carries no arcs and costs nothing, so choosing the subset and choosing the order happen in the same solve rather than in two passes that can disagree.',
-        },
-        {
-          step: 'An Objective That Charges for the Whole Day',
-          detail:
-            'The model maximises priority-weighted rides minus a small charge on the arrival time back at the entrance, which is the makespan of the day. That single term covers queueing, walking, riding and idling at once. An earlier version penalised queue time alone, which left walking and idling free, and the optimiser exploited it exactly as written: it used the entire time budget and finished at closing time on every instance. Charging the makespan brought the same seven-ride Disneyland day in 130 minutes earlier with less walking, and it also gets the time-dependence right for free, because idling to reach a cheaper slot lengthens the makespan while the smaller queue shortens it. The solver therefore waits only when the queue it skips is bigger than the wait it costs, which is the correct trade and one a queue-only penalty cannot express.',
-        },
-        {
-          step: 'Making Sure a Ride Is Never Traded for an Early Finish',
-          detail:
-            'Two terms in one objective need a defensible exchange rate, not a tuned constant. An extra ride can lengthen the day by at most the whole budget, so any per-minute charge below the smallest ride priority divided by the budget guarantees the ride reward wins. The default takes half of that bound for margin, which on a 480-minute day means a full-length day costs half of one optional ride and a twentieth of a mandatory one. The same weights are reused to score the reported routes, so the ranking the user sees agrees with what was actually optimised.',
-        },
-        {
-          step: 'Time-Dependent Queues, Kept Linear',
-          detail:
-            'The visit is cut into 30-minute slots matching the forecast grid. Two big-M inequalities force the slot indicator to the slot the arrival actually falls in, one equation reads that slot\'s forecast out of the wait matrix, and the resulting wait feeds the departure time, which feeds the next arrival. Linearity survives because the forecast is a constant table: the product is a number times a binary, never a variable times a variable. That is the whole mechanism by which choosing when to ride changes the cost of everything downstream while the model stays a MILP.',
-        },
-        {
-          step: 'Breaks, Opening Hours and Second Rides',
-          detail:
-            'A lunch break is a disjunction, finish before it or start after it, linearised with a binary that selects which of the two inequalities binds while a second big-M term excuses rides that were never visited. Operating hours are the same pattern without the choice. A ride worth doing twice becomes a virtual twin node with its own arrival time, a lower priority, and a constraint tying it to the original, which is what lets a pure routing formulation schedule the same attraction twice without any special-case logic in the search.',
-        },
-        {
-          step: 'Connectivity Without the Exponential Family',
-          detail:
-            'Degree constraints are local, so they admit a valid depot tour plus free-floating cycles among the ride nodes. The classical repair adds a cut for every subset, 2^|R| of them, about a trillion at forty rides, which cannot be written down. Instead the cuts are discovered rather than enumerated: the model is solved without any of them, and every time the solver reaches an integer-feasible candidate a callback reads the selected arcs, walks the successor map to find the components, and for each cycle that does not contain the depot adds exactly that subset\'s cut and rejects the candidate. Because flow conservation gives every visited node exactly one outgoing arc, the components are simple paths and cycles and the walk is a single linear pass. Nothing about exactness is given up: a candidate that survives with no violated cut is provably a single tour.',
-        },
-        {
-          step: 'Knowing When to Stop Searching',
-          detail:
-            'Finding a good route is fast; proving it optimal is not, because the root relaxation is already tight and the remaining work is closing one or two percent against a default tolerance that demands no rearrangement of the day saves even a fraction of a minute. Past roughly ten rides that proof does not finish. The incumbent, however, plateaus early, so the time limit was set from measurement rather than taste: on both a 12-ride and a 16-ride day, ten seconds lands within 0.4% of a sixty-second search. The status is reported honestly as a time limit rather than as optimality, and the finding that tightening the big-M constants per constraint made no measurable difference was written down rather than quietly abandoned.',
-        },
-        {
-          step: 'Joining to the Forecast Without Lying About Gaps',
-          detail:
-            'Queue costs come from the companion Prophet forecasting service, a 7-day horizon at 30-minute resolution across 109 attractions. The two systems key rides differently, so names are compared on letters and digits alone after trademark symbols are stripped, which is also why a misspelling that exists in both systems is left alone rather than corrected: it is the working join key. Rides the forecast does not cover are surfaced as a field on the response, because the fallback is to plan them as zero wait, and a plan that silently treats an unknown queue as no queue is worse than one that says it does not know.',
-        },
-      ],
-      architecture: `
-  ── INPUTS ──────────────────────────────────────────────────────────
-
-  ┌───────────────────────────────┐  ┌───────────────────────────────┐
-  │ Wait-Time Forecast API        │  │ data/parks.json               │
-  │   Prophet fleet . 7-day       │  │   5 parks . 116 rides         │
-  │   horizon . 30-minute slots   │  │   durations . operating hours │
-  │ predictions.py                │  │ data/walk_times.json          │
-  │   pages PostgREST, joins on   │  │   ride-to-ride walk minutes   │
-  │   letters-and-digits names    │  │   per park                    │
-  └───────────────┬───────────────┘  └───────────────┬───────────────┘
-                  │ W[ride, slot]                    │ c[i,j] . d[i]
-                  └─────────────────┬────────────────┘
-                                    ↓
-
-  ── MODEL  -  solver.py ─────────────────────────────────────────────
-
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ nodes  depot 0 . one node per selected ride . a twin per repeat  │
-  │ vars   x[i,j] arc . y[i] visit . z[i,s] slot . a[i] e[i] w[i]    │
-  │                                                                  │
-  │ max    sum p[i]*y[i]   -   gamma * a[0]                          │
-  │        reward every ride reached, charge the whole loop's time   │
-  └─────────────────────────────────┬────────────────────────────────┘
-                                    ↓
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ constraints                                                      │
-  │   degree tied to selection: in/out degree is y[i], not 1         │
-  │   time carried along the route by a big-M switch on x[i,j]       │
-  │   the arrival slot pins z[i,s], which prices w[i] = W[ride(i),s] │
-  │   breaks as a linearised finish-before or start-after choice     │
-  │   per-ride opening and closing hours                             │
-  └─────────────────────────────────┬────────────────────────────────┘
-                                    ↓
-
-  ── SEARCH  -  Gurobi ───────────────────────────────────────────────
-
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ branch and bound . TimeLimit 10s . solution pool for alternates  │
-  └─────────────────────────────────┬────────────────────────────────┘
-                                    │  every integer-feasible candidate
-                                    ↓
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ MIPSOL callback   _eliminate_subtours                            │
-  │   read the arcs, walk successor[], find components   O(|N|)      │
-  │   a cycle with no depot -> cbLazy exactly that subset's cut      │
-  │   reject the candidate; the cut stays in the model               │
-  └─────────────────────────────────┬────────────────────────────────┘
-                                    │  repeat until no cycle remains
-                                    ↓
-
-  ── OUTPUT ──────────────────────────────────────────────────────────
-
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ replay the fixed plan minute by minute, idling included          │
-  │ ranked itineraries + metadata: status . wait source . gaps       │
-  └────────────────┬────────────────────────────────┬────────────────┘
-                   ↓                                ↓
-               cli.py  markdown day             api.py  POST /solve
-`,
-      results: [
-        { metric: 'Queue Time Saved', value: '22 min avg', description: 'Vs. the legacy LLM planner, per itinerary, up to a full hour on a 12-hour day' },
-        { metric: 'Response Time', value: '83.3% faster', description: '10 s solver budget vs. 60 s legacy LLM average' },
-        { metric: 'Cost per Query', value: '$0.75 saved', description: 'Token costs eliminated entirely' },
-        { metric: 'Day Shortened', value: '130 min', description: 'Makespan objective vs. queue-time only, same 7 rides' },
-        { metric: 'Gap to a 60s Search', value: '0.4%', description: 'Measured on 12- and 16-ride days' },
-        { metric: 'Optimality', value: 'Exact', description: 'Proven optimal to ~10 rides, best-found beyond' },
-      ],
-      github_url: 'https://github.com/TirthPatel3223/Mapblazer_Route_Optimization_Algorithm',
-    },
-  },
-  {
     id: 'knee-mri-data-efficiency',
     title: 'Knee MRI Diagnosis: How Much Labeled Data Does a Hospital Need?',
     short_description:
-      'How many labeled exams does a hospital need to build its own knee-MRI triage model? A learning-curve study of five vision backbones on multi-site MRI, run on one laptop GPU with no patient data leaving the machine.',
+      'How many labeled MRI exams does a hospital need to build its own knee-MRI triage model? A learning-curve study of five vision models on multi-site data, run on one laptop GPU with no patient data leaving the machine.',
     motivation:
-      'For a hospital building its own knee-MRI model, expert labels cost about $45,000 per 1,000 exams while compute costs a few dollars, so the deciding number is how many exams need labeling, and whether the backbone changes it. Nobody had measured that on knee MRI across modern foundation models, so we did, under a hospital\'s rule: no images or reports leave the workstation. A two-person team project for UCLA\'s Healthcare Analytics course.',
+      'Expert labels cost about $45,000 per 1,000 exams, while compute costs a few dollars. So the deciding question for a hospital is how many exams to label, and whether the model choice changes it. A two-person team project for UCLA\'s Healthcare Analytics course.',
     card_achievements: [
-      'Ran 1,729 training runs across 5 backbones, 7 data sizes and 5 unseen-hospital folds on a single 12 GB laptop GPU.',
-      'Fine-tuned DINOv3 ConvNeXt-B reaches AUC 0.80 at an unseen site with ~1,300 exams; frozen backbones would need 6,000+.',
-      'Labeled 4,407 multilingual radiology reports with a local 14B LLM for about $5, against ~$200k for dual-reader radiologists.',
+      'Ran 1,729 training runs across 5 models, 7 data sizes and 5 unseen-hospital test sets on one laptop GPU.',
+      'Fine-tuned DINOv3 ConvNeXt-B reaches AUC 0.80 at a new hospital with ~1,300 exams; frozen models would need 6,000+.',
+      'Labeled 4,407 radiology reports with a local LLM for about $5, against ~$200k for two radiologists.',
     ],
     achievements: [
-      'Measured learning curves for five pretrained backbones (DINOv3 ViT-B/16, DINOv3 ConvNeXt-B, ImageNet ConvNeXt-B, DINOv2 ViT-B/14, and a ResNet-18 trained from scratch) on 4,407 multi-site knee MRI studies, from 65 to 2,600 training exams, in 1,729 runs on a single 12 GB laptop RTX 5070 Ti: about 55 GPU-hours end to end, roughly $32 at cloud rates.',
-      'Found no plateau within 2,600 exams: AUC rises roughly linearly in log N, adding about +0.020 per doubling for frozen backbones and +0.031 for fine-tuned ones (mixed-model difference +0.011, p < 0.001). The pre-registered power law lost to a log-linear fit on 8 of 10 curves by AIC, so the study reports gain per doubling and exams-to-target instead of a plateau the data cannot support.',
-      'Located the crossover where fine-tuning starts paying for itself: frozen DINOv3 ViT-B is better at 65 exams (−0.019 AUC), the two tie from 130 to 520, and fine-tuning wins from 1,040 (+0.027) to 2,600 (+0.068). Fine-tuned DINOv3 ConvNeXt-B is never worse than frozen, is significantly better from 260 exams, and reaches 0.828 macro AUC at an unseen site and 0.837 on the expert gold set.',
-      'Turned the curves into a hospital budget: fine-tuned ConvNeXt-B needs about 313 report-labeled exams for AUC 0.75 and 1,333 for AUC 0.80 (the level of the published CoPAS model\'s 0.812 internal AUC), while frozen backbones would need an extrapolated 6,355 or more for 0.80. At about $45,400 per 1,000 exams for dual-reader expert labels, annotation outweighs compute by roughly four orders of magnitude.',
-      'Built the training labels without any protected health information leaving the machine: a local qwen3:14b model read every report, in nine or more languages, into positive / negative / not-mentioned calls for 12 findings in 8.4 GPU-hours, scoring 0.866 macro AUC against the 58 expert-labeled studies. Hand audits of 84 positive and 84 not-mentioned cells located its weak spots (MCL, lateral OA, contusion), and a rewritten prompt that scored worse on the gold set (0.834) was tested and rejected rather than adopted.',
-      'Made every test fold behave like a new hospital: studies were grouped by scanner (vendor, model and coil) into five folds of ~870, one 80% Philips and another 100% 1.5 T, and rotated so each fold takes a turn as the unseen test site. Training subsets are nested so each size contains the smaller ones, and test folds and the gold set were scored once, after selection on a separate validation fold.',
-      'Reported a pre-registered hypothesis that failed: older supervised ImageNet ConvNeXt-B weights beat the newer self-supervised DINOv3 weights on the same architecture at every training size (+0.033 to +0.050 AUC) and on all five test sites, the opposite of what H3 predicted. All five hypotheses were time-stamped before the main sweeps ran.',
-      'Showed that tears and fractures are harder to learn than fluid and soft-tissue findings, and that rarity explains only about a quarter of the gap: at an equal number of positive training examples, focal findings still trail by 0.040 AUC, and each doubling of positives adds +0.018.',
-      'Checked that the conclusions do not hinge on noisy labels or one site: model rankings on the expert gold set match the report-labeled test folds (Spearman ρ = 0.97 across 45 model and size cells), frozen rankings are near-identical across the five sites (Kendall\'s W = 0.94), and dropping studies with guessed laterality moves medial and lateral AUCs by at most 0.004.',
-      'Caught a silent evaluation bug mid-sweep: an evaluation cache keyed on Python object ids let some runs score predictions against the wrong 870 studies, because the validation and test folds are the same size and CPython reuses freed ids. Flagged the 99 suspect runs by near-chance AUC, reran them with a content-keyed cache, and redid model selection before any analysis.',
-      'Benchmarked against the RSNA 2026 challenge without overclaiming: the winner scored 0.960 on ~1,300 hidden expert-labeled studies versus our 0.840 on the 58-study gold set, a different ruler. Our fine-tuned models nearly match the accuracy of the report labels they learned from (0.866), and the winner used a single ~28M-parameter ConvNeXt-T, a third the size of our backbones, trained on image-reading frontier-LLM labels. Label quality, not model size, is the binding constraint.',
+      'Measured learning curves for five pretrained vision models on 4,407 multi-site knee MRI studies, from 65 to 2,600 training exams: 1,729 runs on one 12 GB laptop GPU, about 55 GPU-hours (roughly $32 at cloud rates).',
+      'Found no plateau within 2,600 exams: AUC climbs about +0.031 per doubling of data when fine-tuning and +0.020 when frozen (difference +0.011, p < 0.001).',
+      'Located where fine-tuning starts to pay: frozen wins at 65 exams, the two tie from 130 to 520, and fine-tuning leads from 1,040 on (+0.068 at 2,600). The best model reaches 0.828 AUC at an unseen hospital and 0.837 on expert labels.',
+      'Turned the curves into a budget: about 313 labeled exams for AUC 0.75 and 1,333 for 0.80 when fine-tuning, against an extrapolated 6,355 or more for frozen models. Labels outweigh compute by about four orders of magnitude.',
+      'Built the training labels without patient data leaving the machine: a local 14B LLM read every report, in 9+ languages, into 12 findings, scoring 0.866 macro AUC against the expert-labeled studies.',
+      'Reported a pre-registered hypothesis that failed: older ImageNet weights beat the newer DINOv3 weights on the same architecture at every data size and on all five test sites.',
+      'Caught a silent evaluation bug mid-sweep, a cache keyed on Python object ids that scored some runs against the wrong studies, then flagged the 99 affected runs and reran them before any analysis.',
     ],
     tech_stack: ['PyTorch', 'timm', 'Computer Vision', 'Vision Transformers', 'DINOv3', 'ConvNeXt', 'Medical Imaging', 'Multiple-Instance Learning', 'Local LLMs (Ollama)', 'Mixed-Effects Models', 'Bootstrap Inference'],
     technical_details:
@@ -378,47 +400,37 @@ export const projects: Project[] = [
     link: '/projects/knee-mri-data-efficiency',
     detail: {
       problem_statement:
-        'Knee MRI is one of the highest-volume musculoskeletal exams, and one study is a lot to read: in this cohort a median of 5 sequences and 162 slices, cross-checked for a dozen structures in about 8 minutes of radiologist time. A model that pre-screens exams and flags likely abnormalities could cut that load and push urgent studies up the worklist. For a hospital analytics team deciding whether to build one, the hard part is not the architecture. It is the labels: having two radiologists read training exams costs about $45,400 per 1,000 studies (range $9,600 to $250,000), and because images and reports are protected health information, governance usually rules out sending them to a hosted API. So the questions that decide the project are budget questions. How many labeled exams does it take to reach a useful AUC at a hospital the model has never seen? Does fine-tuning a pretrained backbone beat using it frozen, and from how many exams? With pretraining held fixed, does a vision transformer beat a CNN, and with the architecture held fixed, does a 2025 self-supervised foundation model beat ordinary ImageNet weights? Do small focal lesions need more data than diffuse ones? The RSNA 2026 Knee Abnormality Detection data (4,407 studies from about 20 sites on five continents, 12 yes/no findings, free-text reports in nine or more languages, and only 58 studies with expert image labels) is a realistic place to answer all of that at once.',
+        'A knee MRI is a lot to read: a median of 162 slices across 5 sequences, about 8 minutes of radiologist time. A model that flags likely abnormalities could cut that load, but for a hospital the hard part is the labels. Two radiologists cost about $45,400 per 1,000 exams, and privacy rules usually rule out sending scans to a hosted API. So the deciding questions are budget questions: how many labeled exams reach a useful AUC at a hospital the model has never seen, when does fine-tuning beat a frozen model, and does the newest foundation model actually help? The RSNA 2026 knee dataset (4,407 studies from about 20 sites, 12 findings) is a realistic place to answer them.',
       approach: [
         {
           step: 'A Cost Curve, Not a Leaderboard',
           detail:
-            'A single accuracy number at one training size cannot tell a hospital what to buy. The study instead measures how macro AUC grows as the training set doubles from 65 to 2,600 exams, for every model and regime, and then reads the curves two ways: AUC gained per doubling, and exams needed to reach AUC 0.75, 0.80 and 0.85. Those counts feed a cost model in GPU-hours and labeling dollars. Five research questions and five hypotheses (H1 to H5), including which way each comparison should go, were written down and time-stamped before the main sweeps ran, so a result that contradicts them gets reported as a contradiction rather than reframed afterwards.',
+            'Instead of one accuracy number, the study measures how AUC grows as training data doubles from 65 to 2,600 exams, then converts each target into exams, GPU-hours and labeling dollars. All five hypotheses were time-stamped before the main runs, so a failed one is reported as failed.',
         },
         {
-          step: 'Labels Without Letting a Single Report Leave the Machine',
+          step: 'Labels That Never Leave the Machine',
           detail:
-            'Only 58 studies carry expert image labels, so training labels had to come from the radiology reports, written in English, Spanish, Turkish, Croatian, Greek, German, Bulgarian, Dutch, French and more. A locally served qwen3:14b model (through Ollama) read all 4,407 reports and marked each of 12 findings positive, negative or not mentioned, at about 6.9 seconds per report and 8.4 GPU-hours in total; not-mentioned cells train at half weight. Against the expert labels these report labels score 0.866 macro AUC. Two hand audits of 84 random cells each found 64 of 84 positive calls clearly correct (weakest for MCL, lateral OA and contusion, because the model calls mild sprains and partial cartilage loss positive) and every wrong not-mentioned call to be a missed negative, never a missed positive. A rewritten prompt, tried on 226 development studies, scored worse on the gold set (0.834 vs. 0.866); the one variant that helped, averaging two models (+0.017), was found on those same 58 studies and would have cost another 10 GPU-hours, so the original labels were kept. The noise is identical for every model, which keeps the comparisons fair even though it caps absolute accuracy.',
+            'Only 58 studies carry expert labels, so a local qwen3:14b model (via Ollama) read all 4,407 reports, in 9+ languages, and marked each of 12 findings positive, negative or not mentioned, in 8.4 GPU-hours. Hand audits located its weak spots, and a rewritten prompt that scored worse was rejected.',
         },
         {
-          step: 'Every Test Fold Is a Hospital the Model Has Never Seen',
+          step: 'Every Test Set Is a New Hospital',
           detail:
-            'Random splits would let a model learn a scanner and get credit for it. Studies were instead grouped by scanner (vendor, model and coil) and packed into five folds of about 870, and the folds came out very different: fold 0 is 80% Philips, fold 3 is 100% 1.5 T. The design rotates through them, with one fold as the test set, the next for model selection, and the remaining three (about 2,610 studies) as the training pool. Training sets of 65, 130, 260, 520, 1,040, 2,080 and 2,600 exams are nested, so each size contains the smaller ones and a gap between sizes reflects only the added exams. One study is one patient, so there is no patient leakage across folds.',
+            'Studies were grouped by scanner into five folds of about 870 that differ sharply (one is 80% Philips, another all 1.5 T), and each takes a turn as the unseen test site. Training sets are nested, so each size contains the smaller ones.',
         },
         {
-          step: 'Backbones Chosen in Pairs That Change One Thing',
+          step: 'Model Pairs That Change One Thing',
           detail:
-            'Five slice encoders, picked so each comparison isolates a single factor. DINOv3 ViT-B/16 versus DINOv3 ConvNeXt-B shares the pretraining and changes only the architecture (transformer versus CNN, 86 to 88M parameters each). DINOv3 ConvNeXt-B versus ImageNet ConvNeXt-B shares the architecture and changes only the pretraining (1.7 billion unlabeled images versus about a million labeled photos). DINOv2 ViT-B/14 gives the previous foundation-model generation, and a ResNet-18 trained from scratch gives the no-pretraining floor. Everything else is held identical: preprocessing, head, loss, splits, training budget and selection rules, so a difference between two curves can only come from the backbone or the regime.',
+            'Five backbones were chosen so each comparison isolates one factor: transformer vs. CNN with the same pretraining, and self-supervised vs. ImageNet weights with the same architecture, plus an older foundation model and a from-scratch floor. Everything else is identical.',
         },
         {
-          step: 'One Study-Level Head for Every Backbone',
+          step: 'One Study-Level Head, at Laptop Scale',
           detail:
-            'Each exam is standardized first: slices resampled to 0.5 mm per pixel over a 160 mm field of view, both knees canonicalized so the lateral side always comes first, intensity windowed per series so relative brightness (effusion, for instance) survives, and everything sorted into six sequence slots (three planes, with and without fat suppression) at 224 pixels. Horizontal flips are banned outright, because they would silently swap the medial and lateral compartments and corrupt four of the twelve labels. The backbone turns every slice into a feature vector, and an attention-based multiple-instance head with 12 learned queries (one per finding) reads all slices of all sequences in a study and decides which slices matter for each finding.',
-        },
-        {
-          step: 'Frozen and Fine-Tuned, at Laptop Scale',
-          detail:
-            'Frozen runs embed every slice once and train only the head, with the best of four learning-rate and dropout settings picked on the validation fold: 1,680 runs across four backbones, five rotations, three random subset draws and seven sizes, about 3.3 hours for the whole sweep. Fine-tuning retrains the two DINOv3 backbones end to end in bf16 with AdamW, a cosine schedule, layer-wise learning-rate decay of 0.75 and a linear-probe-then-fine-tune start, at a learning rate chosen in a validation-only pilot. Fitting that on a 12 GB laptop GPU and 31 GB of RAM took a hard 90% VRAM cap per process (so an overflow is a catchable error instead of a silent spill to shared memory), GPU-side augmentation, and a 48-slice cap per study; all 42 fine-tuned runs over three rotations completed.',
+            'Each exam is standardized (0.5 mm pixels, lateral side first, and no left/right flips, which would swap medial and lateral labels). Every slice is embedded, and an attention head with one query per finding decides which slices matter. Fine-tuning fit on a 12 GB GPU with bf16, a hard VRAM cap and a 48-slice limit.',
         },
         {
           step: 'Statistics That Match the Design',
           detail:
-            'Every model comparison is paired: both models are trained on exactly the same exams and scored on the same studies, and 95% intervals come from 2,000 bootstrap resamples over rotations and test studies, with Holm correction across the 12 findings. A linear mixed model, AUC ~ model x regime x log2(N) with random intercepts for test fold and seed, estimates how much faster fine-tuned models climb. The pre-registered inverse power law was fit alongside log-linear and saturating curves and compared by AIC; it lost on 8 of 10 curves and its plateau hit the 1.0 bound on 4, so the plateau estimates it was meant to produce were dropped rather than reported at absurd sizes. Anything beyond 2,600 exams is marked as an extrapolation.',
-        },
-        {
-          step: 'From AUC to Dollars, and an Honest Benchmark',
-          detail:
-            'The cost model prices each target three ways: measured GPU-hours on the laptop at a $0.59 per hour cloud rate, dual-reader expert labels at 8 minutes per exam and $170.17 per hour (with a sensitivity table from $9,600 to $250,000 per 1,000 exams), and local LLM labels at their measured 6.9 seconds per report. The result is then set against the RSNA 2026 leaderboard, where the winner reached 0.960. The gap to our 0.840 is reported as a bundle of differences ranked by evidence (label quality first, then image-read versus report-read labels, training volume, and resolution plus ensembling) on a different and much smaller test set, not as a single attributable number.',
+            'Comparisons are paired on identical exams, with 2,000-sample bootstrap intervals and Holm correction across findings, and a mixed model estimates how much faster fine-tuned models improve. The pre-registered power law lost to a log-linear fit on 8 of 10 curves, so no plateau is claimed.',
         },
       ],
       architecture: `
@@ -506,25 +518,21 @@ export const projects: Project[] = [
     id: 'airline-crew-pairing-rl',
     title: 'Airline Crew Pairing: Transformer Deep-RL Scheduler',
     short_description:
-      'A ViT-style Deep Q-Network that builds a month of legal airline crew pairings one leg at a time, feasible by construction, published as an interactive replay you can scrub decision by decision.',
+      'A transformer-based Deep Q-Network that builds a month of legal airline crew schedules one flight at a time, published as an interactive replay you can scrub decision by decision.',
     motivation:
-      'Crew cost is second only to fuel for most airlines, and the classical column-generation approach has to be rebuilt for every schedule. I wanted to know whether a learned construction policy could obey a real rulebook exactly, generalize to a month it had never seen, and trade a little coverage for solutions that don\'t shatter when one flight runs late.',
+      'Crew cost is second only to fuel for most airlines. I wanted to know whether a learned policy could follow a real rulebook exactly, handle a month it had never seen, and build schedules that hold up when a flight runs late.',
     card_achievements: [
-      'Every scheduling rule lives in the action mask, so the agent can never emit an illegal pairing, verified over random rollouts.',
-      'Trained on 40 perturbed schedules, reaching 0.658 held-out coverage on 8 unseen instances the policy never trained on.',
-      'Reused the trained value network as a search heuristic at inference, no retraining, for a further 4-point coverage lift.',
+      'Every scheduling rule lives in the action mask, so the agent can never build an illegal pairing.',
+      'Reached 0.658 coverage on 8 schedules it never trained on, within 0.05 of its training score.',
+      'Reused the trained network as a search guide for about 4 more points of coverage, with no retraining.',
     ],
     achievements: [
-      'Framed crew pairing as a sequential construction MDP (START a pairing, APPEND legs, CLOSE it back at base) over a 31-day, 1,013-leg GERAD benchmark network, so an episode is roughly 935 decisions and credit assignment lands on the tour that actually earned the reward rather than being smeared across a month of flight-by-flight assignments.',
-      'Moved every scheduling rule into the action mask: connection windows, duty flying time, legs per duty, duty span, duties per pairing, time away from base, per-base credit caps, daily crew availability, and a backward-DP check that the crew can still get home, so the network is never offered an illegal move and legality costs no penalty term and no repair pass.',
-      'Verified that claim independently instead of asserting it: a re-checker that re-derives legality from the finished pairing, run over random rollouts for both crew classes with delay modelling on and off, records zero feasibility violations.',
-      'Trained one policy across 40 perturbed variants of the base instance and evaluated it on 8 held-out variants whose seeds were never trained on, reaching 0.658 mean coverage for the cabin policy and 0.629 for cockpit against 0.47 for a random masked policy, with a train-versus-held-out coverage gap of 0.00 to 0.05 at plateau, the number that separates a learned scheduling rule from a memorized schedule.',
-      'Closed roughly 10 coverage points of the gap left by single-instance training, which transferred to the same held-out split at only 0.528: the concrete payoff of training on a distribution of schedules instead of on the one in front of you.',
-      'Produced markedly more delay-resilient solutions than the benchmark\'s own reference: 85 critical sub-15-minute connections against the reference\'s 310, and about 53 robust short connections against its 10. The reference covers roughly 1.6 times as many legs by deadheading throughout, but even per covered leg its fragile-connection rate is about 2.3 times the policy\'s: the honest trade is coverage for resilience.',
-      'Modelled the action space as a set rather than a fixed vector: a ViT-style transformer encoder lets every candidate leg attend to every other one, and a dueling pointer head scores a variable-length, permutation-equivariant action set, so one network handles a 56-way opening step and a 4-way continuation step without reshaping anything.',
-      'Reused the trained value network at inference as a search heuristic: beam search, plus an anytime best-first seeded with a full greedy dive so its answer can never be worse than greedy, buying about 4 coverage points for roughly 3 times the wall clock and no retraining, and documented why textbook-optimal A* was rejected: the only admissible bound available here is loose enough that the search degenerates into breadth-first.',
-      'Diagnosed the coverage ceiling rather than hand-waving it, with a terminal-state autopsy attributing the 250 to 290 uncovered legs: about 52% orphaned at non-base airports, about 20% blocked by exhausted base availability, about 25% cut off by the stranding guard, and credit caps never binding at all; then ranked the improvement levers by that evidence instead of by intuition.',
-      'Made every modelling choice auditable and every ablation a config edit: four YAML files where each value carries a source citation and a HIGH/MEDIUM/LOW confidence tag, an assumption register naming the load-bearing reconstructions, 84 tests, a live FastAPI training dashboard, and a published zero-backend replay site that animates a recorded solve leg by leg with the agent\'s top Q-values at each step.',
+      'Framed crew pairing as a step-by-step build (open a pairing, add flights, close it back at base) over a 31-day, 1,013-flight GERAD benchmark, about 935 decisions per episode.',
+      'Moved every rule into the action mask: duty limits, rest, legs per duty, time away from base, credit caps, crew availability and a check that the crew can still get home. The network is never offered an illegal move, and an independent re-checker confirms zero violations.',
+      'Trained across 40 perturbed schedules and tested on 8 unseen ones: 0.658 coverage for cabin crews and 0.629 for cockpit, against 0.47 for a random legal policy, with a train-vs-test gap of 0.00 to 0.05.',
+      'Built far more delay-resilient schedules than the benchmark\'s reference solution: 85 fragile connections against its 310. The reference covers more flights by repositioning crews throughout, so the honest trade is coverage for resilience.',
+      'Used a ViT-style transformer that scores a variable-size set of candidate flights, so one network handles 56 options at the start of a pairing and 4 near its end.',
+      'Reused the trained network for beam search at inference, adding about 4 coverage points with no retraining, and traced the coverage ceiling to its causes: about 52% of uncovered flights are stranded at non-base airports.',
     ],
     tech_stack: ['PyTorch', 'Transformers', 'Deep RL', 'Double DQN', 'CUDA', 'NumPy', 'FastAPI', 'pytest', 'TensorBoard', 'Python', 'Operations Research'],
     technical_details:
@@ -533,47 +541,37 @@ export const projects: Project[] = [
     link: '/projects/airline-crew-pairing-rl',
     detail: {
       problem_statement:
-        'A crew pairing is a legal multi-day tour of duty: a sequence of flights that leaves a crew base, splits into workdays separated by overnight layovers, and returns to the same base, all while obeying a thick rulebook of duty-hour limits, rest rules, legs per duty, time away from base, per-base credit caps and crew availability. Covering an airline\'s month with a cheap set of those tours is the first and most expensive stage of crew scheduling, and the classical method (implicitly enumerating an astronomical pool of candidate pairings and solving a set-partitioning integer program by column generation) is well understood but expensive to build, specific to the instance it was built for, and optimizes cost with robustness added afterwards. This project takes the other route and learns a construction policy: the agent walks the connection network, appends legs to an open pairing and closes it back at base, trained on a distribution of perturbed schedules so a changed month does not mean re-solving from scratch. Three things had to be true for that to be worth anything. The schedule it emits must be legal, not approximately legal, which rules out learning legality from a penalty. It must hold up on a month whose seed was never trained on, not only on the month it was fitted to. And the numbers it reports must be measured against something real: the benchmark\'s own reference solution from a classical cost optimizer, scored with the same connection classifiers.',
+        'A crew pairing is a legal multi-day trip: a run of flights that leaves a crew base, splits into workdays with overnight rests, and comes back home, all within strict limits on duty hours, rest and time away. Covering a month of flights with cheap, legal pairings is the costliest step in crew scheduling, and the classical method (column generation) has to be rebuilt for every schedule. This project learns a construction policy instead, with three requirements: every schedule must be fully legal, the policy must work on months it never trained on, and its numbers must be measured against the benchmark\'s own reference solution.',
       approach: [
         {
           step: 'Choosing the Decision, Not Just the Model',
           detail:
-            'The source paper assigns crews flight by flight; three granularities were weighed here and sequential pairing construction won. The agent opens a pairing at a base, extends it, and closes it back at that base, repeating until every leg is covered or nothing legal remains. That choice does real work: it concentrates credit assignment on the tour that earned the reward, keeps episodes at roughly the number of legs plus the number of pairings rather than exploding, and maps cleanly onto a network that scores a set of candidate moves. Deadheads (crew riding as passengers to reposition) are first-class actions at half credit with a per-pairing budget and a hop-bounded reachability guard, not a post-processing fix.',
+            'The agent opens a pairing at a base, adds flights and closes it back at that base, repeating until every flight is covered or nothing legal remains. Building whole pairings keeps the reward on the trip that earned it. Deadheads (crews flying as passengers to reposition) are ordinary moves, not a repair step.',
         },
         {
           step: 'Feasibility Lives in the Action Mask',
           detail:
-            'Every rule is evaluated before an action is offered: the connection window and its classification into short, sit or layover, maximum flying time and legs and span per duty, duties per pairing, total time away from base, per-base credit caps, per-base daily crew availability reduced by vacations, and a backward dynamic-programming check that the crew can still reach its home base from wherever the move would leave it. A one-step viability lookahead keeps the agent out of dead ends. The consequence is that the network cannot emit an illegal schedule, so no reward budget is spent teaching it the rulebook and no repair heuristic runs afterwards; when an open pairing does run out of legal continuations, it is discarded, its resources refunded and a large strand penalty fired, rather than the episode quietly corrupting.',
+            'Every rule is checked before a move is offered, including a backward check that the crew can still reach home from where the move leaves it. The network therefore cannot produce an illegal schedule, so no reward is spent teaching it the rulebook and nothing needs repairing afterward.',
         },
         {
-          step: 'An Observation That Is a Set, Not a Vector',
+          step: 'A Transformer Over the Candidate Set',
           detail:
-            'Each step presents up to 64 candidate actions as a token matrix rather than a fixed-width state vector: one 30-feature row per candidate carrying the action type, embedded departure and arrival airports, base flags, day of month, sine and cosine of time of day, block time, buffer to the previous leg, short and critical and NCC indicators, delay risk, the post-append accumulator ratios that say how full the duty and the pairing would become, remaining base credit and availability, preference score, and a can-return-to-base flag. A parallel boolean mask marks which of them are legal, and a 10-feature global vector carries episode context. Because the observation is a set, the number of legal moves can swing from about 56 at an opening step to under 4 at a continuation step without changing a tensor shape.',
+            'Each step presents up to 64 candidate flights as tokens of 30 features each. A four-layer transformer lets every candidate attend to the others, and a dueling head scores each one, with illegal moves masked out so they can never be picked.',
         },
         {
-          step: 'A Transformer That Scores the Whole Candidate Set',
+          step: 'A Reward With Four Switchable Terms',
           detail:
-            'The Q-network is a ViT-style encoder: airport identities are embedded, the remaining numerics are projected to a 192-dimensional model width, a learned context token in the ViT CLS role carries the global features, and a four-layer pre-norm transformer encoder lets every candidate attend to every other one. That is the right inductive bias for the question actually being asked (is this the best next leg given what else is on offer and how full my duty already is), which a per-candidate MLP structurally cannot ask. A dueling head then scores each token pointer-style as a shared state value plus a mean-centered advantage, with masked actions driven to negative infinity so they can never be selected or bootstrapped from.',
+            'Coverage, cost, robustness (reward tight turns that follow the aircraft, penalize fragile connections) and crew preferences. Every weight and on/off switch sits in one YAML file, so an ablation is a config edit.',
         },
         {
-          step: 'A Reward With Four Terms and an Off Switch on Each',
+          step: 'Training for Generalization',
           detail:
-            'Coverage pays +1.0 per leg flown and charges -4.0 for every leg still uncovered at the end. Cost charges excess time away from base, each pairing opened, and each deadhead hour. Robustness pays for short connections, where the crew follows the aircraft, and penalizes fragile critical ones, or switches to the source paper\'s squared non-critical-connection formulation with compensation when the delay-prediction flag is on. Preferences pay a scaled bonus for flying a leg the base\'s crews prefer. Every weight and every enable flag sits in one YAML file, so an ablation is a config edit rather than a code branch, and the discount is 1.0 within an episode because a pairing built on day 3 is worth exactly what it is worth on day 30.',
+            'Double DQN with prioritized replay. Each episode samples one of 40 perturbed months, and every 20 episodes the policy is scored on 8 held-out months; the checkpoint kept is the best on held-out data, and the train-vs-test gap is logged as its own metric.',
         },
         {
-          step: 'Training for Generalization, Not for One Month',
+          step: 'The Network as a Search Guide',
           detail:
-            'Double DQN with a target network, prioritized experience replay, Huber loss, gradient clipping and mixed precision. But the load-bearing design choice is the data, not the optimizer. Each episode samples a fresh instance from 40 seeded perturbations of the base month (departure jitter, leg subsampling, availability and credit resampling, regenerated preferences), and evaluation runs the greedy policy every 20 episodes against a disjoint split of 8 variants whose seeds are never trained on. The reported number is the held-out mean, the checkpoint kept is the best by held-out coverage, and the train-versus-held-out gap is logged as a metric in its own right so overfitting shows up as a curve rather than as a surprise at the end.',
-        },
-        {
-          step: 'Reusing the Value Network as a Search Heuristic',
-          detail:
-            'A trained Q-function is already an estimate of what a state is worth, so at inference it does double duty. Beam search keeps the best partial constructions and scores frontiers by realized return plus the network\'s best remaining Q, batching every frontier evaluation per depth. An anytime best-first variant runs a priority queue on realized-plus-estimated return, seeded with a full greedy dive so its answer is never worse than greedy and the search budget is pure upside. Beam 8x4 lifted held-out coverage from 0.612 to 0.651 and from 0.613 to 0.647 on two seeds and tied on a third, for about 9 seconds against 3 per instance and no retraining. Textbook-optimal A* was considered and rejected in writing: the only admissible bound available here is loose enough that the search collapses into breadth-first.',
-        },
-        {
-          step: 'Diagnosing the Ceiling, and Proving the Rules',
-          detail:
-            'Coverage plateaus near 0.63 to 0.66, so the terminal states were dissected rather than explained away. About 52% of the uncovered legs depart non-base airports and were orphaned once their feeder legs got routed elsewhere, about 20% depart a base whose availability has been exhausted, about 25% are blocked by the stranding guard on a thinned-out network, and credit caps never bind at all, which ranks the levers as deadheads first, availability slack second, inference-time search third and a longer exploration schedule fourth. Underneath all of it sits an 84-test suite whose load-bearing member is the feasibility invariant: because all legality lives in the mask, any rule bug surfaces as a random rollout constructing an illegal pairing, which the independent verifier catches.',
+            'At inference, beam search ranks partial schedules by reward so far plus the network\'s estimate of what is left: about 4 points more coverage for about 3× the run time. An 84-test suite guards the feasibility guarantee.',
         },
       ],
       architecture: `
@@ -663,24 +661,21 @@ export const projects: Project[] = [
     id: 'airbnb-superhost-rdd',
     title: 'Airbnb Superhost Badge: Causal Impact Study (Regression Discontinuity)',
     short_description:
-      'A regression discontinuity re-test of whether Airbnb\'s Superhost badge still moves host outcomes now that Guest Favorite has taken over discovery. Five of six outcomes show no jump at the 4.8 cutoff; only review volume does.',
+      'Does Airbnb\'s Superhost badge still help hosts now that Guest Favorite runs search? A regression discontinuity study at the 4.8 rating cutoff: five of six outcomes show no effect, and only review volume moves.',
     motivation:
-      'Published research from 2023 found the Superhost badge causally lifted bookings and revenue at the 4.8-rating cutoff. Then Airbnb launched Guest Favorite and removed the Superhost search filter, so the discovery mechanism behind that finding was gone. I wanted to run the same design on current data and report the answer it gave, not the one that would make a nicer story.',
+      'A 2023 study found the badge lifted bookings and revenue. Then Airbnb launched Guest Favorite and removed the Superhost search filter. I re-ran the same design on current data and reported the answer it gave.',
     card_achievements: [
-      'Re-tested a 2023 published finding on a changed platform: five of six outcomes show no significant effect at the same cutoff.',
-      'Built a 125,685-host panel from 34 U.S. metros and isolated the badge with a ±0.05 bandwidth around the 4.8 cutoff.',
-      'Estimated six outcomes at once, so neither the nulls nor the one significant result rests on a hand-picked dependent variable.',
+      'Re-tested a published 2023 finding: five of six outcomes show no significant effect at the same cutoff.',
+      'Built a 125,685-host panel from 34 U.S. metros and compared hosts within ±0.05 of the 4.8 cutoff.',
+      'Tested six outcomes at once, so no conclusion rests on a hand-picked metric.',
     ],
     achievements: [
-      'Re-tested a published causal finding against a changed platform: Mishra, Huang & Kalwani (2023) found a significant positive Superhost effect at the same 4.8 cutoff, and this replication on post-Guest-Favorite data recovers it on only one of six outcomes, reported together with the design caveat that undercuts it rather than presented as a clean win.',
-      'Built the host-level panel the design needs from raw Inside Airbnb data across 34 U.S. metro areas (~3 GB of listings, reviews and calendar files), unioning cities, scoring every listing\'s review text with VADER, aggregating calendar prices and availability, and rolling listings up to 125,685 hosts.',
-      'Got the running variable right where it is easy to get it wrong: Superhost is a host-level badge but the data is listing-level, so host_rating is each host\'s review_scores_rating averaged weighted by listing review count: an unweighted mean lets one brand-new, barely-reviewed listing drag a host across the threshold.',
-      'Isolated the badge with a ±0.05 bandwidth around the cutoff (4.75–4.85), holding two of Airbnb\'s other Superhost criteria roughly fixed with a ≥90% response-rate filter and a review-count floor, so crossing 4.80 is close to the only systematic difference between the groups: 4,308 treated hosts against 2,003 controls, 6,311 in the analysis sample.',
-      'Handled the badge-versus-rating timing mismatch explicitly (Airbnb re-evaluates Superhost quarterly while the scraped rating is near-live) by requiring a host\'s badge to agree with the side of the cutoff their rating falls on, dropping ambiguous hosts rather than silently mis-assigning them to treatment.',
-      'Estimated the discontinuity as an OLS jump term on the centered running variable with HC1 heteroskedasticity-robust standard errors, across six outcomes at once (positive, negative, neutral and compound review sentiment, review volume, and the review-scores value sub-rating) so the conclusion does not rest on a single hand-picked dependent variable.',
-      'Found no significant jump on five of the six outcomes: all four sentiment measures and the value-for-money sub-rating come back statistically indistinguishable from zero, with p-values from 0.2253 to 0.9744 and point estimates in the third decimal place of scales that run 0 to 1, consistent with the badge\'s demand-side signalling role having faded once Guest Favorite took over discovery.',
-      'Reported the one outcome that does clear the bar rather than quietly dropping it: hosts just above the cutoff carry about 79 more total reviews across their listings than hosts just below, p = 0.0201. Total reviews is a stock accumulated over a host\'s whole history, most of it earned before the current badge was awarded, so a step in it at the cutoff reads more like an imbalance in a pre-determined characteristic than a causal effect of the badge, which is exactly the kind of ambiguity a single cross-section cannot resolve.',
-      'Wrote up the design\'s limits alongside its result: this estimates the demand-side effect only and says nothing about the supply-side incentive to maintain quality; there is no McCrary manipulation test or covariate-balance check; the sample is one cross-section rather than hosts tracked across the threshold over time; and Guest Favorite status is not observable in the data.',
+      'Re-tested a published causal finding (Mishra, Huang & Kalwani, 2023) on post-Guest-Favorite data: the badge effect appears on only one of six outcomes.',
+      'Built a host-level panel from ~3 GB of raw Inside Airbnb data across 34 U.S. metros: unioned the cities, scored review text with VADER sentiment, and rolled listings up to 125,685 hosts.',
+      'Built the rating that decides treatment carefully: weighted by each listing\'s review count, so one new, barely reviewed listing cannot push a host across the cutoff.',
+      'Compared 4,308 badge holders just above 4.80 with 2,003 non-holders just below, holding Airbnb\'s other criteria roughly fixed, using OLS with robust standard errors on six outcomes.',
+      'Found no effect on review sentiment or value ratings (p from 0.225 to 0.974). Review volume does jump (+79 reviews, p = 0.02), but reviews pile up over a host\'s whole history, so that reads more like a pre-existing difference than a badge effect.',
+      'Documented the limits: demand side only, no manipulation, balance or bandwidth checks, a single snapshot in time, and Guest Favorite status not observable in the data.',
     ],
     tech_stack: ['Python', 'Causal Inference', 'Regression Discontinuity', 'statsmodels', 'Econometrics', 'pandas', 'NumPy', 'VADER NLP', 'seaborn', 'Matplotlib'],
     technical_details:
@@ -689,42 +684,32 @@ export const projects: Project[] = [
     link: '/projects/airbnb-superhost-rdd',
     detail: {
       problem_statement:
-        'Airbnb awards the Superhost badge quarterly to hosts who clear four bars over a trailing year: a rating of at least 4.8, a response rate of at least 90%, a cancellation rate under 1%, and enough completed stays. Historically the badge did two jobs: it pushed hosts to maintain quality, and it signalled trust to guests, who could filter search results by it. A 2023 study used that 4.8 cutoff as a regression discontinuity and found a significant positive effect on bookings and revenue. The platform has since changed: Guest Favorite launched in November 2023 as a listing-level badge covering roughly two million homes, and around January 2024 the Superhost filter was removed from on-site search and replaced by a Guest Favorite one. The badge survives; the discovery mechanism behind half of its value does not. The question is whether the causal effect survived with it. It cannot be answered by comparing Superhosts to everyone else, because the hosts who clear the bar were already better hosts; any gap would be selection, not the badge. What makes the cutoff useful is that it is arbitrary at the margin: a host at 4.79 and a host at 4.81 are, on average, indistinguishable in underlying quality, and the badge is essentially the only systematic difference between them. Comparing those two narrow groups is the whole design.',
+        'Airbnb awards the Superhost badge to hosts rated at least 4.8 who also clear a few other bars. A 2023 study used that cutoff to show the badge boosted bookings and revenue. Since then, Guest Favorite has launched and the Superhost search filter is gone, so the main way guests found Superhosts no longer exists. Comparing Superhosts with everyone else would measure host quality, not the badge. But a host at 4.79 and a host at 4.81 are, on average, the same host, and the badge is the main thing that differs between them. Comparing those two narrow groups is the whole design.',
       approach: [
         {
           step: 'Why a Discontinuity, and Not a Comparison',
           detail:
-            'The naive estimate (average outcomes for Superhosts minus average outcomes for everyone else) measures host quality far more than it measures the badge, because the badge is awarded for quality in the first place. A regression discontinuity sidesteps that by shrinking the comparison to a narrow window around a threshold nobody can precisely control: hosts land at 4.79 or 4.81 for reasons that have nothing to do with which side they would have chosen. Inside that window the badge is as good as randomly assigned, so a jump in outcomes exactly at 4.80 is attributable to the badge rather than to the hosts. That local identification is the trade the design makes: a credible estimate of the effect at the cutoff, and no claim at all about hosts at 4.2 or 5.0.',
+            'Superhosts were better hosts before they got the badge, so a plain comparison mostly measures quality. Right around an arbitrary cutoff, though, the badge is close to randomly assigned, so a jump in outcomes exactly at 4.80 can be credited to the badge. The price: the estimate holds only near the cutoff.',
         },
         {
-          step: 'Building a Host-Level Panel From 34 City Extracts',
+          step: 'A Host-Level Panel From 34 Cities',
           detail:
-            'Inside Airbnb publishes per-city files rather than one dataset, so the pipeline unions listings across 34 U.S. metro areas: New York, Los Angeles, Chicago, Boston, Seattle, Broward County and 28 others, roughly 3 GB raw. Each listing\'s review text is scored with VADER into positive, negative, neutral and compound sentiment; the calendar extract is collapsed into an average nightly price and an availability ratio over the scraped window. Only the final analysis notebook and its saved outputs live in the repository, since regenerating the intermediate table means re-running the full multi-gigabyte pipeline.',
+            'Inside Airbnb publishes per-city files, so the pipeline unions 34 U.S. metros (~3 GB), scores each listing\'s reviews with VADER sentiment, summarizes prices and availability, and rolls listings up to 125,685 hosts.',
         },
         {
-          step: 'Aggregating to the Host, and the Weighting That Matters',
+          step: 'The Weighting That Matters',
           detail:
-            'Superhost is a host-level designation while the data is listing-level, so every listing is rolled up into one row per host_id, producing 125,685 U.S. hosts. The load-bearing detail is how the running variable is built: host_rating is the host\'s listings\' review_scores_rating averaged weighted by each listing\'s number of reviews, not a plain mean. Weighted, a host with one heavily-reviewed 4.85 property and one new 4.5 listing stays where their guests actually put them; unweighted, the new listing swings them across the cutoff and into the wrong group. Sentiment scores are aggregated the same way, and review counts are summed.',
+            'The badge is awarded per host but ratings are per listing, so each host\'s rating is averaged with weights by review count. Unweighted, one new listing can drag a host into the wrong group.',
         },
         {
-          step: 'Defining Treatment and Control Around 4.80',
+          step: 'Treatment and Control Around 4.80',
           detail:
-            'Treatment is hosts with a rating in [4.80, 4.85] who actually hold the badge: 4,308 hosts; control is hosts in [4.75, 4.80) who do not: 2,003. Two inclusion filters apply to both sides: an average response rate of at least 90%, which is Airbnb\'s own bar, and at least three reviews as an activity floor. Both exist so that Airbnb\'s other Superhost criteria are held roughly constant and crossing 4.80 is close to the only thing that differs. Conditioning on the badge agreeing with the rating side, rather than on the rating alone, matters because Airbnb re-evaluates Superhost quarterly while the scraped rating is closer to live: hosts whose badge and rating disagree are dropped rather than mis-assigned. The final sample is 6,311 hosts out of 125,685.',
+            'Treatment is 4,308 badge holders rated 4.80 to 4.85; control is 2,003 non-holders rated 4.75 to 4.80. Both need a response rate of at least 90% and at least 3 reviews, and hosts whose badge disagrees with their side of the cutoff are dropped rather than mislabeled.',
         },
         {
-          step: 'The Specification, Stated With Its Assumptions',
+          step: 'Six Outcomes, Read Honestly',
           detail:
-            'For each outcome the model is an OLS regression of that outcome on the rating centered at 4.8 plus a treatment dummy, fit with HC1 heteroskedasticity-robust standard errors. Centering makes the treatment coefficient read as the jump exactly at the cutoff. The specification runs one common slope across the bandwidth rather than separate slopes on each side, which is a simplification of the fuller sharp-RDD form; hosts with a fully blocked calendar have their average calendar price imputed from the static listing price rather than being dropped; and the response-rate and review-count filters are proxies for Airbnb\'s real criteria, not reproductions of them. Each of those is a stated design choice rather than an unexamined default.',
-        },
-        {
-          step: 'Six Outcomes, Because One Would Be a Choice',
-          detail:
-            'Running a single dependent variable invites picking the one that cooperates, so the same specification is estimated on six: positive, negative, neutral and compound review sentiment, total reviews across a host\'s listings, and the review-scores value sub-rating. Together they cover guest experience, engagement volume and perceived value. Each model is plotted as well as tabulated (scatter plus separate fits on either side of the dashed 4.8 line) because a discontinuity is something you should be able to see, and its absence is something a reader should be able to check rather than take on trust.',
-        },
-        {
-          step: 'Reading the Result Honestly',
-          detail:
-            'Five of the six do not move. All four sentiment measures and the value-for-money sub-rating come back indistinguishable from zero, with p-values from 0.2253 to 0.9744 and point estimates in the third decimal place. The sixth does move: hosts just above the cutoff carry about 79 more total reviews than hosts just below, p = 0.0201. The honest reading of that one is cautious rather than triumphant, because total reviews is a stock accumulated over a host\'s entire history and most of it predates the current badge, so a step in it at the cutoff looks more like the treated side simply being the more established side than like the badge generating new reviews. The pattern that survives is the one the sentiment and value results describe: no detectable demand-side response at the margin, consistent with the search-filter removal having drained the discovery channel the earlier finding partly rested on. It says nothing about the supply-side incentive (hosts may still work to keep the badge whether or not guests respond to it) and the design carries real caveats: no manipulation or covariate-balance test, no bandwidth-sensitivity check, one snapshot rather than hosts followed across the threshold over time, and Guest Favorite status not observable in the data to control for directly.',
+            'The same OLS model, with robust standard errors, runs on six outcomes: four sentiment scores, review volume and the value rating. Five show no jump. Review volume does, but it accumulates over a host\'s history, so the cautious reading is a pre-existing difference rather than a badge effect.',
         },
       ],
       architecture: `
@@ -815,17 +800,21 @@ export const projects: Project[] = [
     id: 'course-rag-pipeline',
     title: 'Course Material Q&A Assistant: Agentic RAG System',
     short_description:
-      'Production-deployed agentic RAG system for UCLA MSBA students to query course materials (lecture slides, transcripts, and PDFs) using natural language. Live at tirth-courserag.duckdns.org.',
+      'A production agentic RAG assistant that answers UCLA MSBA students\' questions about lecture slides, transcripts and deadlines. Live at tirth-courserag.duckdns.org.',
     motivation:
-      'The UCLA MSBA program runs 4 simultaneous courses, each with its own slides, transcripts, homework deadlines, and deliverables spread across a shared Google Drive. Students constantly lose time hunting for information manually. I built a fully agentic system that classifies every query, self-verifies deadline answers, supports human-approved file uploads, and can explain exactly which source chunks drove any answer, deployed at effectively zero infrastructure cost on Oracle Cloud Free Tier.',
+      'With 4 courses running at once and materials scattered across a shared Drive, students lose time hunting for answers. I built an assistant that checks its own deadline answers and shows its sources, for about $1–4 a month.',
+    card_achievements: [
+      'A 13-node LangGraph agent routes each question down one of 5 paths: deadlines, summaries, uploads, Q&A or sources.',
+      'Deadline answers are double-checked with a second search, and conflicts are flagged instead of guessed.',
+      'New uploads wait for human approval before they enter the search index.',
+    ],
     achievements: [
-      'Built a 13-node LangGraph agent with conditional routing across 5 query types: deadline, summary, upload, general Q&A, and source explanation',
-      'Implemented self-verifying deadline extraction: LLM extracts date → re-queries ChromaDB with rephrased search → cross-references results → surfaces conflicts with confidence indicator',
-      'Designed human-in-the-loop upload approval using LangGraph interrupt-before + SQLite checkpointer: LLM proposes a Drive folder path, user approves/edits before embedding, preventing vector store pollution',
-      'Built deadline-boosted retrieval: chunks tagged with contains_deadline metadata at ingestion, merged and re-ranked with general results to surface deadline content even when semantic score is not highest',
-      'Added OpenAI Vision fallback for scanned PDFs: 25-sec timeout per page, max 2 concurrent calls, early bail-out after 5 consecutive failures',
-      'Deployed on Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM) using Docker + Caddy + DuckDNS at ~$1–4/month total',
-      'Solved 9 distinct production issues during deployment including Oracle iptables blocking (iptables -I fix), DuckDNS expiry (cron ping job), and OAuth credentials not accessible in Docker (docker cp fix)',
+      'Built a 13-node LangGraph agent that routes each question to one of 5 paths: deadline, summary, upload, general Q&A or source explanation.',
+      'Made deadline answers self-verifying: after extracting a date, the agent searches again with a rephrased query and flags any conflict with a confidence level.',
+      'Boosted deadline content in retrieval by tagging deadline chunks at ingestion, so a due date mentioned in a side note still surfaces.',
+      'Added human-in-the-loop upload approval: the agent proposes a Drive folder, the user approves or edits it, and only then is the file embedded.',
+      'Added an OpenAI Vision fallback for scanned PDFs, with timeouts and concurrency limits so one bad file cannot stall the pipeline.',
+      'Deployed with Docker and Caddy on Oracle Cloud\'s free tier for ~$1–4/month, solving 9 production issues along the way, from firewall rules to domain expiry.',
     ],
     tech_stack: ['LangGraph', 'FastAPI', 'ChromaDB', 'Claude Haiku', 'OpenAI', 'Google Drive API', 'Docker', 'Python', 'SQLite', 'WebSocket'],
     technical_details: 'LangGraph, FastAPI, ChromaDB, Claude Haiku, GPT-4o-mini, OpenAI Embeddings, Google Drive API, PyMuPDF, Docker, Caddy, Oracle Cloud',
@@ -833,37 +822,37 @@ export const projects: Project[] = [
     link: '/projects/course-rag-pipeline',
     detail: {
       problem_statement:
-        'UCLA MSBA students juggle 4 simultaneous courses, each with lecture slides, transcripts, homework deadlines, and project deliverables scattered across a shared Google Drive. Manual search is slow and error-prone, especially for deadline-critical queries ("when is HW3 due?"). The challenge: build a production-grade agentic system that can answer natural-language questions over course PDFs, verify its own deadline answers to prevent hallucination, let students upload new files safely without polluting the vector store, and explain exactly which source chunks it used, all at zero ongoing infrastructure cost.',
+        'UCLA MSBA students juggle 4 courses at once, each with slides, transcripts, homework and deadlines spread across a shared Google Drive. Searching by hand is slow, and for deadlines a wrong answer is worse than none. The goal: an assistant that answers questions over course PDFs, verifies its own deadline answers, lets students add files without polluting the index, and shows exactly which sources it used, at near-zero cost.',
       approach: [
         {
-          step: 'LangGraph Agentic Orchestration',
+          step: 'LangGraph Orchestration',
           detail:
-            'Designed a 13-node LangGraph graph with a priority-based router that first checks for pending clarifications, then tries regex pattern matching (e.g., "why did you", "where did that come from"), and only falls back to LLM classification if patterns fail, saving ~200 tokens per source-explanation follow-up. The router classifies each query into one of five types and routes to the appropriate branch.',
+            'A 13-node graph whose router tries cheap pattern matching first and calls an LLM only when that fails, then sends each question down one of five branches.',
         },
         {
-          step: 'Self-Verifying Deadline Extraction',
+          step: 'Self-Verifying Deadlines',
           detail:
-            'Deadline queries carry the highest accuracy requirement: a wrong date is worse than no answer. After extracting a deadline with the LLM, the system immediately re-queries ChromaDB with a rephrased version of the search and cross-references the extracted date against the new results. If two chunks give different dates for the same assignment, the response surfaces both and flags the discrepancy with a confidence indicator.',
+            'After extracting a date, the system re-queries ChromaDB with a rephrased search and cross-checks the result. If two sources disagree, it shows both and flags the conflict.',
         },
         {
           step: 'Deadline-Boosted Retrieval',
           detail:
-            'Chunks containing deadline keywords (due, deadline, submit, homework, exam, etc.) are tagged with a contains_deadline metadata flag during ingestion. The ChromaService.query_with_deadline_boost() method merges results from a deadline-filtered query with results from a general query, deduplicates, and re-ranks, ensuring deadline-containing chunks appear at the top even when the semantic similarity score is not highest (deadline keywords often appear as side notes with lower embedding similarity).',
+            'Chunks with deadline keywords are tagged at ingestion, and results from a deadline-only search are merged with general results, so due dates surface even when they are buried in side notes.',
         },
         {
-          step: 'Human-in-the-Loop Upload Approval',
+          step: 'Human-in-the-Loop Uploads',
           detail:
-            'When a user uploads a file, the LangGraph graph pauses at a human_approval_gate node using LangGraph\'s interrupt_before mechanism with a SQLite checkpointer. The UI shows an approval dialog with the LLM\'s proposed Drive folder path and its reasoning. The user can approve, modify the path, or reject. Only approved uploads are chunked, embedded with OpenAI text-embedding-3-small, and stored in ChromaDB, preventing mis-categorised files from polluting the vector store.',
+            'An upload pauses the graph (a LangGraph interrupt plus a SQLite checkpointer) while the user approves, edits or rejects the proposed Drive folder. Only approved files are chunked and embedded.',
         },
         {
           step: 'Vision Fallback for Scanned PDFs',
           detail:
-            'PyMuPDF text extraction returns fewer than 30 characters for pages that are images (scanned slides, photographed documents). In this case, the PDFProcessor sends the page image to OpenAI Vision (GPT-4o-mini) with a strict verbatim-transcription prompt. To prevent API timeouts from hanging the pipeline: 25-second timeout per page, maximum 2 concurrent vision calls, and an early bail-out after 5 consecutive failures on a single file.',
+            'Pages with almost no extractable text go to GPT-4o-mini Vision for transcription, with a 25-second timeout per page, at most 2 calls at once, and an early stop after 5 failures in a row.',
         },
         {
           step: 'Deployment & Infrastructure',
           detail:
-            'Fully containerised with Docker Compose on an Oracle Cloud Always Free ARM VPS (4 CPU, 24 GB RAM). Caddy handles reverse proxying and automatic HTTPS via Let\'s Encrypt. DuckDNS provides the free dynamic domain (with a cron job pinging every 30 minutes to prevent expiry). Total infrastructure cost: ~$1–4/month, essentially just LLM API usage. Solved production issues including Oracle iptables blocking ports 80/443 (fixed via iptables -I to insert ACCEPT before the blanket REJECT rule) and Google OAuth credentials not accessible inside the running container (fixed via docker cp).',
+            'Docker Compose on an Oracle Cloud Always Free ARM server, with Caddy for automatic HTTPS and DuckDNS for the domain. Total cost is ~$1–4/month, essentially just LLM usage.',
         },
       ],
       architecture: `
@@ -920,18 +909,154 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
     },
   },
   {
+    id: 'mapblazer-route-optimization',
+    title: 'Theme Park Route Optimization: Time-Dependent MILP Solver',
+    short_description:
+      'An exact Gurobi optimization model that plans a whole park day: which rides, in what order and at what time, with every queue priced by the 30-minute slot you arrive in. The routing engine behind Mapblazer.',
+    motivation:
+      'Ride order sets arrival times, arrival times set queues, and queues set the best order. I wanted to solve that loop exactly instead of with a greedy rule.',
+    card_achievements: [
+      'Saves 22 minutes of queueing per itinerary on average against the LLM planner it replaced, up to an hour on a 12-hour day.',
+      'Plans a day in 10 seconds instead of 60: 83.3% faster, with no per-query token cost.',
+      'Solves the day exactly, pricing each ride by the 30-minute slot the plan actually reaches it in.',
+    ],
+    achievements: [
+      'Modelled the park day as a time-dependent orienteering problem and solved it exactly in Gurobi, where a greedy "shortest queue next" rule fails because when you ride decides how long you wait.',
+      'Replaced MapBlazer\'s original LLM planner, which could not react once queues shifted: the solver saves 22 minutes of queueing per itinerary on average, and the gap widens with length of stay, up to a full hour on a 12-hour day.',
+      'Cut response time 83.3% (a 10-second solve against a 60-second LLM average) and removed token costs, saving $0.75 per query.',
+      'Fixed an objective that let walking and idling go free: charging for the length of the whole day finishes the same seven-ride Disneyland day 130 minutes earlier.',
+      'Kept time-varying queues inside a linear model, and replaced about a trillion possible loop-breaking constraints with ones generated only when the solver actually finds a loop.',
+      'Benchmarked the time limit instead of guessing it: 10 seconds lands within 0.4% of a 60-second search on 12- and 16-ride days.',
+    ],
+    tech_stack: ['Python', 'Gurobi', 'Mixed-Integer Programming', 'Operations Research', 'Combinatorial Optimization', 'FastAPI', 'Pydantic', 'pytest'],
+    technical_details:
+      'A time-dependent orienteering problem with mandatory nodes, solved exactly as a Gurobi MILP over arc, visit, slot, arrival, departure and wait variables, with connectivity enforced by lazily generated subtour cuts from a MIPSOL callback. The objective maximises priority-weighted rides less a scaled charge on the day\'s makespan; breaks and operating hours are linearised disjunctions and repeatable rides become virtual twin nodes. Queue costs come from the companion Prophet forecasting service at 30-minute resolution over a 7-day horizon, joined on normalised ride names, and the fixed plan is replayed minute by minute into a ranked itinerary served by both a CLI and a FastAPI endpoint.',
+    status: 'complete',
+    link: '/projects/mapblazer-route-optimization',
+    detail: {
+      problem_statement:
+        'Given a guest\'s must-do and nice-to-have rides, a start time and a time budget, decide which rides to visit, in what order and when. Three things make this harder than a classic routing problem: you cannot do every ride, a ride\'s cost is its queue, which depends on when you arrive, and some rides are mandatory. So the order sets the arrival times, the arrival times set the queues, and the queues set the best order. Greedy rules break on exactly that loop. The question was whether the whole day, breaks and opening hours included, could be written as one linear model and solved to optimality.',
+      approach: [
+        {
+          step: 'Naming the Problem Before Modelling It',
+          detail:
+            'The day is a loop from the park entrance and back. Unlike a classic tour, any ride can be skipped, so choosing which rides and choosing their order happen in the same solve.',
+        },
+        {
+          step: 'An Objective That Charges for the Whole Day',
+          detail:
+            'The model maximizes priority-weighted rides minus a small charge on when the day ends. An earlier version charged only queue time, so walking and idling were free and every plan ran to closing. Charging the whole day fixed that, and it means the solver waits for a cheaper slot only when the wait saves more time than it costs.',
+        },
+        {
+          step: 'A Ride Is Never Traded for an Early Finish',
+          detail:
+            'The per-minute charge is set below the smallest ride priority divided by the time budget, which guarantees an extra ride always outweighs finishing sooner.',
+        },
+        {
+          step: 'Time-Dependent Queues, Kept Linear',
+          detail:
+            'The day is cut into 30-minute slots that match the forecast. Two inequalities pin each arrival to its slot, and that slot\'s forecast sets the wait. Because the forecast is a fixed table, the model stays linear.',
+        },
+        {
+          step: 'Breaks, Opening Hours and Second Rides',
+          detail:
+            'A lunch break becomes a linearized "finish before or start after" choice, opening hours use the same pattern, and a ride worth doing twice becomes a twin node tied to the original.',
+        },
+        {
+          step: 'Connectivity Without Writing Every Constraint',
+          detail:
+            'Ruling out stray loops upfront would take 2^|R| constraints, about a trillion at forty rides. Instead, a callback inspects each candidate solution and adds a constraint only for the loops it actually finds, so the result is still exact.',
+        },
+        {
+          step: 'Knowing When to Stop Searching',
+          detail:
+            'Good routes appear fast, but proving them optimal past about ten rides does not finish. Measured on 12- and 16-ride days, a 10-second limit lands within 0.4% of a 60-second search, and the status is reported honestly as a time limit.',
+        },
+      ],
+      architecture: `
+  ── INPUTS ──────────────────────────────────────────────────────────
+
+  ┌───────────────────────────────┐  ┌───────────────────────────────┐
+  │ Wait-Time Forecast API        │  │ data/parks.json               │
+  │   Prophet fleet . 7-day       │  │   5 parks . 116 rides         │
+  │   horizon . 30-minute slots   │  │   durations . operating hours │
+  │ predictions.py                │  │ data/walk_times.json          │
+  │   pages PostgREST, joins on   │  │   ride-to-ride walk minutes   │
+  │   letters-and-digits names    │  │   per park                    │
+  └───────────────┬───────────────┘  └───────────────┬───────────────┘
+                  │ W[ride, slot]                    │ c[i,j] . d[i]
+                  └─────────────────┬────────────────┘
+                                    ↓
+
+  ── MODEL  -  solver.py ─────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ nodes  depot 0 . one node per selected ride . a twin per repeat  │
+  │ vars   x[i,j] arc . y[i] visit . z[i,s] slot . a[i] e[i] w[i]    │
+  │                                                                  │
+  │ max    sum p[i]*y[i]   -   gamma * a[0]                          │
+  │        reward every ride reached, charge the whole loop's time   │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ constraints                                                      │
+  │   degree tied to selection: in/out degree is y[i], not 1         │
+  │   time carried along the route by a big-M switch on x[i,j]       │
+  │   the arrival slot pins z[i,s], which prices w[i] = W[ride(i),s] │
+  │   breaks as a linearised finish-before or start-after choice     │
+  │   per-ride opening and closing hours                             │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    ↓
+
+  ── SEARCH  -  Gurobi ───────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ branch and bound . TimeLimit 10s . solution pool for alternates  │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    │  every integer-feasible candidate
+                                    ↓
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ MIPSOL callback   _eliminate_subtours                            │
+  │   read the arcs, walk successor[], find components   O(|N|)      │
+  │   a cycle with no depot -> cbLazy exactly that subset's cut      │
+  │   reject the candidate; the cut stays in the model               │
+  └─────────────────────────────────┬────────────────────────────────┘
+                                    │  repeat until no cycle remains
+                                    ↓
+
+  ── OUTPUT ──────────────────────────────────────────────────────────
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ replay the fixed plan minute by minute, idling included          │
+  │ ranked itineraries + metadata: status . wait source . gaps       │
+  └────────────────┬────────────────────────────────┬────────────────┘
+                   ↓                                ↓
+               cli.py  markdown day             api.py  POST /solve
+`,
+      results: [
+        { metric: 'Queue Time Saved', value: '22 min avg', description: 'Vs. the legacy LLM planner, per itinerary, up to a full hour on a 12-hour day' },
+        { metric: 'Response Time', value: '83.3% faster', description: '10 s solver budget vs. 60 s legacy LLM average' },
+        { metric: 'Cost per Query', value: '$0.75 saved', description: 'Token costs eliminated entirely' },
+        { metric: 'Day Shortened', value: '130 min', description: 'Makespan objective vs. queue-time only, same 7 rides' },
+        { metric: 'Gap to a 60s Search', value: '0.4%', description: 'Measured on 12- and 16-ride days' },
+        { metric: 'Optimality', value: 'Exact', description: 'Proven optimal to ~10 rides, best-found beyond' },
+      ],
+      github_url: 'https://github.com/TirthPatel3223/Mapblazer_Route_Optimization_Algorithm',
+    },
+  },
+  {
     id: 'weather-dining-pipeline',
     title: 'Weather-Driven Restaurant Sentiment: Big Data ETL & NLP Pipeline',
     short_description:
-      'End-to-end data engineering pipeline correlating weather patterns with Yelp restaurant sentiment using PySpark, Snowflake, Airflow, and Tableau, processing 2M+ records.',
+      'An end-to-end data pipeline that joins Yelp restaurant reviews with weather data in PySpark, Snowflake and Airflow, across 2M+ records, to measure how weather changes dining habits.',
     motivation:
-      'Curious whether weather drives restaurant ratings and business patterns, I built a production-grade data pipeline ingesting the full Yelp Academic Dataset and OpenWeatherMap API, performing distributed ETL at scale, NLP sentiment scoring, and surfacing insights through an executive Tableau dashboard.',
+      'Does the weather change how people dine out and rate restaurants? I built a pipeline to answer that at scale, from raw data to a Tableau dashboard.',
     achievements: [
-      'Discovered the "Cold Weather Sentiment Paradox": Freezing weather drops volume to 101/day but yields the highest average sentiment index (0.71)',
-      'Identified Extreme Heat as the major deterrent to dining out, dropping review volume to ~30/day with the lowest sentiment (0.65)',
-      'Found that Rainy/Snowy weather causes a 50.7% drop in volume (143/day vs 290/day) but retains a resilient sentiment index identical to pleasant days (0.69)',
-      'Generated Regional Penalty Heatmaps highlighting specific cities where weather unfairly skews ratings, isolating weather biases',
-      'Designed a Snowflake star-schema data warehouse with sub-5-second query latency processing 2M+ records',
+      'Found a "cold weather paradox": freezing days cut volume to 101 reviews a day yet carry the highest sentiment (0.71).',
+      'Identified extreme heat as the biggest deterrent to dining out: about 30 reviews a day and the lowest sentiment (0.65).',
+      'Showed rain and snow cut review volume 50.7% (143 a day vs. 290) while sentiment held at 0.69, the same as pleasant days.',
+      'Built regional heatmaps that isolate the cities where weather skews ratings most.',
+      'Designed a Snowflake star schema that serves 2M+ records with sub-5-second queries.',
     ],
     tech_stack: ['PySpark', 'Snowflake', 'Airflow', 'Tableau', 'VADER NLP', 'Python'],
     technical_details: 'PySpark, Snowflake, Apache Airflow, Tableau, VADER NLP, Python',
@@ -939,37 +1064,37 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
     link: '/projects/weather-dining-pipeline',
     detail: {
       problem_statement:
-        'Does weather actually affect how people dine out and rate restaurants? To answer this at scale, I built a full data engineering pipeline ingesting the Yelp Academic Dataset (JSON/CSV) and live weather data from OpenWeatherMap, transforming and joining them in PySpark, warehousing in Snowflake, and orchestrating the pipeline with Airflow, culminating in a Tableau dashboard that reveals actionable weather-revenue correlations for restaurant operators.',
+        'Does weather actually change how people dine out and rate restaurants? To answer that at scale, I joined the Yelp Academic Dataset with historical OpenWeatherMap data in PySpark, scored review sentiment, warehoused the result in Snowflake, scheduled it with Airflow, and surfaced the patterns for restaurant operators in Tableau.',
       approach: [
         {
           step: 'Data Ingestion',
           detail:
-            'Pulled the Yelp Academic Dataset (reviews + business metadata, ~8GB JSON) via bulk download and supplemented with OpenWeatherMap historical weather records fetched via paginated REST API calls, covering 15 major US cities over 5 years.',
+            'Bulk-loaded the Yelp Academic Dataset (~8 GB of reviews and business data) and pulled 5 years of historical weather for 15 U.S. cities from the OpenWeatherMap API.',
         },
         {
           step: 'PySpark ETL',
           detail:
-            'Cleaned and deduplicated 2M+ records using distributed PySpark on a 3-node local cluster. Joined review and weather datasets on composite (city_slug, date) keys. Handled schema drift, null imputation, and timezone normalization.',
+            'Cleaned and deduplicated 2M+ records on a 3-node PySpark cluster, joined reviews to weather on (city, date), and handled schema drift, missing values and time zones.',
         },
         {
           step: 'Sentiment Analysis',
           detail:
-            'Applied VADER NLP to raw review text to produce compound sentiment scores per review. Bucketed scores into positive (≥0.05), neutral, and negative (≤−0.05). Validated a random 2,000-review sample against manual labels, achieving 85%+ accuracy.',
+            'Scored every review with VADER and bucketed the scores into positive, neutral and negative, checking a 2,000-review sample against manual labels (85%+ agreement).',
         },
         {
           step: 'Snowflake Data Warehouse',
           detail:
-            'Loaded enriched data into a Snowflake star schema: fact table daily_review_weather (grain: business × date) with dimension tables for weather_condition, business, and calendar. Applied auto-clustering on date partitions for sub-5s query latency.',
+            'Loaded the results into a star schema (one fact row per business per day, with weather, business and calendar dimensions), clustered on date for sub-5-second queries.',
         },
         {
           step: 'Airflow Orchestration',
           detail:
-            'Scheduled a daily incremental DAG in Apache Airflow: API pull → PySpark transform → VADER scoring → Snowflake upsert. Configured email alerting on task failure and SLA misses. Backfilled 5 years of historical data on first run.',
+            'A daily incremental DAG runs the API pull, transform, scoring and Snowflake upsert, with email alerts on failures and missed SLAs; the first run backfilled 5 years.',
         },
         {
           step: 'Tableau Visualization',
           detail:
-            'Connected Tableau Desktop to Snowflake via native connector. Built 12 interactive dashboards covering: precipitation vs. review volume, temperature vs. star rating distribution, sentiment heatmaps by city and season, and revenue anomaly detection overlaid with weather events.',
+            'Connected Tableau to Snowflake and built 12 interactive dashboards: precipitation vs. review volume, temperature vs. ratings, and sentiment heatmaps by city and season.',
         },
       ],
       architecture: `
@@ -1016,71 +1141,6 @@ Services: LLMService (Claude Haiku → GPT-4o-mini fallback)
         { metric: 'Volume Drop (Rain)',  value: '50.7%',  description: 'vs. pleasant-day baseline'         },
       ],
       github_url: 'https://github.com/TirthPatel3223/Yelp-Weather-Pipeline',
-    },
-  },
-  {
-    id: 'deep-cube-solver',
-    title: 'Maltese Gear Cube Solver: Subgroup Ladder & Deep Value Iteration',
-    short_description:
-      'A solver for a 4.5×10⁵⁸-state geared twisty puzzle that splits it into a ladder of subgroups: exact tables where the coset space fits in memory, DeepCubeA-style value networks where it does not. Solves 100/100 scrambles of 2,000 to 5,000 moves in 12 s each.',
-    motivation:
-      'My first attempt trained one value network for the whole Maltese Gear Cube, DeepCubeA style. Its predicted distance flattened out near 18 and it solved nothing deeper than 24 quarter turns. Rather than a bigger network, I went back to the group theory and gave the learning a much smaller job.',
-    card_achievements: [
-      'Solved 100 of 100 random scrambles of 2,000 to 5,000 moves, every solution replayed and verified on the reference simulator.',
-      'Five-rung subgroup ladder: three exact GPU Dijkstra tables plus two coset value networks trained by deep approximate value iteration.',
-      'Mean solution 406 quarter turns in 12 s on a laptop GPU, with under 1 GB of tables and weights.',
-    ],
-    achievements: [
-      'Built a hierarchical solver that works from the move tables alone: the 144-entry state becomes permutations of 216 labelled points, orbits and pieces are discovered automatically (7 corners, 18 ring pieces, 24 gears with colour and rotation), and the puzzle is solved one subgroup rung at a time.',
-      'Solved 100 of 100 random scrambles of 2,000 to 5,000 quarter turns: mean 406 quarter turns (349 face turns), 12.0 s per solve on an RTX 5070 Ti laptop GPU, every solution replayed on the reference simulator before it is reported.',
-      'Gave each rung the cheapest exact method it allows: three rungs of 3.7 to 8.4 million cosets get exact Dijkstra tables built on the GPU in about a minute, and the two rungs too large to enumerate (3.2×10¹⁵ and 5.4×10²² cosets) get residual value networks trained by coset value iteration.',
-      'Harvested each rung\'s macros exactly, by meet in the middle over a radius-7 ball (115,462 elements) and as Schreier generators of the previous rung\'s table, then proved with a SymPy permutation-group membership test that they generate the whole stabiliser.',
-      'Found and fixed a silent failure: the 132 short gear-colour macros only move the gears as 12 rigid pairs, reaching under 1/3000 of the colourings. With one bridging macro the rung was solvable on paper but 8 of the first 9 deep scrambles failed there; keeping all 244 pair-splitting macros took the benchmark to 100/100.',
-      'Measured the puzzle instead of trusting the design note: the corner rung reproduces the pocket cube\'s 3,674,160 positions and diameter 14, the coset counts multiply to the 4.5×10⁵⁸ visible states, and the note\'s proposed ring chain was replaced by one learned rung after measuring its cost climb to 945 quarter turns.',
-      'Cross-checked a solution on an independent engine: a 433-quarter-turn solution replayed in my three.js simulator of the physical puzzle returns it to solved.',
-    ],
-    tech_stack: ['PyTorch', 'CUDA', 'Deep RL', 'Group Theory', 'Beam Search', 'SymPy', 'NumPy', 'Python', 'three.js'],
-    technical_details:
-      'Python, PyTorch (CUDA), NumPy, SymPy, pytest; deep approximate value iteration (DeepCubeA / DeepXube), Schreier coset graphs, meet-in-the-middle macro harvesting, GPU Dijkstra tables, batched GPU beam search; 3D simulator in TypeScript, three.js and manifold-3d',
-    status: 'complete',
-    link: '/projects/deep-cube-solver',
-    detail: {
-      problem_statement:
-        'Meffert\'s Maltese Gear Cube has about 4.5×10⁵⁸ visible states. A quarter turn of a face drags the middle layer round 45°, so centres and edges trade places and 24 gears spin and tilt. One value network for the whole puzzle, the plain DeepCubeA recipe, flattened out at a predicted distance of about 18 and solved nothing beyond 24 quarter turns. The task was to solve arbitrary deep scrambles reliably, with every solution verified.',
-      approach: [
-        {
-          step: 'Labelled permutation model',
-          detail:
-            'The move tables become permutations of 216 labelled points (96 stickers, 24 gear colours, 24 × 4 gear rotation points), so identical-looking pieces can be told apart internally.',
-        },
-        {
-          step: 'Structure discovery',
-          detail:
-            'Orbits, pieces, orientation sub-blocks and candidate rung features are computed from the six generator permutations alone: 7 corners × 3, 18 ring pieces × 4, 24 gears with a colour and a rotation.',
-        },
-        {
-          step: 'Rung order and macro harvesting',
-          detail:
-            'Generator periods, shortest pure macros and bits resolved per macro length set the ladder: corners, gear parity, gear rotation, gear colour, ring. Each rung\'s macros keep earlier rungs solved and are proven to generate the whole stabiliser.',
-        },
-        {
-          step: 'Exact tables and coset value iteration',
-          detail:
-            'Rungs that fit in memory get exact GPU Dijkstra tables; the gear-colour and ring rungs get residual value networks trained by deep approximate value iteration on their coset graphs, following DeepXube.',
-        },
-        {
-          step: 'Search and verification',
-          detail:
-            'Table rungs are a table walk; learned rungs use batched GPU beam search (width 4,096, retried at 8× and 64×). Rung solutions are concatenated, adjacent turns merged, and the result replayed on the reference simulator.',
-        },
-      ],
-      results: [
-        { metric: 'Deep scrambles solved', value: '100 / 100', description: '2,000 to 5,000 quarter turns each' },
-        { metric: 'Mean solution', value: '406 QT', description: '349 face turns' },
-        { metric: 'Mean solve time', value: '12.0 s', description: 'RTX 5070 Ti laptop GPU' },
-        { metric: 'Visible states', value: '4.5×10⁵⁸', description: '194.8 bits across 5 rungs' },
-      ],
-      github_url: 'https://github.com/TirthPatel3223/cube-solving-pipeline',
     },
   },
 ];

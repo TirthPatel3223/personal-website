@@ -94,18 +94,15 @@ export default function AirbnbRDDResults() {
           <div className="px-5 pt-5">
             <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
               Each panel plots one outcome against <span className="font-mono">host_rating</span>{' '}
-              inside the ±0.05 bandwidth, with the dashed line marking the 4.80 Superhost cutoff.
-              The <span style={{ color: '#d62728', fontWeight: 600 }}>red</span> fit is the control
-              side, the <span style={{ color: '#2ca02c', fontWeight: 600 }}>green</span> fit the
-              treated side.{' '}
+              near the 4.80 cutoff (dashed line): the{' '}
+              <span style={{ color: '#d62728', fontWeight: 600 }}>red</span> fit is the control side,
+              the <span style={{ color: '#2ca02c', fontWeight: 600 }}>green</span> fit the treated
+              side.{' '}
               <strong style={{ color: 'var(--title)' }}>
-                What a badge effect would look like is a visible step between the two lines where
-                they meet the dashed line.
+                A badge effect would show as a step where the lines meet the dashed line.
               </strong>{' '}
-              In all six panels they meet it at effectively the same height. That includes the
-              review volume panel: its jump is real in the regression, but a handful of hosts with
-              over twenty thousand reviews stretch that y-axis far enough that a step of seventy
-              nine reviews is invisible by eye.
+              None is visible, including review volume, whose 79-review jump is lost on an axis that
+              runs past 20,000.
             </p>
           </div>
 
@@ -232,32 +229,19 @@ export default function AirbnbRDDResults() {
 
           <div className="px-5 pb-5">
             <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
-              Five of the six p-values fall between 0.2253 and 0.9744, nowhere near the 5% line,
-              and those point estimates are tiny in absolute terms as well: a few ten-thousandths
-              of a sentiment scale that runs from 0 to 1. For those five the result is not
-              &ldquo;a small effect we lacked the power to detect&rdquo; so much as no detectable
-              step at all. Review volume is the exception, and it is worth reading slowly rather
-              than celebrating: <span className="font-mono">total_reviews_across_listings</span> is
-              a stock a host builds up over their whole history, most of it earned long before the
-              current badge was awarded, so a step of ~79 reviews at the cutoff is about as
-              consistent with the treated side simply being the more established side as it is with
-              the badge generating anything.
+              The five null estimates are tiny as well as insignificant: a few ten-thousandths on a
+              sentiment scale that runs from 0 to 1. The review-volume step is real but sits on a
+              stock built up over a host&apos;s whole history, so it is read with caution.
             </p>
           </div>
         </div>
 
         <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-          Read narrowly, this is the badge&apos;s{' '}
-          <span className="airbnb-accent-text font-semibold">demand-side effect at the margin</span>,
-          in a single post-Guest-Favorite cross-section. The absence of any sentiment or perceived
-          value response is consistent with the removal of the Superhost search filter having
-          drained the discovery channel that the 2023 finding partly rested on. It is not evidence
-          that the badge does nothing at all: the{' '}
-          <span className="airbnb-accent-text font-semibold">supply-side incentive</span> (hosts
-          working to earn and keep it) is a different question that this design cannot answer, and
-          no manipulation test, covariate-balance check or bandwidth-sensitivity check was run here.
-          Those missing checks are exactly what the review-volume jump would need before anyone
-          could call it an effect rather than an imbalance.
+          This measures the badge&apos;s{' '}
+          <span className="airbnb-accent-text font-semibold">demand-side effect at the margin</span>{' '}
+          in one post-Guest-Favorite snapshot. It cannot speak to the{' '}
+          <span className="airbnb-accent-text font-semibold">supply side</span>: hosts may still
+          work to earn and keep the badge whether or not guests respond to it.
         </p>
       </motion.div>
     </section>

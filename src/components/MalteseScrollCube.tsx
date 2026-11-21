@@ -5,7 +5,7 @@ import { useTheme } from './ThemeProvider';
 
 /* Fixed background for the cube page: the real Maltese Gear Cube, scrambling as you scroll.
 
-   The frames are renders of my own 3D simulator (tangram-cube-extreme), posed exactly with its
+   The frames are renders of my own 3D simulator (combinatorics-puzzle-simulator), posed exactly with its
    animator: the solved cube at the top of the page, then 20 real turns,
    R U F' R' U2 F L' U R' D F U' R2 B' U F R' U' F2 R, each caught at six points mid-turn, so the
    middle layers gear round and the gears spin and tilt as they do on the physical puzzle. The view

@@ -111,12 +111,10 @@ export default function CrewPairingDemoCard() {
             </div>
 
             <p className="text-sm leading-relaxed -mt-2" style={{ color: 'var(--muted)' }}>
-              Pick a recording from the drop-down inside the frame. Each one opens on the finished
-              month, with every connection already drawn; press{' '}
-              <span className="crewpair-accent-text font-semibold">Play</span> at the bottom of the
-              frame to rewind to the first decision and watch the policy rebuild the schedule leg by
-              leg. Nothing here runs a model in your browser; the searches were run offline and baked
-              into the page.
+              Pick a recording from the drop-down inside the frame, then press{' '}
+              <span className="crewpair-accent-text font-semibold">Play</span> to watch the policy
+              rebuild the month leg by leg. The solves were recorded offline; nothing runs in your
+              browser.
             </p>
 
             {/* ── Embed window ───────────────────────────────────────── */}
